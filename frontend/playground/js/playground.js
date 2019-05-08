@@ -209,6 +209,7 @@ var MakerJsPlayground;
             //var button = new makerjs.exporter.XmlTag('input', { type: 'button', onclick:'MakerJsPlayground.animate()', value: 'animate'});
             //paramHtml.push(button.toString());
             //}
+
         }
         processed.paramValues = paramValues;
         if (paramHtml.length) {
@@ -693,6 +694,8 @@ var MakerJsPlayground;
         };
         //tell the worker to process the job
         renderInWorker.worker.postMessage(options);
+        console.log('rnder ing worker')
+        saveParamsLink();
     }
     function reConstructInWorker(successHandler, errorHandler) {
         if (!renderInWorker.hasKit)
@@ -717,6 +720,8 @@ var MakerJsPlayground;
         };
         //tell the worker to process the job
         renderInWorker.worker.postMessage(options);
+        console.log('recon in worker')
+        saveParamsLink();
     }
     function getParamUIControl(index) {
         var div = document.querySelectorAll('#params > div')[index];
@@ -741,6 +746,7 @@ var MakerJsPlayground;
         if (!a)
             return;
         a.hash = 'params=' + JSON.stringify(processed.paramValues);
+        document.location.hash = a.hash
     }
     function getHashParams() {
         var paramValues;
@@ -810,6 +816,7 @@ var MakerJsPlayground;
                 }
             }
         }
+
         processed.paramValues[index] = value;
     }
     function throttledSetParam(index, value) {
@@ -818,7 +825,6 @@ var MakerJsPlayground;
     }
     function finalizeSetParam(fit) {
         resetDownload();
-        saveParamsLink();
         if (fit) {
             MakerJsPlayground.viewScale = null;
         }
@@ -910,6 +916,8 @@ var MakerJsPlayground;
     }
     MakerJsPlayground.updateZoomScale = updateZoomScale;
     function processResult(value) {
+        console.log('processResult')
+        saveParamsLink();
         var result = value.result;
         resetDownload();
         processed.html = value.html || '';
@@ -1197,17 +1205,22 @@ var MakerJsPlayground;
         //create a download link
         var a = new makerjs.exporter.XmlTag('a', { href: dataUri, download: filename });
         a.innerText = 'download ' + title;
+        a.id = "download-button";
         document.getElementById('download-link-container').innerHTML = a.toString();
         preview.value = text;
         document.getElementById('download-filename').innerText = filename;
         //put the download ui into ready mode
         toggleClass('download-generating');
-        toggleClass('download-ready');
+        //toggleClass('download-ready');
+        toggleClass('download-options');
+        document.getElementById('download-link-container').getElementsByTagName('a')[0].click();
+        toggleClass('download-options');
     }
     function downloadClick(a, format) {
         //show options
         MakerJsPlayground.FormatOptions.activateOption(format, a.innerText, processed.model);
         toggleClass('download-options');
+        getFormatOptions();
     }
     MakerJsPlayground.downloadClick = downloadClick;
     function getFormatOptions() {

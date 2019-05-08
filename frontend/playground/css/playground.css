@@ -65,12 +65,12 @@ header h1 {
 
 #rendering-options-menu, #rendering-options-top {
     width: 14em;
-    padding: .5em 1em 1em 1em;
     margin: 1em;
+    /* padding: .5em 1em 1em 1em;
     background-color: #fff;
     border: 1px solid #ddd;
     color: #555;
-    box-shadow: 6px 6px 6px rgba(0,0,0,0.15);
+    box-shadow: 6px 6px 6px rgba(0,0,0,0.15);*/
 }
 
 #rendering-options-top {
@@ -663,7 +663,7 @@ body.side-by-side {
     top: 0;
     left: 0;
     bottom: 0;
-    right: 50%;
+    right: 20%;
     padding: 0 1em;
     overflow-y: scroll;
 }
@@ -672,10 +672,10 @@ body.side-by-side {
     min-height: 28em;
 }
 
-.side-by-side section.editor {
+.side-by-side section.controls {
     position: fixed;
     top: 0;
-    left: 50%;
+    left: 20%;
     right: 0;
     bottom: 0;
 }
