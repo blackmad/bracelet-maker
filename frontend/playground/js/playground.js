@@ -1115,7 +1115,7 @@ var MakerJsPlayground;
             //do not use actual units when rendering
             var units = processed.model.units;
             delete processed.model.units;
-            html += makerjs.exporter.toSVG(processed.model, renderOptions);
+            html += makerjs.exporter.toSVG(processed.model,  renderOptions);
             if (units)
                 processed.model.units = units;
         }
@@ -1263,7 +1263,11 @@ var MakerJsPlayground;
                     text = makerjs.exporter.toJscadScript(processed.model, request.options);
                     break;
                 case MakerJsPlaygroundExport.ExportFormat.Svg:
-                    text = makerjs.exporter.toSVG(processed.model, request.options);
+                    text = makerjs.exporter.toSVG(processed.model, {
+                        strokeWidth: 0.00035277778,
+                        stroke: 'red'
+                    });
+                        //request.options);
                     break;
                 case MakerJsPlaygroundExport.ExportFormat.SvgPathData:
                     text = makerjs.exporter.toSVGPathData(processed.model, request.options);

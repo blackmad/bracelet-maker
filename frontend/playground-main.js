@@ -5,7 +5,7 @@ var makerjs = require('makerjs');
 
 function Cuff(
     height,
-    wristWidth,
+    wristWidthRaw,
     forearm_circumference,
     buffer_width, 
     hash_width,
@@ -15,13 +15,15 @@ function Cuff(
     console.log(hash_width);
 
     //var height = 2;
-    //var wristWidth = 7.5;
-    var sideBufferBottom = 0.8;
+    var wristWidth = wristWidthRaw - 0.2;
+    var sideBufferBottom = 1.0;
     var totalWidthBottom = wristWidth + sideBufferBottom*2;
-    var sideBufferTop = 0.6;
+    var sideBufferTop = 0.7;
     var sideBufferGap = sideBufferBottom - sideBufferTop;
 
     var FilletRadius = 0.2;
+
+    var YPadding = 0.3;
 
     var DesignBuffer = sideBufferBottom - sideBufferTop;
 
@@ -34,22 +36,23 @@ function Cuff(
         [totalWidthBottom, 0]
     ];
 
-    var RivetRadius = 5 * MillimeterToInches;
-    var rivetHole = new makerjs.models.Oval(RivetRadius, RivetRadius);
+    var RivetRadius = 2.5 * MillimeterToInches;
+    
+    var rivetHole = new makerjs.models.Oval(RivetRadius, RivetRadius)
     var rivetRow = null;
 
     // still don't love where these are centered
     rivetRow = makerjs.layout.cloneToRow(rivetHole, 5);
-    var leftBoltPath = new makerjs.paths.Line([sideBufferTop*2/3, 0], [sideBufferTop*2/3 + DesignBuffer, height]);
+    var leftBoltPath = new makerjs.paths.Line([sideBufferTop*1/2 + RivetRadius, 0], [sideBufferTop*1/2 + DesignBuffer + RivetRadius, height]);
     var leftBolts = makerjs.layout.childrenOnPath(rivetRow, leftBoltPath);
     delete leftBolts['models']['0']; delete leftBolts['models']['2']; delete leftBolts['models']['4'];
 
     rivetRow = makerjs.layout.cloneToRow(rivetHole, 5);
-    var rightBoltPath = new makerjs.paths.Line([totalWidthBottom - (sideBufferTop*2/3) + RivetRadius, 0], [totalWidthBottom - DesignBuffer - (sideBufferTop*2/3) + RivetRadius, height]);
+    var rightBoltPath = new makerjs.paths.Line([totalWidthBottom - (sideBufferTop*1/2), 0], [totalWidthBottom - DesignBuffer - (sideBufferTop*1/2), height]);
     var rightBolts = makerjs.layout.childrenOnPath(rivetRow, rightBoltPath, false, true);
     delete rightBolts['models']['0']; delete rightBolts['models']['2']; delete rightBolts['models']['4'];
 
-   // this.paths = [rightBoltPath, leftBoltPath];
+//    this.paths = [rightBoltPath, leftBoltPath];
     this.models = {
         leftBolts: leftBolts,
         rightBolts: rightBolts,
@@ -57,9 +60,9 @@ function Cuff(
         design: makerjs.model.move(
             makerjs.model.combineIntersection(
                 new InnerDesign(height, wristWidth, seed, buffer_width, hash_width),
-                new makerjs.models.Rectangle(wristWidth, height - DesignBuffer*2)
+                new makerjs.models.Rectangle(wristWidth, height - YPadding*2)
             ),
-            [sideBufferBottom, DesignBuffer]
+            [sideBufferBottom, YPadding]
         )
     };
 
@@ -68,6 +71,8 @@ function Cuff(
     this.models.fillets = filletsModel;
 
     this.units = makerjs.unitType.Inch;
+
+    //this.layer = "red";
 }
 
 function InnerDesign(
@@ -106,10 +111,13 @@ function InnerDesign(
     this.units = makerjs.unitType.Inch;
 }
 
+// top should be 0.45in out from edge of design - 7.75 apart - super tight 6.5, normal 7
+// bottom 0.62 out - 8.125 apart, 7.75
+
 Cuff.metaParameters = [
     { title: "Height", type: "range", min: 1, max: 3, value: 2, step: 0.25 },
-    { title: "Wrist Width", type: "range", min: 4, max: 10, value: 7.5, step: 0.2 },
-    { title: "Forearm Circumference", type: "range", min: 4, max: 10, value: 7.7, step: 0.2 },
+    { title: "Wrist Circumference", type: "range", min: 4, max: 10, value: 7, step: 0.1 },
+    { title: "Wide Wrist Circumference", type: "range", min: 4, max: 10, value: 7.75, step: 0.1 },
     { title: "Buffer Width", type: "range", min: 0.075, max: 0.75, value: 0.15, step: 0.05 },
     { title: "Hash Width", type: "range", min: 0.075, max: 0.75, value: 0.25, step: 0.05 },
     { title: "Seed", type: "range", min: 1, max: 10000, value: 1 }
