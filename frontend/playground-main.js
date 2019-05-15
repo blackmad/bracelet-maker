@@ -98,7 +98,12 @@ function ConicCuff(
     forearm_circumference,
     buffer_width, 
     hash_width,
-    seed
+    seed,
+    initialNoiseRange1,
+    initialNoiseRange2,
+    noiseOffset1,
+    noiseOffset2,
+    noiseInfluence
 ) {
     /***** START OVERALL CUFF SHAPE + INNER *****/
     // Actual outer cuff cut
@@ -168,9 +173,16 @@ function ConicCuff(
     var cuffModelInnerClone = cuffClone.models.cuffModelInner;
     cuffClone.models = { c: cuffModelInnerClone }
 
+    const innerDesign = new InnerDesign(totalHeight, totalWidth, seed, buffer_width, hash_width,     
+        initialNoiseRange1,
+        initialNoiseRange2,
+        noiseOffset1,
+        noiseOffset2, noiseInfluence)
+
+    // this.models.rawDesign = makerjs.model.clone(innerDesign);
     this.models.design =
        makerjs.model.combineIntersection(
-           new InnerDesign(totalHeight, totalWidth, seed, buffer_width, hash_width),
+           innerDesign,
            cuffClone
        )
     /***** END DESIGN *****/
@@ -214,7 +226,6 @@ function Cuff(
     var leftBolts = makeTwoEvenlySpacedBolts([sideBufferTop*1/2 + RivetRadius, 0], [sideBufferTop*1/2 + DesignBuffer + RivetRadius, height]);
     var rightBolts = makeTwoEvenlySpacedBolts([totalWidthBottom - (sideBufferTop*1/2), 0], [totalWidthBottom - DesignBuffer - (sideBufferTop*1/2), height]);
     
-//    this.paths = [rightBoltPath, leftBoltPath];
     this.models = {
         leftBolts: leftBolts,
         rightBolts: rightBolts,
@@ -242,18 +253,23 @@ function InnerDesign(
     width, 
     seed, 
     bufferWidth, 
-    hashWidth
+    hashWidth,
+    initialNoiseRange1,
+    initialNoiseRange2,
+    noiseOffset1,
+    noiseOffset2,
+    noiseInfluence
 ) {
     var simplex = new SimplexNoise(seed.toString());
-    var lastNoise1 = simplex.noise2D(100, 10) * 20;
-    var lastNoise2 = simplex.noise2D(100.5, 10.5) * 20;
+    var lastNoise1 = simplex.noise2D(100, 10) * initialNoiseRange1;
+    var lastNoise2 = simplex.noise2D(100.5, 10.5) * initialNoiseRange2;
 
     var models = {};
-    var pos = -width*2 ;
+    var pos = -width ;
     var i = 0;
-    while (pos <= width*3) {
-      var newNoise1 = ((simplex.noise2D(i/200, i/300))) * bufferWidth;
-      var newNoise2 = ((simplex.noise2D(i/20, i/3000))) * bufferWidth;
+    while (pos <= width*2) {
+      var newNoise1 = ((simplex.noise2D(i/200, i/300)) + noiseOffset1) * noiseInfluence;
+      var newNoise2 = ((simplex.noise2D(i/20, i/30)) + noiseOffset2) * noiseInfluence;
       console.log(newNoise1);
       i += 1;
       
@@ -282,13 +298,17 @@ function InnerDesign(
 // bottom 0.62 out - 8.125 apart, 7.75
 
 ConicCuff.metaParameters = [
-    { title: "Height", type: "range", min: 1, max: 3, value: 2, step: 0.25 },
+    { title: "Height", type: "range", min: 1, max: 5, value: 2, step: 0.25 },
     { title: "Wrist Circumference", type: "range", min: 4, max: 10, value: 7, step: 0.1 },
     { title: "Wide Wrist Circumference", type: "range", min: 4, max: 10, value: 7.75, step: 0.1 },
     { title: "Buffer Width", type: "range", min: 0.075, max: 0.75, value: 0.15, step: 0.05 },
     { title: "Hash Width", type: "range", min: 0.075, max: 0.75, value: 0.25, step: 0.05 },
-    { title: "Seed", type: "range", min: 1, max: 10000, value: 1 }
-    //{ title: "Initial Noise Range", type: "range", min: 0, max: 20, step: 0.1 }
+    { title: "Seed", type: "range", min: 1, max: 10000, value: 1 },
+    { title: "Initial Noise Range 1", type: "range", min: 0, max: 20, step: 0.1, value: 10 },
+    { title: "Initial Noise Range 2", type: "range", min: 0, max: 20, step: 0.1, value: 10},
+    { title: "Moving Noise Offset 1", type: "range", min: 0.01, max: 1, step: 0.1, value: 0.5 },
+    { title: "Moving Noise Offset 2", type: "range", min: 0.01, max: 1, step: 0.1, value: 0.75},
+    { title: "Noise Influence", type: "range", min: 0, max: 1, step: 0.01, value: 0.5 }
 ];
 
 module.exports = ConicCuff;
