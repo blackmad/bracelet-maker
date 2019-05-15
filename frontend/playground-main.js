@@ -245,27 +245,30 @@ function InnerDesign(
     hashWidth
 ) {
     var simplex = new SimplexNoise(seed.toString());
-    var lastNoise1 = simplex.noise2D(100, 10) * 10;
-    var lastNoise2 = simplex.noise2D(100.5, 10.5) * 10;
+    var lastNoise1 = simplex.noise2D(100, 10) * 20;
+    var lastNoise2 = simplex.noise2D(100.5, 10.5) * 20;
 
     var models = {};
-    var i = -width ;
-    while (i <= width*2) {
-      var newNoise1 = (simplex.noise2D(500, (i-100)*1.0/200)+1)*0.1;
-      var newNoise2 = (simplex.noise2D(500, (i-100)*1.0/200)+1)*0.25;
+    var pos = -width*2 ;
+    var i = 0;
+    while (pos <= width*3) {
+      var newNoise1 = ((simplex.noise2D(i/200, i/300))) * bufferWidth;
+      var newNoise2 = ((simplex.noise2D(i/20, i/3000))) * bufferWidth;
+      console.log(newNoise1);
+      i += 1;
       
       m = new makerjs.models.ConnectTheDots(true, [
-          [i + lastNoise1 + newNoise1, 0],
-          [i + lastNoise2 + newNoise2, height],
-          [i + lastNoise2 + newNoise2 + hashWidth, height],
-          [i + lastNoise1 + newNoise1 + hashWidth, 0]
+          [pos + lastNoise1 + newNoise1, 0],
+          [pos + lastNoise2 + newNoise2, height],
+          [pos + lastNoise2 + newNoise2 + hashWidth, height],
+          [pos + lastNoise1 + newNoise1 + hashWidth, 0]
       ]);
 
       models[i.toString()] = m;
 
       lastNoise1 = lastNoise1 + newNoise1;
       lastNoise2 = lastNoise2 + newNoise2;
-      i += hashWidth + bufferWidth;
+      pos += hashWidth + bufferWidth;
     //   console.log(i);
     //   console.log(width);
     }
@@ -285,6 +288,7 @@ ConicCuff.metaParameters = [
     { title: "Buffer Width", type: "range", min: 0.075, max: 0.75, value: 0.15, step: 0.05 },
     { title: "Hash Width", type: "range", min: 0.075, max: 0.75, value: 0.25, step: 0.05 },
     { title: "Seed", type: "range", min: 1, max: 10000, value: 1 }
+    //{ title: "Initial Noise Range", type: "range", min: 0, max: 20, step: 0.1 }
 ];
 
 module.exports = ConicCuff;
