@@ -863,7 +863,7 @@ var MakerJsPlayground;
         iframe = document.createElement('iframe');
         iframe.style.display = 'none';
         document.body.appendChild(iframe);
-        var scripts = ['js/require-iframe.js', '../external/bezier-js/bezier.js', '../external/opentype/opentype.js', '../simplex-noise.js'];
+        var scripts = ['js/require-iframe.js', '../external/bezier-js/bezier.js', '../external/opentype/opentype.js', '../simplex-noise.js', '../external/d3-delaunay.js'];
         iframe.contentWindow.document.open();
         iframe.contentWindow.document.write('<html><head>' + scripts.map(function (src) { return '<script src="' + src + '"></script>'; }).join() + '<script>var paramValues=' + JSON.stringify(paramValues) + ';</script></head><body></body></html>');
         iframe.contentWindow.document.close();

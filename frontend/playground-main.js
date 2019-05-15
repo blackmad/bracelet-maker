@@ -270,7 +270,7 @@ function InnerDesign(
     while (pos <= width*2) {
       var newNoise1 = ((simplex.noise2D(i/200, i/300)) + noiseOffset1) * noiseInfluence;
       var newNoise2 = ((simplex.noise2D(i/20, i/30)) + noiseOffset2) * noiseInfluence;
-      console.log(newNoise1);
+    //   console.log(newNoise1);
       i += 1;
       
       m = new makerjs.models.ConnectTheDots(true, [
