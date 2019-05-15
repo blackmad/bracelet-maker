@@ -16,40 +16,47 @@ function makeTwoEvenlySpacedBolts(p1, p2) {
     return leftBolts;
 }
 
-function makeConicSection(
+class Angle {
+    constructor({rads}) {
+        this.radians = rads;
+        this.degrees = rads * 180/Math.PI;
+    }
+
+    static fromAngle(angle) {
+        return new Angle({rads: angle * Math.PI/180})
+    }
+
+    static fromRadians(rads) {
+        return new Angle({rads: rads})
+    }
+}
+
+function makeConicSection({
     topCircumference,
     bottomCircumference,
     height,
     widthOffset = 0,
     heightOffset = 0
-) {
+}) {
     // math from: https://www.templatemaker.nl/api/api.php?client=templatemaker&request=galleryitem&template=cone&file=example-math.jpg
+    // take the inputs and compute a conical secion
     var L = topCircumference;
     var M = bottomCircumference;
 
-    var T = L / Math.PI;
-    var B = M / Math.PI;
-    //var H = height;
+    var T = L / Math.PI;  // top width of cross section of cone
+    var B = M / Math.PI; // bottom width of cross section of cone
+    var H = height; // height of cross section of cone
 
-    //var R = Math.sqrt(Math.pow(0.5*B - 0.5*T, 2) + Math.pow(H, 2));
-    var R = height;
+    var R = Math.sqrt(Math.pow(0.5*B - 0.5*T, 2) + Math.pow(H, 2)); // height of conical section
     var P = R / (B - T); // short radius
     var Q = P + R; // long radius
-    var alphaRads = (L / P);
-    var alpha = alphaRads * 180/Math.PI;
-
-
-    var p1p1 = [P, 0];
-    var p1p2 = [P * Math.cos(alphaRads), P * Math.sin(alphaRads)];
-    var p2p1 = [Q, 0];
-    var p2p2 = [Q * Math.cos(alphaRads), Q * Math.sin(alphaRads)];
-
-    var widthOffsetRads = widthOffset / Q;
-    var widthOffsetDegrees = widthOffsetRads * 180/Math.PI;
+    var alpha = Angle.fromRadians(L / P);
+    
+    var widthOffsetAngle = Angle.fromRadians(widthOffset / Q);
                     
     var cuffPaths = {
-        p1: new makerjs.paths.Arc([0,0], P + heightOffset, widthOffsetDegrees, alpha - widthOffsetDegrees),
-        p2: new makerjs.paths.Arc([0,0], Q - heightOffset, widthOffsetDegrees, alpha - widthOffsetDegrees)
+        p1: new makerjs.paths.Arc([0,0], P + heightOffset, widthOffsetAngle.degrees, alpha.degrees - widthOffsetAngle.degrees),
+        p2: new makerjs.paths.Arc([0,0], Q - heightOffset, widthOffsetAngle.degrees, alpha.degrees - widthOffsetAngle.degrees)
     };
 
     cuffPaths['l1'] = new makerjs.paths.Line(
@@ -61,14 +68,16 @@ function makeConicSection(
         makerjs.point.fromArc(cuffPaths['p2'])[1]
     );
 
-    // var cuffModel = {
-    //     paths: cuffPaths
-    // };
-
     var cuffChain = makerjs.model.findSingleChain({paths: cuffPaths});
     var cuffModel = makerjs.chain.toNewModel(cuffChain);
 
-    return cuffModel;
+    return {
+        models: {cuff: cuffModel},
+        widthOffset: widthOffset,
+        alpha: alpha,
+        longRadius: Q,
+        units: makerjs.unitType.Inch
+    };
 }
 
 
@@ -80,8 +89,20 @@ function ConicCuff(
     hash_width,
     seed
 ) {
-    var cuffModel = makeConicSection(wristWidthRaw + 1.0, forearm_circumference + 0.7, height, 0, 0);
-    var cuffModelInner = makeConicSection(wristWidthRaw + 1.0, forearm_circumference + 0.7, height, 0.8, 0.2);
+    // Actual outer cuff cut
+    var cuffModel = makeConicSection({
+        topCircumference: wristWidthRaw + 1.0, 
+        bottomCircumference: forearm_circumference + 0.7, 
+        height: height
+    });
+    // Inner "safe" area for design. Not actually printed. Used to calculate intersection of inner design.
+    var cuffModelInner = makeConicSection({
+        topCircumference: wristWidthRaw + 1.0, 
+        bottomCircumference: forearm_circumference + 0.7, 
+        height: height, 
+        widthOffset: 0.8, 
+        heightOffset: 0.2
+    });
 
     var completeCuffModel = {
         models: {
@@ -90,8 +111,16 @@ function ConicCuff(
         }
     }
 
-    makerjs.model.rotate(completeCuffModel, 90);
-    makerjs.model.zero(completeCuffModel);
+    // BOLTS !!!
+    console.log(cuffModel)
+    cuffModel.paths = [
+       new makerjs.paths.Line([0, 0], [cuffModel.longRadius, Math.tan(cuffModelInner.widthOffset.radians/2)*cuffModel.longRadius]),
+       new makerjs.paths.Line([0, 0], [cuffModel.longRadius, Math.tan(cuffModel.alpha.radians - (cuffModelInner.widthOffset.radians/2))*cuffModel.longRadius])
+    ];
+    console.log([Math.tan(cuffModelInner.widthOffsetRads/2)*cuffModel.longRadius, cuffModel.longRadius]);
+
+    // makerjs.model.rotate(completeCuffModel, 90);
+    // makerjs.model.zero(completeCuffModel);
 
     this.models = {
         completeCuffModel: completeCuffModel
@@ -100,8 +129,8 @@ function ConicCuff(
     var bbox = makerjs.measure.modelExtents(completeCuffModel);
     var totalWidth = bbox.high[0] - bbox.low[0];
     var totalHeight = bbox.high[1] - bbox.low[1];
-    console.log(totalWidth);
-    console.log(totalHeight);
+    // console.log(totalWidth);
+    // console.log(totalHeight);
 
     var cuffClone = makerjs.model.clone(completeCuffModel);
     cuffClone.models['cuffModel'] = null;
@@ -113,8 +142,8 @@ function ConicCuff(
 
     this.models.completeCuffModel.models.cuffModelInner = null;
 
-    console.log(this.models.design)
-    console.log(this)
+    // console.log(this.models.design)
+    // console.log(this)
 
     this.units = makerjs.unitType.Inch;
 }
