@@ -1,5 +1,5 @@
 /* TODO
-- deal with nested metaparams somehow
+- debug this one http://127.0.0.1:5500/new-playground/new-playground.html#ConicCuffOuter.height=2&ConicCuffOuter.wristCircumference=7&ConicCuffOuter.forearmCircumference=7.75&InnerDesignHashmarks.bufferWidth=0.325&InnerDesignHashmarks.hashWidth=0.325&InnerDesignHashmarks.seed=8519&InnerDesignHashmarks.initialNoiseRange1=17.9&InnerDesignHashmarks.initialNoiseRange2=4.8&InnerDesignHashmarks.noiseOffset1=0.81&InnerDesignHashmarks.noiseOffset2=0.31&InnerDesignHashmarks.noiseInfluence=0.8
 */
 
 var makerjs = require('makerjs');
@@ -40,10 +40,16 @@ class DavidsPlayground {
 
         const containingDiv = document.createElement('div');
         containingDiv.name = metaParameter.name + '-container';
-        containingDiv.class = 'meta-parameter-container'
+        containingDiv.className = 'meta-parameter-container'
 
-        const sliderDiv = document.createElement('div');
-        sliderDiv.name = metaParameter.name + '-slider';
+        const rangeInput = document.createElement('input');
+        rangeInput.type = 'range';
+        rangeInput.name = metaParameter.name + '-range';
+        rangeInput.min = metaParameter.min;
+        rangeInput.max = metaParameter.max;
+        rangeInput.step = metaParameter.step;
+        rangeInput.id = metaParameter.name + '-range';
+        rangeInput.value = metaParameter.value;
 
         const textInput = document.createElement('input');
         textInput.type = 'number';
@@ -51,40 +57,27 @@ class DavidsPlayground {
         textInput.max = metaParameter.max;
         textInput.step = metaParameter.step;
         textInput.id = metaParameter.name + '-num-input';
+        textInput.value = metaParameter.value;
 
         const textLabelDiv = document.createElement('div');
         textLabelDiv.name = metaParameter.name + '-text-label';
-        textLabelDiv.class = 'textLabel'
+        textLabelDiv.className = 'textLabel'
         textLabelDiv.innerHTML = metaParameter.title;
 
         containingDiv.append(textLabelDiv);
-        containingDiv.append(sliderDiv);
+        containingDiv.append(rangeInput);
         containingDiv.append(textInput);
 
-        //debugger;
-        noUiSlider.create(sliderDiv, {
-            start: this.params[metaParameter.name] || metaParameter.value,
-            step: metaParameter.step,
-            range: {
-                'min': metaParameter.min,
-                'max': metaParameter.max
-            }
-        });
-
-        sliderDiv.noUiSlider.on('update', _.bind(function (values, handle) {
-            var value = values[handle];
+        rangeInput.addEventListener('change', _.bind(function (event) {
+            const value = event.target.value;
             textInput.value = value;
-
             this.params[metaParameter.name] = Number(value);
+            this.rerender();
         }, this));
 
         textInput.addEventListener('change', function () {
             sliderDiv.noUiSlider.set([this.value]);
         });
-
-        sliderDiv.noUiSlider.on('set', _.bind(function (values, handle) {
-            this.rerender();
-        }, this));
 
         return containingDiv;
     }

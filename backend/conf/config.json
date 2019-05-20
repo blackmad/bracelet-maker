@@ -1,6 +1,6 @@
 {
     "mailTitle": "[form] お問い合わせがありました",
     "formKeys": ["name", "content"],
-    "mailTo": "takahashimm@gmail.com",
+    "mailTo": "whizziwig@gmail.com",
     "topicName": "SlsFormMailTopic"
 }
