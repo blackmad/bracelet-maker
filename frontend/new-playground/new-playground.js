@@ -3,15 +3,7 @@
 */
 
 var makerjs = require('makerjs');
-import {ConicCuff} from '../conic-cuff-model.js';
-
-function construct(constructor, args) {
-    function F() {
-        return constructor.apply(this, args);
-    }
-    F.prototype = constructor.prototype;
-    return new F();
-}
+import {ConicCuffWithHashMarks} from '../conic-cuff-model.js';
 
 class DavidsPlayground {
     constructor({
@@ -20,11 +12,12 @@ class DavidsPlayground {
         this.modelMaker = modelMaker;
         this.params = {};
 
-        window.location.hash.substring(1).split('&').forEach((p) => {
-            const parts = p.split('=');
-            this.params[parts[0]] = parts[1];
-            console.log(parts);
-        })
+        if (window.location.hash.lenghth > 1) {
+            window.location.hash.substring(1).split('&').forEach((p) => {
+                const parts = p.split('=');
+                this.params[parts[0]] = parts[1];
+            })
+        }
 
         this.buildMetaParameterWidgets(document.getElementById('parameterDiv'));
     }
@@ -44,7 +37,6 @@ class DavidsPlayground {
         //    { title: "Height", type: "range", min: 1, max: 5, value: 2, step: 0.25, name: "height" },
 
         this.params[metaParameter.name] = this.params[metaParameter.name] || metaParameter.value;
-        console.log(this.params)
 
         const containingDiv = document.createElement('div');
         containingDiv.name = metaParameter.name + '-container';
@@ -99,13 +91,30 @@ class DavidsPlayground {
 
     buildMetaParameterWidgets(parameterDiv) {
         //    { title: "Height", type: "range", min: 1, max: 5, value: 2, step: 0.25, name: "height" },
-        this.modelMaker.metaParameters.forEach((metaParameter) =>
-            parameterDiv.append(this.makeMetaParameterSlider(metaParameter))
-        )
+        if (this.modelMaker.subModels) {
+            this.modelMaker.subModels.forEach((subModel) => {
+                subModel.metaParameters.forEach((metaParameter) => {
+                    metaParameter.name = subModel.name + '.' + metaParameter.name;
+                    parameterDiv.append(this.makeMetaParameterSlider(metaParameter))
+                })
+            })
+        } else {
+            this.modelMaker.metaParameters.forEach((metaParameter) =>
+                parameterDiv.append(this.makeMetaParameterSlider(metaParameter))
+            )
+        }
     }
 
     doRender() {
-        const model = Reflect.construct(this.modelMaker, [this.params]);
+        // rebuild params from X.a to {X: {a: }}
+        const modelParams = {}
+        _.each(this.params, function (value, key) {
+            const parts = key.split('.');
+            modelParams[parts[0]] = modelParams[parts[0]] || {};
+            modelParams[parts[0]][parts[1]] = value;
+        })
+        
+        const model = Reflect.construct(this.modelMaker, [modelParams]);
 
         const previewDiv = document.getElementById('previewArea');
         var svg = makerjs.exporter.toSVG(model, {useSvgPathOnly: false} );
@@ -127,4 +136,4 @@ class DavidsPlayground {
     }
 }
 
-new DavidsPlayground({modelMaker: ConicCuff}).rerender();
+new DavidsPlayground({modelMaker: ConicCuffWithHashMarks}).rerender();

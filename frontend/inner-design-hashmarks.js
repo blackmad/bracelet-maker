@@ -47,3 +47,14 @@ export function InnerDesignHashmarks({
 
     this.units = makerjs.unitType.Inch;
 }
+
+InnerDesignHashmarks.metaParameters = [
+  { title: "Buffer Width", type: "range", min: 0.075, max: 0.75, value: 0.15, step: 0.05, name: 'bufferWidth' },
+  { title: "Hash Width", type: "range", min: 0.075, max: 0.75, value: 0.25, step: 0.05, name: 'hashWidth' },
+  { title: "Seed", type: "range", min: 1, max: 10000, value: 1, step: 1, name: 'seed' },
+  { title: "Initial Noise Range 1", type: "range", min: 0, max: 20, step: 0.1, value: 10, name: 'initialNoiseRange1' },
+  { title: "Initial Noise Range 2", type: "range", min: 0, max: 20, step: 0.1, value: 10, name: 'initialNoiseRange2' },
+  { title: "Moving Noise Offset 1", type: "range", min: 0.01, max: 1, step: 0.1, value: 0.5, name: 'noiseOffset1' },
+  { title: "Moving Noise Offset 2", type: "range", min: 0.01, max: 1, step: 0.1, value: 0.75, name: 'noiseOffset2' },
+  { title: "Noise Influence", type: "range", min: 0, max: 1, step: 0.01, value: 0.5, name: 'noiseInfluence' }
+];
