@@ -20,6 +20,11 @@
             <script src="https://js.stripe.com/v3/"></script>
             <script src="../external/stripe/index.js" ></script>
 
+            <script
+            src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+            crossorigin="anonymous"></script>
+
             <script src="new-playground.js" type="module"></script>
 
 
@@ -32,7 +37,7 @@
                     width: 70%
                 }
 
-                #parameterDiv {
+                #parameterDiv, #ConicCuffOuter {
                     flex-wrap: wrap;
                     display: flex;
                 }
@@ -85,8 +90,12 @@
                 }
 
                 .textLabel {
-                  font-size: small !important;
-                   
+                  font-size: small !important;  
+                }
+
+                h1.title {
+                  font-size: 150% !important; 
+                  font-weight: bold !important;
                 }
                 
             </style>
@@ -97,11 +106,20 @@
 
             <section class="container-lg container-flex">
                 <div class="cell example example2 preview-cell">
-
+                  <div>
+                    <h1 class="title">Sizing</h1>
+                    7"+7.5" wrist widths are often a good fit for male-like bodies, and 6.5"+7" wrist widths are often good for female-like bodies.
+                <div id="ConicCuffOuter"></div>
+              </div>
         <div id="previewArea"></div>
                 <!-- </div>
                 <div class="cell example example2 parameter-cell"> -->
-        <div id="parameterDiv"></div>
+        <div id="parameterDiv">
+            <h1 class="title">Design</h1>
+            Not all of these variables do what they say. Consider them various ways to play with the randomness until you find a design you like.
+
+
+        </div>
                 </div>
         </section>
 

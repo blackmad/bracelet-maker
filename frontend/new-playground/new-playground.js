@@ -5,18 +5,26 @@
 var makerjs = require('makerjs');
 import {ConicCuffWithHashMarks} from '../conic-cuff-model.js';
 
+function parseParamsString(paramsString) {
+    const params = {};
+    paramsString.split('&').forEach((p) => {
+        const parts = p.split('=');
+        params[parts[0]] = decodeURIComponent(parts[1])
+    })
+    return params;
+}
+
 class DavidsPlayground {
     constructor({
-        modelMaker
+        modelMaker,
+        allowPanAndZoom = false
     }) {
         this.modelMaker = modelMaker;
+        this.allowPanAndZoom = allowPanAndZoom;
         this.params = {};
 
         if (window.location.hash.lenghth > 1) {
-            window.location.hash.substring(1).split('&').forEach((p) => {
-                const parts = p.split('=');
-                this.params[parts[0]] = parts[1];
-            })
+            this.params = parseParamsString(window.location.hash.substring(1));
         }
 
         this.buildMetaParameterWidgets(document.getElementById('parameterDiv'));
@@ -88,7 +96,12 @@ class DavidsPlayground {
             this.modelMaker.subModels.forEach((subModel) => {
                 subModel.metaParameters.forEach((metaParameter) => {
                     metaParameter.name = subModel.name + '.' + metaParameter.name;
-                    parameterDiv.append(this.makeMetaParameterSlider(metaParameter))
+                    const subModelDiv = document.getElementById(subModel.name);
+                    let divToAppendTo = parameterDiv;
+                    if (subModelDiv) {
+                        divToAppendTo = subModelDiv;
+                    }
+                    divToAppendTo.append(this.makeMetaParameterSlider(metaParameter))
                 })
             })
         } else {
@@ -100,12 +113,14 @@ class DavidsPlayground {
 
     doRender() {
         // rebuild params from X.a to {X: {a: }}
-        const modelParams = {}
-        _.each(this.params, function (value, key) {
-            const parts = key.split('.');
-            modelParams[parts[0]] = modelParams[parts[0]] || {};
-            modelParams[parts[0]][parts[1]] = value;
-        })
+        const modelParams = this.params;
+        if (this.modelMaker.subModels) {
+            _.each(this.params, function (value, key) {
+                const parts = key.split('.');
+                modelParams[parts[0]] = modelParams[parts[0]] || {};
+                modelParams[parts[0]][parts[1]] = value;
+            })
+        }
         
         const model = Reflect.construct(this.modelMaker, [modelParams]);
 
@@ -116,8 +131,9 @@ class DavidsPlayground {
         const svgElem = previewDiv.getElementsByTagName('svg')[0];
         svgElem.setAttribute('width', '100%');
         const panZoomInstance = svgPanZoom(svgElem, {
-            zoomEnabled: true,
-            controlIconsEnabled: true,
+            zoomEnabled: this.allowPanAndZoom,
+            panEnabled: this.allowPanAndZoom,
+            controlIconsEnabled: this.allowPanAndZoom,
             fit: true,
             center: true,
             minZoom: 0.1
@@ -129,4 +145,17 @@ class DavidsPlayground {
     }
 }
 
-new DavidsPlayground({modelMaker: ConicCuffWithHashMarks}).rerender();
+
+const paramsStr = window.location.search || '?';
+const params = parseParamsString(window.location.search.substring(1));
+if (params['script']) {
+    import(params['script'])
+    .then((module) => {
+      console.log(module.default)
+      console.log(module);
+      // → logs 'Hi from the default export!'
+      new DavidsPlayground({modelMaker: module.default}).rerender();
+    });
+} else {
+    new DavidsPlayground({modelMaker: ConicCuffWithHashMarks}).rerender();
+}

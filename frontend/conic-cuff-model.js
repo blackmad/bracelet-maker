@@ -34,6 +34,7 @@ function ConicCuffOuter(innerDesignClass) {
             height: height,
             filletRadius: 0.2
         });
+        
         // Inner "safe" area for design. Not actually printed. Used to calculate intersection of inner design.
         var cuffModelInner = makeConicSection({
             topCircumference: wristCircumference + 1.0, 
@@ -74,8 +75,10 @@ function ConicCuffOuter(innerDesignClass) {
 
         /***** START RECENTER SHAPE *****/
         // Model is way far out, move it close to origin
-        makerjs.model.rotate(completeCuffModel, 90);
+        makerjs.model.rotate(completeCuffModel, 90 - cuffModel.alpha.degrees/2);
         makerjs.model.zero(completeCuffModel);
+
+        console.log(completeCuffModel)
 
         retVal.models = {
             completeCuffModel: completeCuffModel
@@ -99,7 +102,7 @@ function ConicCuffOuter(innerDesignClass) {
         innerOptions.width = totalWidth;
         const innerDesign = Reflect.construct(innerDesignClass, [innerOptions]);
 
-        // this.models.rawDesign = makerjs.model.clone(innerDesign);
+        // retVal.models.rawDesign = makerjs.model.clone(innerDesign);
         retVal.models.design =
             makerjs.model.combineIntersection(
                 innerDesign,
