@@ -1,3 +1,7 @@
+/* TODO
+- deal with nested metaparams somehow
+*/
+
 var makerjs = require('makerjs');
 import {ConicCuff} from '../conic-cuff-model.js';
 
@@ -14,10 +18,34 @@ class DavidsPlayground {
         modelMaker
     }) {
         this.modelMaker = modelMaker;
+        this.params = {};
+
+        window.location.hash.substring(1).split('&').forEach((p) => {
+            const parts = p.split('=');
+            this.params[parts[0]] = parts[1];
+            console.log(parts);
+        })
+
+        this.buildMetaParameterWidgets(document.getElementById('parameterDiv'));
+    }
+
+    rerender() {
+        this.makeUrlParams();
+        this.doRender();
+    }
+
+    makeUrlParams() {
+        const encodeGetParams = p => 
+            Object.entries(p).map(kv => kv.map(encodeURIComponent).join("=")).join("&");
+        window.location.hash = encodeGetParams(this.params)
     }
 
     makeMetaParameterSlider(metaParameter) {
         //    { title: "Height", type: "range", min: 1, max: 5, value: 2, step: 0.25, name: "height" },
+
+        this.params[metaParameter.name] = this.params[metaParameter.name] || metaParameter.value;
+        console.log(this.params)
+
         const containingDiv = document.createElement('div');
         containingDiv.name = metaParameter.name + '-container';
         containingDiv.class = 'meta-parameter-container'
@@ -41,8 +69,9 @@ class DavidsPlayground {
         containingDiv.append(sliderDiv);
         containingDiv.append(textInput);
 
+        //debugger;
         noUiSlider.create(sliderDiv, {
-            start: metaParameter.value,
+            start: this.params[metaParameter.name] || metaParameter.value,
             step: metaParameter.step,
             range: {
                 'min': metaParameter.min,
@@ -50,14 +79,20 @@ class DavidsPlayground {
             }
         });
 
-        sliderDiv.noUiSlider.on('update', function (values, handle) {
+        sliderDiv.noUiSlider.on('update', _.bind(function (values, handle) {
             var value = values[handle];
             textInput.value = value;
-        });
+
+            this.params[metaParameter.name] = Number(value);
+        }, this));
 
         textInput.addEventListener('change', function () {
             sliderDiv.noUiSlider.set([this.value]);
         });
+
+        sliderDiv.noUiSlider.on('set', _.bind(function (values, handle) {
+            this.rerender();
+        }, this));
 
         return containingDiv;
     }
@@ -69,16 +104,13 @@ class DavidsPlayground {
         )
     }
 
-    render() {
-        var args = {}
-        const model = Reflect.construct(this.modelMaker, [{}]);
-        this.buildMetaParameterWidgets(document.getElementById('parameterDiv'));
+    doRender() {
+        const model = Reflect.construct(this.modelMaker, [this.params]);
 
         const previewDiv = document.getElementById('previewArea');
         var svg = makerjs.exporter.toSVG(model, {useSvgPathOnly: false} );
         previewDiv.innerHTML = svg;
 
-        
         const svgElem = previewDiv.getElementsByTagName('svg')[0];
         svgElem.setAttribute('width', '100%');
         const panZoomInstance = svgPanZoom(svgElem, {
@@ -95,4 +127,4 @@ class DavidsPlayground {
     }
 }
 
-new DavidsPlayground({modelMaker: ConicCuff}).render();
+new DavidsPlayground({modelMaker: ConicCuff}).rerender();
