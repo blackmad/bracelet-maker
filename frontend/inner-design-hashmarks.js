@@ -5,6 +5,7 @@ var makerjs = require('makerjs');
 export function InnerDesignHashmarks({
     height = 2, 
     width = 10, 
+    boundaryModel,
     seed, 
     bufferWidth, 
     hashWidth,
@@ -40,11 +41,12 @@ export function InnerDesignHashmarks({
       lastNoise1 = lastNoise1 + newNoise1;
       lastNoise2 = lastNoise2 + newNoise2;
       pos += hashWidth + bufferWidth;
-    //   console.log(i);
-    //   console.log(width);
     }
 
-    this.models = models;
+    this.models = makerjs.model.combineIntersection(
+            {models: models},
+            boundaryModel
+        ).models
 
     this.units = makerjs.unitType.Inch;
 }

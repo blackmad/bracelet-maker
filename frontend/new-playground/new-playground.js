@@ -159,5 +159,5 @@ if (params['script']) {
       new DavidsPlayground({modelMaker: module.default}).rerender();
     });
 } else {
-    new DavidsPlayground({modelMaker: ConicCuffWithVoronoi}).rerender();
+    new DavidsPlayground({modelMaker: ConicCuffWithHashMarks}).rerender();
 }

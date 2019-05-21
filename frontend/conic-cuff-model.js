@@ -104,12 +104,9 @@ function ConicCuffOuter(innerDesignClass) {
         innerOptions.boundaryModel = cuffClone
         const innerDesign = Reflect.construct(innerDesignClass, [innerOptions]);
 
-        retVal.models.rawDesign = makerjs.model.clone(innerDesign);
-        // retVal.models.design =
-        //     makerjs.model.combineIntersection(
-        //         innerDesign,
-        //         cuffClone
-        //     )
+        retVal.models.design = innerDesign;
+        console.log(retVal.models.design )
+
         /***** END DESIGN *****/
 
         /***** START CLEANUP *****/

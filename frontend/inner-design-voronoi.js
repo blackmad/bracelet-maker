@@ -1,11 +1,31 @@
 var makerjs = require('makerjs');
 import {Delaunay} from '../external/d3-delaunay.mjs';
 
+function polygonArea(points,signed) {
+    var l = points.length
+    var det = 0
+    var isSigned = signed || false
+  
+    points = points.map(normalize)
+    if (points[0] != points[points.length -1])  
+      points = points.concat(points[0])
+  
+    for (var i = 0; i < l; i++)
+      det += points[i][0] * points[i + 1][1]
+        - points[i][1] * points[i + 1][0]
+    if (isSigned)
+      return det / 2
+    else
+      return Math.abs(det) / 2
+  }
+
+
 export function InnerDesignVoronoi({
     height,
     width,
     numPoints = 100,
     expandWidth = 0.1,
+    minPathLength = 1,
     boundaryModel
 }) {
     const maxX = width;
@@ -16,8 +36,49 @@ export function InnerDesignVoronoi({
         seedPoints.push([Math.random() * maxX, Math.random() * maxY]);
     }
 
-    const delaunay = Delaunay.from(seedPoints);
-    const voronoi = delaunay.voronoi([0, 0, maxX, maxY]);
+    var delaunay = Delaunay.from(seedPoints);
+    var voronoi = delaunay.voronoi([0, 0, maxX, maxY]);
+
+    let i = 0;
+    const cellModels = {};
+    const newSeedPoints = [];
+    _.each(_.zip(Array.from(voronoi.cellPolygons()), seedPoints), function (cellAndSeed, index) {
+        console.log(cellAndSeed);
+        const cell = cellAndSeed[0];
+        const seed = cellAndSeed[1];
+        var cdModel = new makerjs.models.ConnectTheDots(true, cell);
+        const tmpModel = makerjs.model.combineIntersection(
+            cdModel,
+            makerjs.model.clone(boundaryModel)
+        );
+        console.log(tmpModel)
+
+        // bbox not working for some reason
+        var pathLength = makerjs.measure.modelPathLength(tmpModel.models.a);
+        console.log()
+        if (pathLength > minPathLength) {
+            newSeedPoints.push(seed);
+        }
+        
+
+        cellModels[i.toString()] = cdModel;
+        i += 1;
+    });
+    console.log(cellModels);
+    // this.models = cellModels;
+    console.log(this.models)
+
+    delaunay = Delaunay.from(newSeedPoints);
+    voronoi = delaunay.voronoi([0, 0, maxX, maxY]);
+
+    const boundaryRectModel= {
+        paths: {
+            'a': new makerjs.paths.Line([0, 0], [0, maxY]),
+            'b': new makerjs.paths.Line([0, maxY], [maxX, maxY]),
+            'c': new makerjs.paths.Line([maxX, maxY], [maxX, 0]),
+            'd': new makerjs.paths.Line([maxX, 0], [0, 0])
+        }
+    }
 
     class CanvasShim {
         constructor(pathsDict) {
@@ -36,22 +97,6 @@ export function InnerDesignVoronoi({
             this.pathsDict[this.pathIndex.toString()] = 
                 new makerjs.paths.Line([this.lastX, this.lastY], [x,y])
             this.pathIndex += 1;
-        }
-    }
-
-    // let i = 0;
-    // const cellModels = {};
-    // for (let cell of voronoi.cellPolygons()) {
-    //     cellModels[i.toString()] = new makerjs.models.ConnectTheDots(true, cell);
-    //     i += 1
-    // }
-
-    const boundaryRectModel= {
-        paths: {
-            'a': new makerjs.paths.Line([0, 0], [0, maxY]),
-            'b': new makerjs.paths.Line([0, maxY], [maxX, maxY]),
-            'c': new makerjs.paths.Line([maxX, maxY], [maxX, 0]),
-            'd': new makerjs.paths.Line([maxX, 0], [0, 0])
         }
     }
 
@@ -81,7 +126,6 @@ export function InnerDesignVoronoi({
                 );
         }
     })
-
     this.models = chainModels;
 
     this.units = makerjs.unitType.Inch;
@@ -91,5 +135,6 @@ export default InnerDesignVoronoi;
 
 InnerDesignVoronoi.metaParameters = [
     { title: "Num Points", type: "range", min: 10, max: 100, value: 20, step: 1, name: 'numPoints' },
-    { title: "Border Size (in)", type: "range", min: 0.1, max: 0.75, value: 0.1, step: 0.01, name: 'expandWidth' }
+    { title: "Border Size (in)", type: "range", min: 0.1, max: 0.75, value: 0.1, step: 0.01, name: 'expandWidth' },
+    { title: "Min Cell Border Length", type: "range", min: 0.5, max: 5, value: 1.0, step: 0.1, name: 'minPathLength' }
   ];
