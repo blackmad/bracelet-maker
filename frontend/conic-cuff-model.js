@@ -1,6 +1,7 @@
 var makerjs = require('makerjs');
 import {makeConicSection} from './conic-section.js'
 import {InnerDesignHashmarks} from './inner-design-hashmarks.js';
+import {InnerDesignVoronoi} from './inner-design-voronoi.js';
 
 function makeTwoEvenlySpacedBolts(p1, p2) {
     var MillimeterToInches = 0.0393701;
@@ -97,17 +98,18 @@ function ConicCuffOuter(innerDesignClass) {
         var cuffModelInnerClone = cuffClone.models.cuffModelInner;
         cuffClone.models = { c: cuffModelInnerClone };
 
-        const innerOptions = options[innerDesignClass.name];
+        const innerOptions = options[innerDesignClass.name] || {};
         innerOptions.height = totalHeight;
         innerOptions.width = totalWidth;
+        innerOptions.boundaryModel = cuffClone
         const innerDesign = Reflect.construct(innerDesignClass, [innerOptions]);
 
-        // retVal.models.rawDesign = makerjs.model.clone(innerDesign);
-        retVal.models.design =
-            makerjs.model.combineIntersection(
-                innerDesign,
-                cuffClone
-            )
+        retVal.models.rawDesign = makerjs.model.clone(innerDesign);
+        // retVal.models.design =
+        //     makerjs.model.combineIntersection(
+        //         innerDesign,
+        //         cuffClone
+        //     )
         /***** END DESIGN *****/
 
         /***** START CLEANUP *****/
@@ -121,21 +123,30 @@ function ConicCuffOuter(innerDesignClass) {
     }
 }
 
-export function ConicCuffWithHashMarks(options) {
-    return ConicCuffOuter(InnerDesignHashmarks)(options);
-}
-
-// top should be 0.45in out from edge of design - 7.75 apart - super tight 6.5, normal 7
-// bottom 0.62 out - 8.125 apart, 7.75
-
-ConicCuffWithHashMarks.subModels = [
-    ConicCuffOuter, InnerDesignHashmarks   
-]
 
 ConicCuffOuter.metaParameters = [
     { title: "Height", type: "range", min: 1, max: 5, value: 2, step: 0.25, name: 'height' },
     { title: "Wrist Circumference", type: "range", min: 4, max: 10, value: 7, step: 0.1, name: 'wristCircumference' },
     { title: "Wide Wrist Circumference", type: "range", min: 4, max: 10, value: 7.75, step: 0.1, name: 'forearmCircumference' }
+]
+
+// top should be 0.45in out from edge of design - 7.75 apart - super tight 6.5, normal 7
+// bottom 0.62 out - 8.125 apart, 7.75
+
+export function ConicCuffWithHashMarks(options) {
+    return ConicCuffOuter(InnerDesignHashmarks)(options);
+}
+
+ConicCuffWithHashMarks.subModels = [
+    ConicCuffOuter, InnerDesignHashmarks   
+]
+
+export function ConicCuffWithVoronoi(options) {
+    return ConicCuffOuter(InnerDesignVoronoi)(options);
+}
+
+ConicCuffWithVoronoi.subModels = [
+    ConicCuffOuter, InnerDesignVoronoi   
 ]
 
 export default {};

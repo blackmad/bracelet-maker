@@ -1,9 +1,6 @@
-// https://github.com/d3/d3-delaunay v4.1.5 Copyright 2018 Mike Bostock
-// https://github.com/mapbox/delaunator v2.0.5. Copyright 2017 Mapbox, Inc.
-(function () { 'use strict';
+export default {};
 
 const EPSILON = Math.pow(2, -52);
-
 class Delaunator {
 
     static from(points, getX, getY) {
@@ -790,7 +787,7 @@ function pointY(p) {
   return p[1];
 }
 
-class Delaunay {
+export class Delaunay {
   constructor(points) {
     const {halfedges, hull, triangles} = new Delaunator(points);
     this.points = points;
@@ -934,15 +931,3 @@ function* flatIterable(points, fx, fy, that) {
     ++i;
   }
 }
-
-  // amd
-  if (typeof define !== 'undefined' && define.amd) define(function() {return Delaunay;});
-  // common js
-  if (typeof exports !== 'undefined') exports.Delaunay = Delaunay;
-  // browser
-  else if (typeof window !== 'undefined') window.Delaunay = Delaunay;
-  // nodejs
-  if (typeof module !== 'undefined') {
-    module.exports = Delaunay;
-  }
-})();

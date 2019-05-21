@@ -3,7 +3,7 @@
 */
 
 var makerjs = require('makerjs');
-import {ConicCuffWithHashMarks} from '../conic-cuff-model.js';
+import {ConicCuffWithHashMarks, ConicCuffWithVoronoi} from '../conic-cuff-model.js';
 
 function parseParamsString(paramsString) {
     const params = {};
@@ -84,7 +84,7 @@ class DavidsPlayground {
         }, this));
 
         textInput.addEventListener('change', function () {
-            sliderDiv.noUiSlider.set([this.value]);
+            rangeInput.value = this.value;
         });
 
         return containingDiv;
@@ -94,15 +94,17 @@ class DavidsPlayground {
         //    { title: "Height", type: "range", min: 1, max: 5, value: 2, step: 0.25, name: "height" },
         if (this.modelMaker.subModels) {
             this.modelMaker.subModels.forEach((subModel) => {
-                subModel.metaParameters.forEach((metaParameter) => {
-                    metaParameter.name = subModel.name + '.' + metaParameter.name;
-                    const subModelDiv = document.getElementById(subModel.name);
-                    let divToAppendTo = parameterDiv;
-                    if (subModelDiv) {
-                        divToAppendTo = subModelDiv;
-                    }
-                    divToAppendTo.append(this.makeMetaParameterSlider(metaParameter))
-                })
+                if (subModel.metaParameters) {
+                    subModel.metaParameters.forEach((metaParameter) => {
+                        metaParameter.name = subModel.name + '.' + metaParameter.name;
+                        const subModelDiv = document.getElementById(subModel.name);
+                        let divToAppendTo = parameterDiv;
+                        if (subModelDiv) {
+                            divToAppendTo = subModelDiv;
+                        }
+                        divToAppendTo.append(this.makeMetaParameterSlider(metaParameter))
+                    })
+                }
             })
         } else {
             this.modelMaker.metaParameters.forEach((metaParameter) =>
@@ -157,5 +159,5 @@ if (params['script']) {
       new DavidsPlayground({modelMaker: module.default}).rerender();
     });
 } else {
-    new DavidsPlayground({modelMaker: ConicCuffWithHashMarks}).rerender();
+    new DavidsPlayground({modelMaker: ConicCuffWithVoronoi}).rerender();
 }
