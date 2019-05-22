@@ -35,6 +35,8 @@ export class DavidsPlayground {
         }
 
         this.buildMetaParameterWidgets(document.getElementById('parameterDiv'));
+
+        $('.downloadSVG').click(_.bind(this.saveSvg, this));
     }
 
     rerender() {
@@ -128,6 +130,28 @@ export class DavidsPlayground {
         document.getElementById('errorMessage').innerHTML = errorMessage;
     }
 
+    saveSvg() {
+        this.svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        var svgData = this.svgEl.outerHTML;
+        var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+        var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
+        var svgUrl = URL.createObjectURL(svgBlob);
+        var downloadLink = document.createElement("a");
+        downloadLink.href = svgUrl;
+
+        name = this.modelMaker.name;
+        if (this.subModels) {
+            debugger;
+            name = _(_.map(this.subModels, (f) => f.name)).join('-')
+        }
+        name += '.svg';
+
+        downloadLink.download = name;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+
     doRender() {
         $('body').addClass('loading');
         $('body').removeClass('error');
@@ -150,9 +174,12 @@ export class DavidsPlayground {
             var svg = makerjs.exporter.toSVG(model, {useSvgPathOnly: false} );
             previewDiv.innerHTML = svg;
 
-            const svgElem = previewDiv.getElementsByTagName('svg')[0];
-            svgElem.setAttribute('width', '100%');
-            const panZoomInstance = svgPanZoom(svgElem, {
+            this.svgData = svg;
+            console.log(this.svgData);
+
+            this.svgEl = previewDiv.getElementsByTagName('svg')[0];
+            this.svgEl.setAttribute('width', '100%');
+            const panZoomInstance = svgPanZoom(this.svgEl, {
                 zoomEnabled: this.allowPanAndZoom,
                 panEnabled: this.allowPanAndZoom,
                 controlIconsEnabled: this.allowPanAndZoom,
