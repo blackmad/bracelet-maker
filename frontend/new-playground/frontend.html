@@ -24,7 +24,8 @@
       crossorigin="anonymous"
     ></script>
 
-    <script src="new-playground.js" type="module"></script>
+    <script src="frontend.js" type="module"></script>
+    
 
     <style>
       #mainContainer {
@@ -79,7 +80,7 @@
         font-size: small !important;
       }
 
-      .meta-parameter-container {
+      .meta-parameter-container, .design-container {
         border: 1px solid black;
         margin: 3px !important;
         padding: 5px !important;
@@ -95,10 +96,44 @@
         font-size: 150% !important;
         font-weight: bold !important;
       }
+
+      .error #previewArea {
+        display: none;
+      }
+
+      #error, #loading, .error #loading {
+        display: none
+      }
+
+      #error {
+        margin: 20px;
+        background: palevioletred;
+        padding: 30px;
+      }
+      
+      .loading #loading, .error #error {
+        display: block
+      }
     </style>
   </head>
   <body>
     <main>
+        <section class="container-lg">
+            <!--Example 2-->
+            <div class="cell example example2">
+              <h1> Choose a base design </h1>
+              <div class="container-flex">
+                  <div class="design-container">
+                      <button class="designButton" value="InnerDesignHashmarks">Hashmarks</button>
+                  </div>
+                  <div class="design-container">
+                      <button class="designButton" value="InnerDesignVoronoi">Voronoi</button>
+                  </div>
+              </div>
+              
+            </div>
+        </section>
+
       <section class="container-lg container-flex">
         <div class="cell example example2 preview-cell">
           <div>
@@ -106,6 +141,11 @@
             7"+7.5" wrist widths are often a good fit for male-like bodies, and
             6.5"+7" wrist widths are often good for female-like bodies.
             <div id="ConicCuffOuter"></div>
+          </div>
+          <div id="loading">Rendering ...</div>
+          <div id="error">
+            Error rendering design. Sorry :-/ <br/>
+            <span id="errorMessage"></span>
           </div>
           <div id="previewArea"></div>
           <!-- </div>
