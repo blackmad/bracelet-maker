@@ -20,8 +20,8 @@ export class InnerDesignCircles {
     height = 2, 
     width = 10, 
     boundaryModel, 
-    numCircles,
-    expandWidth
+    numRows,
+    circleBorderConstant
     // seed, 
     // bufferWidth, 
     // hashWidth, 
@@ -32,7 +32,7 @@ export class InnerDesignCircles {
     // noiseInfluence 
   }) {
 
-    var rows = 3;
+    var rows = numRows;
     var circleSize = (height / rows);
     var cols = width / circleSize;
     var currentModel = {}
@@ -49,7 +49,7 @@ export class InnerDesignCircles {
                 center, circleSize*0.75
             ));
             paths.push(new makerjs.paths.Circle(
-                center, 0.8*circleSize
+                center, circleSize*0.75*(1+circleBorderConstant)
             ));
 
             var newModel = makerjs.model.combineIntersection(
@@ -87,8 +87,8 @@ export class InnerDesignCircles {
 }
 
 InnerDesignCircles.metaParameters = [
-  { title: "Num Circles", type: "range", min: 1, max: 100, value: 5, step: 1, name: 'numCircles' },
-  { title: "Border Size (in)", type: "range", min: 0.1, max: 0.75, value: 0.1, step: 0.01, name: 'expandWidth' }
+  { title: "Num Rows", type: "range", min: 1, max: 10, value: 3, step: 1, name: 'numRows' },
+  { title: "Border Size", type: "range", min: 0.1, max: 0.75, value: 0.1, step: 0.01, name: 'circleBorderConstant' }
 ];
 
 export default {}
