@@ -4,6 +4,7 @@ import {ConicCuffOuter} from '../conic-cuff-model.js'
 import {InnerDesignHashmarks} from '../inner-design-hashmarks.js';
 import {InnerDesignVoronoi} from '../inner-design-voronoi.js';
 import {InnerDesignNoiseWaves} from '../inner-design-noisewaves.js'
+import {InnerDesignCircles} from '../inner-design-circles.js';
 
 let playground = null;
 
@@ -15,6 +16,8 @@ function attachHandlers() {
             innerDesignClass = InnerDesignVoronoi;
         } else if (design == 'InnerDesignHashmarks') {
             innerDesignClass = InnerDesignHashmarks;
+        } else if (design == 'InnerDesignCircles') {
+            innerDesignClass = InnerDesignCircles;
         } else {
             throw "can't interpret design: " + design;
         }

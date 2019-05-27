@@ -1,0 +1,5 @@
+- learn Vue.js and redo some of the vanilla bits with vue
+- move rendering to worker thread
+- actually print one of these conical ones
+- spend some time debugging why voronois still sometimes fail
+- stand up the stripe payment processor

@@ -175,7 +175,7 @@ export class DavidsPlayground {
             previewDiv.innerHTML = svg;
 
             this.svgData = svg;
-            console.log(this.svgData);
+            // console.log(this.svgData);
 
             this.svgEl = previewDiv.getElementsByTagName('svg')[0];
             this.svgEl.setAttribute('width', '100%');
