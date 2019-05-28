@@ -1,27 +1,31 @@
 var makerjs = require('makerjs');
 
-
+// This is a super gross way of deleting the paths that lie along the "safe" inner boundary
+// so that the circles are connected to the rest of the cuff
 function cleanModel(model) {
     _.each(model.models, function(value, key, list) {
-        console.log('looking at')
-        console.log(key)
-        console.log(value)
         if (value.alpha) {
             model.models[key] = null;
-            console.log('nulling')
         } else {
             cleanModel(value)
         }
     })
   }
 
+
+function getRandomArbitrary(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
 export class InnerDesignCircles {
   constructor({ 
     height = 2, 
     width = 10, 
     boundaryModel, 
-    numRows,
-    circleBorderConstant
+    numCircles,
+    maxBorderSize,
+    minCircleSize,
+    maxCircleSize
     // seed, 
     // bufferWidth, 
     // hashWidth, 
@@ -31,49 +35,46 @@ export class InnerDesignCircles {
     // noiseOffset2, 
     // noiseInfluence 
   }) {
-
-    var rows = numRows;
-    var circleSize = (height / rows);
-    var cols = width / circleSize;
+    var circleSize = 1.0;
     var currentModel = {}
    
     var madeModel = false;
 
-    for (var r = 1; r <= rows; r++) {
-        for (var c = 1; c <= cols; c++) {
-            const paths = [];
-           
-            const offset = (r % 2) * circleSize * 0.5;
-            const center = [c*circleSize + offset, r*circleSize]
-            paths.push(new makerjs.paths.Circle(
-                center, circleSize*0.75
-            ));
-            paths.push(new makerjs.paths.Circle(
-                center, circleSize*0.75*(1+circleBorderConstant)
-            ));
+    
+    for (var c = 1; c <= numCircles; c++) {
+        const paths = [];
+        
+        const center = [
+            Math.random() * width,
+            Math.random() * height
+        ];
 
-            var newModel = makerjs.model.combineIntersection(
-                makerjs.model.clone(boundaryModel),
-                { paths: paths}
+        const circleSize = getRandomArbitrary(minCircleSize, maxCircleSize)
+
+        paths.push(new makerjs.paths.Circle(
+            center, circleSize
+        ));
+        paths.push(new makerjs.paths.Circle(
+            center, circleSize*(1+getRandomArbitrary(0.5, 1.0)*maxBorderSize)
+        ));
+
+        var newModel = makerjs.model.combineIntersection(
+            makerjs.model.clone(boundaryModel),
+            { paths: paths}
+        )
+        // newModel.models.a = null;
+
+        if (madeModel) {
+            currentModel = makerjs.model.combineUnion(
+                currentModel,
+                newModel
             )
-            console.log(newModel);
-            // newModel.models.a = null;
-
-            if (madeModel) {
-                currentModel = makerjs.model.combineUnion(
-                    currentModel,
-                    newModel
-                )
-                console.log(currentModel);
-            } else {
-                madeModel = true;
-                currentModel = newModel
-            }
-            
+        } else {
+            madeModel = true;
+            currentModel = newModel
         }
+        
     }
-    console.log(currentModel);
-
 
     cleanModel(currentModel);
     this.models = currentModel.models;
@@ -87,8 +88,10 @@ export class InnerDesignCircles {
 }
 
 InnerDesignCircles.metaParameters = [
-  { title: "Num Rows", type: "range", min: 1, max: 10, value: 3, step: 1, name: 'numRows' },
-  { title: "Border Size", type: "range", min: 0.1, max: 0.75, value: 0.1, step: 0.01, name: 'circleBorderConstant' }
+  { title: "Num Circles", type: "range", min: 1, max: 30, value: 3, step: 1, name: 'numCircles' },
+  { title: "Max Border Size", type: "range", min: 0.1, max: 0.25, value: 0.1, step: 0.01, name: 'maxBorderSize' },
+  { title: "Min Circle Size", type: "range", min: 0.1, max: 2.0, value: 0.5, step: 0.01, name: 'minCircleSize' },
+  { title: "Max Circle Size", type: "range", min: 0.1, max: 3.0, value: 1.5, step: 0.01, name: 'maxCircleSize' }
 ];
 
 export default {}

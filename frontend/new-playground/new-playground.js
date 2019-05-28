@@ -1,5 +1,4 @@
 /* TODO
-- debug this one http://127.0.0.1:5500/new-playground/new-playground.html#ConicCuffOuter.height=2&ConicCuffOuter.wristCircumference=7&ConicCuffOuter.forearmCircumference=7.75&InnerDesignHashmarks.bufferWidth=0.325&InnerDesignHashmarks.hashWidth=0.325&InnerDesignHashmarks.seed=8519&InnerDesignHashmarks.initialNoiseRange1=17.9&InnerDesignHashmarks.initialNoiseRange2=4.8&InnerDesignHashmarks.noiseOffset1=0.81&InnerDesignHashmarks.noiseOffset2=0.31&InnerDesignHashmarks.noiseInfluence=0.8
 */
 
 var makerjs = require('makerjs');
@@ -30,9 +29,11 @@ export class DavidsPlayground {
         this.allowPanAndZoom = allowPanAndZoom;
         this.params = {};
 
-        if (window.location.hash.lenghth > 1) {
+        if (window.location.hash.length > 1) {
             this.params = parseParamsString(window.location.hash.substring(1));
         }
+
+        console.log(this.params);
 
         this.buildMetaParameterWidgets(document.getElementById('parameterDiv'));
 
@@ -47,13 +48,13 @@ export class DavidsPlayground {
     makeUrlParams() {
         const encodeGetParams = p => 
             Object.entries(p).map(kv => kv.map(encodeURIComponent).join("=")).join("&");
+        console.log('trying to set hash to ' )
         window.location.hash = encodeGetParams(this.params)
+        console.log(encodeGetParams(this.params));
     }
 
     makeMetaParameterSlider(metaParameter) {
-        //    { title: "Height", type: "range", min: 1, max: 5, value: 2, step: 0.25, name: "height" },
-
-        this.params[metaParameter.name] = this.params[metaParameter.name] || metaParameter.value;
+        const value = Number(this.params[metaParameter.name]) || metaParameter.value;
 
         const containingDiv = document.createElement('div');
         containingDiv.name = metaParameter.name + '-container';
@@ -66,7 +67,7 @@ export class DavidsPlayground {
         rangeInput.max = metaParameter.max;
         rangeInput.step = metaParameter.step;
         rangeInput.id = metaParameter.name + '-range';
-        rangeInput.value = metaParameter.value;
+        rangeInput.value = value;
 
         const textInput = document.createElement('input');
         textInput.type = 'number';
@@ -74,7 +75,7 @@ export class DavidsPlayground {
         textInput.max = metaParameter.max;
         textInput.step = metaParameter.step;
         textInput.id = metaParameter.name + '-num-input';
-        textInput.value = metaParameter.value;
+        textInput.value = value;
 
         const textLabelDiv = document.createElement('div');
         textLabelDiv.name = metaParameter.name + '-text-label';
@@ -141,7 +142,6 @@ export class DavidsPlayground {
 
         name = this.modelMaker.name;
         if (this.subModels) {
-            debugger;
             name = _(_.map(this.subModels, (f) => f.name)).join('-')
         }
         name += '.svg';
@@ -157,12 +157,15 @@ export class DavidsPlayground {
         $('body').removeClass('error');
 
         // rebuild params from X.a to {X: {a: }}
-        const modelParams = this.params;
+        const modelParams = {};
         if (this.subModels) {
             _.each(this.params, function (value, key) {
                 const parts = key.split('.');
-                modelParams[parts[0]] = modelParams[parts[0]] || {};
-                modelParams[parts[0]][parts[1]] = value;
+                console.log(parts);
+                if (parts.length == 2) {
+                    modelParams[parts[0]] = modelParams[parts[0]] || {};
+                    modelParams[parts[0]][parts[1]] = Number(value);
+                }
             })
         }
         

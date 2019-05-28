@@ -78,7 +78,7 @@ export function ConicCuffOuter(innerDesignClass) {
         makerjs.model.rotate(completeCuffModel, 90 - cuffModel.alpha.degrees/2);
         makerjs.model.zero(completeCuffModel);
 
-        console.log(completeCuffModel)
+        // console.log(completeCuffModel)
 
         retVal.models = {
             completeCuffModel: completeCuffModel
@@ -100,11 +100,11 @@ export function ConicCuffOuter(innerDesignClass) {
         const innerOptions = options[innerDesignClass.name] || {};
         innerOptions.height = totalHeight;
         innerOptions.width = totalWidth;
-        innerOptions.boundaryModel = cuffClone
+        innerOptions.boundaryModel = cuffClone;
         const innerDesign = Reflect.construct(innerDesignClass, [innerOptions]);
 
         retVal.models.design = innerDesign;
-        console.log(retVal.models.design )
+        // console.log(retVal.models.design )
 
         /***** END DESIGN *****/
 
