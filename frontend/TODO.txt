@@ -1,0 +1,5 @@
+- get PDF output sized appropriately
+- get SVG export for lasercut
+
+- reorganize some workers out of new-playground.js
+- render off-thread in general

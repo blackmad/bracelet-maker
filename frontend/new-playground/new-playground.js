@@ -4,6 +4,8 @@
 var makerjs = require('makerjs');
 import { ConicCuffOuter } from '../conic-cuff-model.js';
 import { InnerDesignHashmarks } from '../inner-design-hashmarks.js';
+import { StringReader } from '../external/string-reader.js'
+
 
 function parseParamsString(paramsString) {
     const params = {};
@@ -37,7 +39,8 @@ export class DavidsPlayground {
 
         this.buildMetaParameterWidgets(document.getElementById('parameterDiv'));
 
-        $('.downloadSVG').click(_.bind(this.saveSvg, this));
+        $('.downloadSVG').click(_.bind(this.downloadSVG, this));
+        $('.downloadPDF').click(_.bind(this.downloadPDF, this));
     }
 
     rerender() {
@@ -86,6 +89,8 @@ export class DavidsPlayground {
         containingDiv.append(rangeInput);
         containingDiv.append(textInput);
 
+        this.params[metaParameter.name] = Number(value);
+
         rangeInput.addEventListener('change', _.bind(function (event) {
             const value = event.target.value;
             textInput.value = value;
@@ -131,9 +136,22 @@ export class DavidsPlayground {
         document.getElementById('errorMessage').innerHTML = errorMessage;
     }
 
-    saveSvg() {
+    downloadSVG() {
+        // var svg = makerjs.exporter.toSVG(this.model, {
+        //     useSvgPathOnly: false,
+        //     stroke: 'red',
+        //     strokeWidth: '0.0001pt'} 
+        // );
+        // const svgEl = $(svg)[0];
+        // svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        // svgEl.removeAttribute('viewBox');
+        // console.log(svg);
+        // console.log(svgEl);
+        // const svgData = svgEl.outerHTML;
+
         this.svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-        var svgData = this.svgEl.outerHTML;
+        const svgData = this.svgEl.outerHTML;
+
         var preface = '<?xml version="1.0" standalone="no"?>\r\n';
         var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
         var svgUrl = URL.createObjectURL(svgBlob);
@@ -150,6 +168,66 @@ export class DavidsPlayground {
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
+    }
+
+    cleanModel(model) {
+        _.each(model.models, _.bind(function(value, key, list) {
+          if (value == null) {
+            delete model.models[key];
+          } else {
+            this.cleanModel(value);
+          }
+        }, this));
+      }
+
+    downloadPDF() {
+        function complete(pdfDataString) {
+            console.log('complete')
+            console.log(pdfDataString);
+            // result.text = pdfDataString;
+            // result.percentComplete = 100;
+            // postMessage(result);
+
+            var pdfBlob = new Blob([pdfDataString], {type:"application/pdf"});
+            var pdfUrl = URL.createObjectURL(pdfBlob);
+            var downloadLink = document.createElement("a");
+            downloadLink.href = pdfUrl;
+    
+            name = this.modelMaker.name;
+            if (this.subModels) {
+                name = _(_.map(this.subModels, (f) => f.name)).join('-')
+            }
+            name += '.pdf';
+    
+            downloadLink.download = name;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+        //TODO: watermark
+        //TODO: title, author, grid from options
+        const widthInches = 10;
+        const heightInches = 3;
+        var pdfOptions = {
+            compress: false,
+            info: {
+                Producer: 'MakerJs',
+                Author: 'MakerJs'
+            },
+            size: [widthInches*72, heightInches*72]
+        };
+        console.log(this.model);
+        var doc = new PDFDocument(pdfOptions);
+        var reader = new StringReader(_.bind(complete, this));
+        var stream = doc.pipe(reader);
+        //TODO: break up model across pages
+        this.cleanModel(this.model);
+        const exportOptions = {
+            stroke: '#FF0000'
+        }
+        doc.lineWidth('0.0001')
+        makerjs.exporter.toPDF(doc, this.model, exportOptions);
+        doc.end();
     }
 
     doRender() {
@@ -175,10 +253,8 @@ export class DavidsPlayground {
 
             const previewDiv = document.getElementById('previewArea');
             var svg = makerjs.exporter.toSVG(model, {useSvgPathOnly: false} );
+            this.model = model;
             previewDiv.innerHTML = svg;
-
-            this.svgData = svg;
-            // console.log(this.svgData);
 
             this.svgEl = previewDiv.getElementsByTagName('svg')[0];
             this.svgEl.setAttribute('width', '100%');

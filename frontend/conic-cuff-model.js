@@ -110,7 +110,7 @@ export function ConicCuffOuter(innerDesignClass) {
 
         /***** START CLEANUP *****/
         // now take out the original inner cuff model, not actually used as a cut
-        retVal.models.completeCuffModel.models.cuffModelInner = null;
+        delete retVal.models.completeCuffModel.models.cuffModelInner;
 
         retVal.units = makerjs.unitType.Inch;
         /***** END CLEANUP *****/
