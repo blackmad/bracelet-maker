@@ -43,7 +43,7 @@ export function InnerDesignVoronoi({
     const cellModels = {};
     const newSeedPoints = [];
     _.each(_.zip(Array.from(voronoi.cellPolygons()), seedPoints), function (cellAndSeed, index) {
-        console.log(cellAndSeed);
+        // console.log(cellAndSeed);
         const cell = cellAndSeed[0];
         const seed = cellAndSeed[1];
         var cdModel = new makerjs.models.ConnectTheDots(true, cell);
@@ -51,11 +51,11 @@ export function InnerDesignVoronoi({
             cdModel,
             makerjs.model.clone(boundaryModel)
         );
-        console.log(tmpModel)
+        // console.log(tmpModel)
 
         // bbox not working for some reason
         var pathLength = makerjs.measure.modelPathLength(tmpModel.models.a);
-        console.log()
+        // console.log()
         if (pathLength > minPathLength) {
             newSeedPoints.push(seed);
         }
@@ -64,9 +64,9 @@ export function InnerDesignVoronoi({
         cellModels[i.toString()] = cdModel;
         i += 1;
     });
-    console.log(cellModels);
+    // console.log(cellModels);
     // this.models = cellModels;
-    console.log(this.models)
+    // console.log(this.models)
 
     delaunay = Delaunay.from(newSeedPoints);
     voronoi = delaunay.voronoi([0, 0, maxX, maxY]);
@@ -117,7 +117,7 @@ export function InnerDesignVoronoi({
     const chains = makerjs.model.findChains(expandedModels);
     _.each(chains, function (chain, index) {
         if (index != 0) {
-            console.log(makerjs.chain.toNewModel(chain));
+            // console.log(makerjs.chain.toNewModel(chain));
             const chainModel = makerjs.chain.toNewModel(chain);
             chainModels[index.toString()] = 
                 makerjs.model.combineIntersection(

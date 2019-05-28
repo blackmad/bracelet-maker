@@ -22,10 +22,7 @@ function attachHandlers() {
     }
 
     possibleDesigns.forEach(d => {
-        console.log(d.name);
-        console.log(window.location.hash);
         if (window.location.hash.indexOf(d.name) > 0) {
-            console.log('setting to ' + d)
             setDesign(d);
         }
     });

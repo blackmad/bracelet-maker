@@ -35,8 +35,6 @@ export class DavidsPlayground {
             this.params = parseParamsString(window.location.hash.substring(1));
         }
 
-        console.log(this.params);
-
         this.buildMetaParameterWidgets(document.getElementById('parameterDiv'));
 
         $('.downloadSVG').click(_.bind(this.downloadSVG, this));
@@ -51,9 +49,12 @@ export class DavidsPlayground {
     makeUrlParams() {
         const encodeGetParams = p => 
             Object.entries(p).map(kv => kv.map(encodeURIComponent).join("=")).join("&");
-        console.log('trying to set hash to ' )
         window.location.hash = encodeGetParams(this.params)
-        console.log(encodeGetParams(this.params));
+    }
+
+    onRangeChange({metaParameter, value}) {
+        this.params[metaParameter.name] = Number(value);
+        this.rerender();
     }
 
     makeMetaParameterSlider(metaParameter) {
@@ -90,17 +91,17 @@ export class DavidsPlayground {
         containingDiv.append(textInput);
 
         this.params[metaParameter.name] = Number(value);
-
+      
         rangeInput.addEventListener('change', _.bind(function (event) {
             const value = event.target.value;
             textInput.value = value;
-            this.params[metaParameter.name] = Number(value);
-            this.rerender();
+            this.onRangeChange({metaParameter, value})
         }, this));
 
-        textInput.addEventListener('change', function () {
-            rangeInput.value = this.value;
-        });
+        textInput.addEventListener('change', _.bind(function (event) {
+            rangeInput.value = event.target.value;
+            this.onRangeChange({metaParameter, value: event.target.value});
+        }, this));
 
         return containingDiv;
     }
@@ -182,12 +183,6 @@ export class DavidsPlayground {
 
     downloadPDF() {
         function complete(pdfDataString) {
-            console.log('complete')
-            console.log(pdfDataString);
-            // result.text = pdfDataString;
-            // result.percentComplete = 100;
-            // postMessage(result);
-
             var pdfBlob = new Blob([pdfDataString], {type:"application/pdf"});
             var pdfUrl = URL.createObjectURL(pdfBlob);
             var downloadLink = document.createElement("a");
@@ -204,8 +199,7 @@ export class DavidsPlayground {
             downloadLink.click();
             document.body.removeChild(downloadLink);
         }
-        //TODO: watermark
-        //TODO: title, author, grid from options
+        // TODO - calculate these
         const widthInches = 10;
         const heightInches = 3;
         var pdfOptions = {
@@ -216,12 +210,12 @@ export class DavidsPlayground {
             },
             size: [widthInches*72, heightInches*72]
         };
-        console.log(this.model);
         var doc = new PDFDocument(pdfOptions);
         var reader = new StringReader(_.bind(complete, this));
         var stream = doc.pipe(reader);
-        //TODO: break up model across pages
+        
         this.cleanModel(this.model);
+
         const exportOptions = {
             stroke: '#FF0000'
         }
@@ -239,7 +233,6 @@ export class DavidsPlayground {
         if (this.subModels) {
             _.each(this.params, function (value, key) {
                 const parts = key.split('.');
-                console.log(parts);
                 if (parts.length == 2) {
                     modelParams[parts[0]] = modelParams[parts[0]] || {};
                     modelParams[parts[0]][parts[1]] = Number(value);
@@ -280,21 +273,3 @@ export class DavidsPlayground {
 }
 
 export default {} 
-
-// const paramsStr = window.location.search || '?';
-// const params = parseParamsString(window.location.search.substring(1));
-// if (params['script']) {
-//     import(params['script'])
-//     .then((module) => {
-//       console.log(module.default)
-//       console.log(module);
-//       // → logs 'Hi from the default export!'
-//       new DavidsPlayground({modelMaker: module.default}).rerender();
-//     });
-// } else {
-//     const modelMaker = function(options) {
-//         return ConicCuffOuter(InnerDesignHashmarks)(options);
-//     }
-
-//     new DavidsPlayground({modelMaker: modelMaker, subModels: [ConicCuffOuter, InnerDesignHashmarks]}).rerender();
-// }
