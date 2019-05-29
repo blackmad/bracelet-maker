@@ -1,12 +1,12 @@
-import {makeConicSection} from './conic-section.js'
-var makerjs = require('makerjs');
+import {makeConicSection} from './conic-section.mjs'
 
+var makerjs = require('makerjs');
 
 function makeTwoEvenlySpacedBolts(p1, p2) {
     var MillimeterToInches = 0.0393701;
 
     var RivetRadius = 2.5 * MillimeterToInches;
-        
+
     var rivetHole = new makerjs.models.Oval(RivetRadius, RivetRadius)
     var rivetRow = null;
 
@@ -24,7 +24,7 @@ export function ConicCuffOuter(innerDesignClass) {
         const retVal = {};
 
         console.log(options);
-        var {height, wristCircumference, forearmCircumference, safeBorderWidth} = options['ConicCuffOuter'];            
+        var {height, wristCircumference, forearmCircumference, safeBorderWidth} = options['ConicCuffOuter'];
 
         if (wristCircumference > forearmCircumference) {
             throw `wristCircumference ${wristCircumference} must be less than forearmCircumference ${forearmCircumference}`;
@@ -37,18 +37,18 @@ export function ConicCuffOuter(innerDesignClass) {
         /***** START OVERALL CUFF SHAPE + INNER *****/
         // Actual outer cuff cut
         var cuffModel = makeConicSection({
-            topCircumference: wristCircumference + 1.0, 
-            bottomCircumference: forearmCircumference + 1.0, 
+            topCircumference: wristCircumference + 1.0,
+            bottomCircumference: forearmCircumference + 1.0,
             height: height,
             filletRadius: 0.2
         });
-        
+
         // Inner "safe" area for design. Not actually printed. Used to calculate intersection of inner design.
         var cuffModelInner = makeConicSection({
-            topCircumference: wristCircumference + 1.0, 
-            bottomCircumference: forearmCircumference + 1.0, 
-            height: height, 
-            widthOffset: 1.1, 
+            topCircumference: wristCircumference + 1.0,
+            bottomCircumference: forearmCircumference + 1.0,
+            height: height,
+            widthOffset: 1.1,
             heightOffset: safeBorderWidth
         });
 

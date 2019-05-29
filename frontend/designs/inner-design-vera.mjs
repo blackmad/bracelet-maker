@@ -1,7 +1,7 @@
-import { ShapeMaker } from './shape-maker.js';
+import { ShapeMaker } from './shape-maker.mjs';
+import { SimplexNoise } from '../external/simplex-noise.mjs';
 
 var makerjs = require('makerjs');
-
 
 export class InnerDesignVera {
   constructor({ 

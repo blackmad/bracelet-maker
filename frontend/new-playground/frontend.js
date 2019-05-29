@@ -1,11 +1,10 @@
-import {DavidsPlayground} from './new-playground.js'
-import {ConicCuffOuter} from '../conic-cuff-model.js'
+import {DavidsPlayground} from './new-playground.mjs'
+import {ConicCuffOuter} from '../designs/conic-cuff-model.mjs'
 
-import {InnerDesignHashmarks} from '../inner-design-hashmarks.js';
-import {InnerDesignVoronoi} from '../inner-design-voronoi.js';
-import {InnerDesignNoiseWaves} from '../inner-design-noisewaves.js'
-import {InnerDesignCircles} from '../inner-design-circles.js';
-import {InnerDesignVera} from '../inner-design-vera.js'
+import {InnerDesignHashmarks} from '../designs/inner-design-hashmarks.mjs';
+import {InnerDesignVoronoi} from '../designs/inner-design-voronoi.mjs';
+import {InnerDesignCircles} from '../designs/inner-design-circles.mjs';
+import {InnerDesignVera} from '../designs/inner-design-vera.mjs'
 
 let playground = null;
 

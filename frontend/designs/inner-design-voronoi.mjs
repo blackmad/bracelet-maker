@@ -1,5 +1,7 @@
 var makerjs = require('makerjs');
-import {Delaunay} from '../external/d3-delaunay.mjs';
+
+import { SimplexNoise } from '../external/simplex-noise.mjs';
+import { Delaunay } from '../external/d3-delaunay.mjs';
 
 function polygonArea(points,signed) {
     var l = points.length
@@ -19,12 +21,11 @@ function polygonArea(points,signed) {
       return Math.abs(det) / 2
   }
 
-function modelArea(model) {
-    _.map(model.paths, function(path) {
-        console.log(path);
-    })
-
-}
+// function modelArea(model) {
+//     _.map(model.paths, function(path) {
+//         console.log(path);
+//     })
+// }
 
 
 export function InnerDesignVoronoi({
@@ -54,13 +55,12 @@ export function InnerDesignVoronoi({
     // We do the triangulation and then run through it once (should probably be iterative) 
     // deleting seed points that result in polygons that are too small --
     // currently measured by border but probably should be by area
-    let i = 0;
     const cellModels = {};
     const newSeedPoints = [];
-    _.each(_.zip(Array.from(voronoi.cellPolygons()), seedPoints), function (cellAndSeed, index) {
-        // console.log(cellAndSeed);
-        const cell = cellAndSeed[0];
-        const seed = cellAndSeed[1];
+
+    let index = 0;
+    for (let cell of voronoi.cellPolygons()) {
+        const seed = seedPoints[index];
         var cdModel = new makerjs.models.ConnectTheDots(true, cell);
         const tmpModel = makerjs.model.combineIntersection(
             cdModel,
@@ -70,14 +70,13 @@ export function InnerDesignVoronoi({
 
         var pathLength = makerjs.measure.modelPathLength(tmpModel.models.a);
         console.log(tmpModel.models.a)
-        console.log(modelArea(tmpModel.models.a))
         if (pathLength > minPathLength) {
             newSeedPoints.push(seed);
         }
 
         cellModels[i.toString()] = cdModel;
-        i += 1;
-    });
+        index += 1;
+    }
     // Return here to see the clamped triangulation 
     // console.log(cellModels);
     // this.models = cellModels;
@@ -131,7 +130,7 @@ export function InnerDesignVoronoi({
 
     const chainModels = {}
     const chains = makerjs.model.findChains(expandedModels);
-    _.each(chains, function (chain, index) {
+    chains.forEach(function (chain, index) {
         if (index != 0) {
             // console.log(makerjs.chain.toNewModel(chain));
             const chainModel = makerjs.chain.toNewModel(chain);

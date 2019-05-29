@@ -1,0 +1,8 @@
+{
+  "name": "bracelet-maker",
+  "version": "0.2.0",
+  "dependencies": {
+    "makerjs": "^0.14.0",
+    "pdfkit": "^0.9.1"
+  }
+}

@@ -22,7 +22,7 @@ function RoundRectangle(sizeX, sizeY) {
 
 export class ShapeMaker {
     static get modelNames() {
-        return _.map(ShapeMaker.models, (m) => m.name);
+        return Object.values(ShapeMaker.models).map(m => m.name);
     }
 
     static get models() {
@@ -37,7 +37,7 @@ export class ShapeMaker {
     }
 
     static findModel(name) {
-        const model = _.find(ShapeMaker.models, function(m) { return m.name == name });
+        const model = Object.values(ShapeMaker.models).find(m => m.name == name);
         return model;
     }
 

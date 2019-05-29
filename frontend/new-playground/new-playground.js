@@ -2,10 +2,12 @@
 */
 
 var makerjs = require('makerjs');
-import { ConicCuffOuter } from '../conic-cuff-model.js';
-import { InnerDesignHashmarks } from '../inner-design-hashmarks.js';
-import { StringReader } from '../external/string-reader.js'
+import { StringReader } from '../external/string-reader.js';
+import {PDFDocument} from '../external/pdfkit.mjs';
 
+function clone(src) {
+  return Object.assign({}, src);
+}
 
 function parseParamsString(paramsString) {
     const params = {};
@@ -37,8 +39,8 @@ export class DavidsPlayground {
 
         this.buildMetaParameterWidgets(document.getElementById('parameterDiv'));
 
-        $('.downloadSVG').click(_.bind(this.downloadSVG, this));
-        $('.downloadPDF').click(_.bind(this.downloadPDF, this));
+        $('.downloadSVG').click(this.downloadSVG.bind(this));
+        $('.downloadPDF').click(this.downloadPDF.bind(this));
     }
 
     rerender() {
@@ -100,16 +102,16 @@ export class DavidsPlayground {
 
         this.params[metaParameter.name] = Number(value);
       
-        rangeInput.addEventListener('change', _.bind(function (event) {
+        rangeInput.addEventListener('change', function (event) {
             const value = event.target.value;
             textInput.value = value;
             this.onParamChange({metaParameter, value})
-        }, this));
+        }.bind(this))
 
-        textInput.addEventListener('change', _.bind(function (event) {
+        textInput.addEventListener('change', function (event) {
             rangeInput.value = event.target.value;
             this.onParamChange({metaParameter, value: event.target.value});
-        }, this));
+        }.bind(this));
 
         return containingDiv;
     }
@@ -124,7 +126,7 @@ export class DavidsPlayground {
         const selectInput = document.createElement('select');
         selectInput.name = metaParameter.name + '-select';
 
-        _.each(metaParameter.options, function(optionValue) {
+        metaParameter.options.forEach(optionValue => {
             const option = document.createElement('option');
             option.value = optionValue;
             option.text = optionValue;
@@ -144,11 +146,10 @@ export class DavidsPlayground {
 
         this.params[metaParameter.name] = selectedValue;
       
-        selectInput.addEventListener('change', _.bind(function (event) {
+        selectInput.addEventListener('change',  function (event) {
             const selectedValue = event.target.selectedOptions[0].value;
             this.onParamChange({metaParameter, value: selectedValue})
-            
-        }, this));
+        }.bind(this));
 
         return containingDiv;
     }
@@ -171,7 +172,7 @@ export class DavidsPlayground {
             this.subModels.forEach((subModel) => {
                 if (subModel.metaParameters) {
                     subModel.metaParameters.forEach((metaParameter) => {
-                        const metaParam = _.clone(metaParameter);
+                        const metaParam = clone(metaParameter);
                         metaParam.name = subModel.name + '.' + metaParameter.name;
                         const subModelDiv = document.getElementById(subModel.name);
                         let divToAppendTo = parameterDiv;
@@ -222,7 +223,7 @@ export class DavidsPlayground {
 
         name = this.modelMaker.name;
         if (this.subModels) {
-            name = _(_.map(this.subModels, (f) => f.name)).join('-')
+            name = this.subModels.map((f) => f.name).join('-')
         }
         name += '.svg';
 
@@ -233,13 +234,14 @@ export class DavidsPlayground {
     }
 
     cleanModel(model) {
-        _.each(model.models, _.bind(function(value, key, list) {
+        if (!model) { return }
+        model.models.forEach(function(value, key, list) {
           if (value == null) {
             delete model.models[key];
           } else {
             this.cleanModel(value);
           }
-        }, this));
+        }.bind(this));
       }
 
     downloadPDF() {
@@ -251,7 +253,7 @@ export class DavidsPlayground {
     
             name = this.modelMaker.name;
             if (this.subModels) {
-                name = _(_.map(this.subModels, (f) => f.name)).join('-')
+                name = this.subModels.map((f) => f.name).join('-')
             }
             name += '.pdf';
     
@@ -272,7 +274,7 @@ export class DavidsPlayground {
             size: [widthInches*72, heightInches*72]
         };
         var doc = new PDFDocument(pdfOptions);
-        var reader = new StringReader(_.bind(complete, this));
+        var reader = new StringReader(complete.bind(this));
         var stream = doc.pipe(reader);
         
         this.cleanModel(this.model);
@@ -292,17 +294,17 @@ export class DavidsPlayground {
         // rebuild params from X.a to {X: {a: }}
         const modelParams = {};
         if (this.subModels) {
-            _.each(this.params, function (value, key) {
+            for (let [key, value] of Object.entries(this.params)) {
                 const parts = key.split('.');
                 if (parts.length == 2) {
                     modelParams[parts[0]] = modelParams[parts[0]] || {};
                     modelParams[parts[0]][parts[1]] = value;
                 }
-            })
+            }
         }
         
         let model = null;
-        try {
+        // try {
             model = Reflect.construct(this.modelMaker, [modelParams]);
 
             const previewDiv = document.getElementById('previewArea');
@@ -325,15 +327,15 @@ export class DavidsPlayground {
             panZoomInstance.fit();
             panZoomInstance.center();
             $('body').removeClass('loading');
-        } catch(err) {
-            var message = err;
-            if (err.message) {
-                message = err.message;
-            }
-            this.showError(message);
-            console.log(err);
-            throw err;
-        }
+        // } catch(err) {
+        //     var message = err;
+        //     if (err.message) {
+        //         message = err.message;
+        //     }
+        //     this.showError(message);
+        //     console.log(err);
+        //     throw err;
+        // }
     }
 }
 

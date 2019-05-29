@@ -1,3 +1,5 @@
+import { SimplexNoise } from '../external/simplex-noise.mjs';
+
 var makerjs = require('makerjs');
 
 export class InnerDesignHashmarks {

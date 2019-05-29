@@ -1,4 +1,4 @@
-import {Angle} from './angle.js';
+import {Angle} from './angle.mjs';
 var makerjs = require('makerjs');
 
 export default makeConicSection;

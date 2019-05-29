@@ -1,15 +1,18 @@
+import { SimplexNoise } from '../external/simplex-noise.mjs';
+
 var makerjs = require('makerjs');
 
 // This is a super gross way of deleting the paths that lie along the "safe" inner boundary
 // so that the circles are connected to the rest of the cuff
 function cleanModel(model) {
-    _.each(model.models, function(value, key, list) {
+    if (!model || !model.models) { return }
+    for (let [key, value] of Object.entries(model.models)) {
         if (value.alpha) {
             model.models[key] = null;
         } else {
             cleanModel(value)
         }
-    })
+    }
   }
 
 
