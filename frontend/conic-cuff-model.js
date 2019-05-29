@@ -24,13 +24,21 @@ export function ConicCuffOuter(innerDesignClass) {
         const retVal = {};
 
         console.log(options);
-        const {height, wristCircumference, forearmCircumference} = options['ConicCuffOuter'];            
+        var {height, wristCircumference, forearmCircumference, safeBorderWidth} = options['ConicCuffOuter'];            
+
+        if (wristCircumference > forearmCircumference) {
+            throw `wristCircumference ${wristCircumference} must be less than forearmCircumference ${forearmCircumference}`;
+        }
+
+        if (forearmCircumference - wristCircumference < 0.05) {
+            forearmCircumference += 0.05;
+        }
 
         /***** START OVERALL CUFF SHAPE + INNER *****/
         // Actual outer cuff cut
         var cuffModel = makeConicSection({
             topCircumference: wristCircumference + 1.0, 
-            bottomCircumference: forearmCircumference + 0.7, 
+            bottomCircumference: forearmCircumference + 1.0, 
             height: height,
             filletRadius: 0.2
         });
@@ -38,10 +46,10 @@ export function ConicCuffOuter(innerDesignClass) {
         // Inner "safe" area for design. Not actually printed. Used to calculate intersection of inner design.
         var cuffModelInner = makeConicSection({
             topCircumference: wristCircumference + 1.0, 
-            bottomCircumference: forearmCircumference + 0.7, 
+            bottomCircumference: forearmCircumference + 1.0, 
             height: height, 
-            widthOffset: 0.8, 
-            heightOffset: 0.2
+            widthOffset: 1.1, 
+            heightOffset: safeBorderWidth
         });
 
         var completeCuffModel = {
@@ -122,5 +130,6 @@ export function ConicCuffOuter(innerDesignClass) {
 ConicCuffOuter.metaParameters = [
     { title: "Height", type: "range", min: 1, max: 5, value: 2, step: 0.25, name: 'height' },
     { title: "Wrist Circumference", type: "range", min: 4, max: 10, value: 7, step: 0.1, name: 'wristCircumference' },
-    { title: "Wide Wrist Circumference", type: "range", min: 4, max: 10, value: 7.75, step: 0.1, name: 'forearmCircumference' }
+    { title: "Wide Wrist Circumference", type: "range", min: 4, max: 10, value: 7.75, step: 0.1, name: 'forearmCircumference' },
+    { title: "Safe Border (in)", type: "range", min: 0.1, max: 0.75, value: 0.25, step: 0.01, name: 'safeBorderWidth' },
 ]

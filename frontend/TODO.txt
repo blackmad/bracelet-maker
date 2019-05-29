@@ -1,7 +1,10 @@
 - get PDF output sized appropriately
-- figure out why width isn't doing the right thing
 - add some more controls to voronoi
-- add a "re-render" in general
+- speed up voronoi with caching
+
+- make a vera molnar agitated grid
+- make a circle pattern that doesn't overlap
+- make a more deliberate circle pattern
 
 - get SVG export for lasercut
 

@@ -5,11 +5,12 @@ import {InnerDesignHashmarks} from '../inner-design-hashmarks.js';
 import {InnerDesignVoronoi} from '../inner-design-voronoi.js';
 import {InnerDesignNoiseWaves} from '../inner-design-noisewaves.js'
 import {InnerDesignCircles} from '../inner-design-circles.js';
+import {InnerDesignVera} from '../inner-design-vera.js'
 
 let playground = null;
 
 function attachHandlers() {
-    const possibleDesigns = [InnerDesignVoronoi, InnerDesignHashmarks, InnerDesignCircles]
+    const possibleDesigns = [InnerDesignVoronoi, InnerDesignHashmarks, InnerDesignCircles, InnerDesignVera]
     const possibleDesignNameMap = {}
     possibleDesigns.forEach(d => { possibleDesignNameMap[d.name] = d })
 
@@ -31,6 +32,7 @@ function attachHandlers() {
         const design = button.target.value;
         var innerDesignClass = null;
         if (possibleDesignNameMap[design]) {
+            window.location.hash = '';
             setDesign(possibleDesignNameMap[design]);
         } else {
             throw "can't interpret design: " + design;

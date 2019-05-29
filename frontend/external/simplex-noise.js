@@ -139,6 +139,12 @@ Better rank ordering method by Stefan Gustavson in 2012.
       // The result is scaled to return values in the interval [-1,1].
       return 70.0 * (n0 + n1 + n2);
     },
+    positiveNoise2D: function(xin, yin) {
+      return (this.noise2D(xin, yin) + 1.0) /2.0
+    },
+    noise2DInRange(xin, yin, min, max) {
+      return this.positiveNoise2D(xin, yin) * (max - min) + min;
+    },
     // 3D simplex noise
     noise3D: function(xin, yin, zin) {
       var permMod12 = this.permMod12;

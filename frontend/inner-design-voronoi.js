@@ -19,6 +19,13 @@ function polygonArea(points,signed) {
       return Math.abs(det) / 2
   }
 
+function modelArea(model) {
+    _.map(model.paths, function(path) {
+        console.log(path);
+    })
+
+}
+
 
 export function InnerDesignVoronoi({
     height,
@@ -26,19 +33,27 @@ export function InnerDesignVoronoi({
     numPoints = 100,
     expandWidth = 0.1,
     minPathLength = 1,
+    xNoiseCoefficient,
+    yNoiseCoefficient,
+    seed,
     boundaryModel
 }) {
     const maxX = width;
     const maxY = height;
 
+    var simplex = new SimplexNoise(seed.toString());
+
     var seedPoints = []
     for (let i = 0; i < numPoints; i++) {
-        seedPoints.push([Math.random() * maxX, Math.random() * maxY]);
+        seedPoints.push([simplex.positiveNoise2D(i, i*xNoiseCoefficient) * maxX, simplex.positiveNoise2D(i, i*yNoiseCoefficient) * maxY]);
     }
 
     var delaunay = Delaunay.from(seedPoints);
     var voronoi = delaunay.voronoi([0, 0, maxX, maxY]);
 
+    // We do the triangulation and then run through it once (should probably be iterative) 
+    // deleting seed points that result in polygons that are too small --
+    // currently measured by border but probably should be by area
     let i = 0;
     const cellModels = {};
     const newSeedPoints = [];
@@ -53,20 +68,21 @@ export function InnerDesignVoronoi({
         );
         // console.log(tmpModel)
 
-        // bbox not working for some reason
         var pathLength = makerjs.measure.modelPathLength(tmpModel.models.a);
-        // console.log()
+        console.log(tmpModel.models.a)
+        console.log(modelArea(tmpModel.models.a))
         if (pathLength > minPathLength) {
             newSeedPoints.push(seed);
         }
-        
 
         cellModels[i.toString()] = cdModel;
         i += 1;
     });
+    // Return here to see the clamped triangulation 
     // console.log(cellModels);
     // this.models = cellModels;
     // console.log(this.models)
+    // return;
 
     delaunay = Delaunay.from(newSeedPoints);
     voronoi = delaunay.voronoi([0, 0, maxX, maxY]);
@@ -134,7 +150,11 @@ export function InnerDesignVoronoi({
 export default InnerDesignVoronoi;
 
 InnerDesignVoronoi.metaParameters = [
+    { title: "Seed", type: "range", min: 1, max: 10000, value: 1, step: 1, name: 'seed' },
     { title: "Num Points", type: "range", min: 10, max: 100, value: 20, step: 1, name: 'numPoints' },
     { title: "Border Size (in)", type: "range", min: 0.1, max: 0.75, value: 0.1, step: 0.01, name: 'expandWidth' },
-    { title: "Min Cell Border Length", type: "range", min: 0.5, max: 5, value: 1.0, step: 0.1, name: 'minPathLength' }
+    { title: "Min Cell Border Length", type: "range", min: 0.5, max: 5, value: 1.0, step: 0.1, name: 'minPathLength' },
+    { title: "xNoiseCoefficient", type: "range", min: 0.01, max: 1, step: 0.1, value: 0.5, name: 'xNoiseCoefficient' },
+    { title: "yNoiseCoefficient", type: "range", min: 0.01, max: 1, step: 0.1, value: 0.2, name: 'yNoiseCoefficient' },
+
   ];

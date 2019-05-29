@@ -17,6 +17,10 @@ function getRandomArbitrary(min, max) {
   return Math.random() * (max - min) + min;
 }
 
+function combineIntersection(modelA, modelB, options) {
+    return makerjs.model.combine(modelA, modelB, true, false, true, false);
+}
+
 export class InnerDesignCircles {
   constructor({ 
     height = 2, 
@@ -25,45 +29,45 @@ export class InnerDesignCircles {
     numCircles,
     maxBorderSize,
     minCircleSize,
-    maxCircleSize
-    // seed, 
-    // bufferWidth, 
-    // hashWidth, 
-    // initialNoiseRange1, 
-    // initialNoiseRange2, 
-    // noiseOffset1, 
-    // noiseOffset2, 
-    // noiseInfluence 
+    maxCircleSize,
+    seed,
+    centerXNoiseDenom1,
+    centerXNoiseDenom2,
+    centerYNoiseDenom1,
+    centerYNoiseDenom2
   }) {
-    var circleSize = 1.0;
+    var simplex = new SimplexNoise(seed.toString());
+
     var currentModel = {}
    
     var madeModel = false;
 
-    
+    var combineOptions = {};
     for (var c = 1; c <= numCircles; c++) {
         const paths = [];
         
         const center = [
-            Math.random() * width,
-            Math.random() * height
+            simplex.noise2DInRange(c/centerXNoiseDenom1, c/centerXNoiseDenom2, 0, width),
+            simplex.noise2DInRange(c/centerYNoiseDenom1, c/centerYNoiseDenom2, 0, height)
         ];
 
-        const circleSize = getRandomArbitrary(minCircleSize, maxCircleSize)
+        const circleSize = simplex.noise2DInRange(c/20, c/10, minCircleSize, maxCircleSize);
+        const borderCoefficient = 1 + simplex.noise2DInRange(c/10, c/20, 0.1, maxBorderSize);
 
         paths.push(new makerjs.paths.Circle(
             center, circleSize
         ));
         paths.push(new makerjs.paths.Circle(
-            center, circleSize*(1+getRandomArbitrary(0.5, 1.0)*maxBorderSize)
+            center, circleSize*borderCoefficient
         ));
 
-        var newModel = makerjs.model.combineIntersection(
+        var newModel = combineIntersection(
             makerjs.model.clone(boundaryModel),
-            { paths: paths}
+            { paths: paths},
+            combineOptions
         )
-        // newModel.models.a = null;
-
+        delete combineOptions['measureeB']
+        
         if (madeModel) {
             currentModel = makerjs.model.combineUnion(
                 currentModel,
@@ -88,10 +92,15 @@ export class InnerDesignCircles {
 }
 
 InnerDesignCircles.metaParameters = [
+  { title: "Seed", type: "range", min: 1, max: 10000, value: 1, step: 1, name: 'seed' },
   { title: "Num Circles", type: "range", min: 1, max: 30, value: 3, step: 1, name: 'numCircles' },
   { title: "Max Border Size", type: "range", min: 0.1, max: 0.25, value: 0.1, step: 0.01, name: 'maxBorderSize' },
   { title: "Min Circle Size", type: "range", min: 0.1, max: 2.0, value: 0.5, step: 0.01, name: 'minCircleSize' },
-  { title: "Max Circle Size", type: "range", min: 0.1, max: 3.0, value: 1.5, step: 0.01, name: 'maxCircleSize' }
+  { title: "Max Circle Size", type: "range", min: 0.1, max: 3.0, value: 1.5, step: 0.01, name: 'maxCircleSize' },
+  { title: "Center X Noise Demon 1", type: "range", min: 1, max: 40, value: 20, step: 1, name: 'centerXNoiseDenom1' },
+  { title: "Center X Noise Demon 2", type: "range", min: 1, max: 40, value: 20, step: 1, name: 'centerXNoiseDenom2' },
+  { title: "Center Y Noise Demon 1", type: "range", min: 1, max: 40, value: 20, step: 1, name: 'centerYNoiseDenom1' },
+  { title: "Center Y Noise Demon 2", type: "range", min: 1, max: 40, value: 10, step: 1, name: 'centerYNoiseDenom2' }
 ];
 
 export default {}

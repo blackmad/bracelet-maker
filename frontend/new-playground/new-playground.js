@@ -265,7 +265,11 @@ export class DavidsPlayground {
             panZoomInstance.center();
             $('body').removeClass('loading');
         } catch(err) {
-            this.showError(err.message);
+            var message = err;
+            if (err.message) {
+                message = err.message;
+            }
+            this.showError(message);
             console.log(err);
             throw err;
         }
