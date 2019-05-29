@@ -52,8 +52,16 @@ export class DavidsPlayground {
         window.location.hash = encodeGetParams(this.params)
     }
 
-    onRangeChange({metaParameter, value}) {
-        this.params[metaParameter.name] = Number(value);
+    metaParamRequiresNumber(metaParameter) {
+        return metaParameter.type == 'range';
+    }
+
+    onParamChange({metaParameter, value}) {
+        if (this.metaParamRequiresNumber(metaParameter)) {
+            this.params[metaParameter.name] = Number(value);
+        } else {
+            this.params[metaParameter.name] = value;
+        }
         this.rerender();
     }
 
@@ -95,15 +103,65 @@ export class DavidsPlayground {
         rangeInput.addEventListener('change', _.bind(function (event) {
             const value = event.target.value;
             textInput.value = value;
-            this.onRangeChange({metaParameter, value})
+            this.onParamChange({metaParameter, value})
         }, this));
 
         textInput.addEventListener('change', _.bind(function (event) {
             rangeInput.value = event.target.value;
-            this.onRangeChange({metaParameter, value: event.target.value});
+            this.onParamChange({metaParameter, value: event.target.value});
         }, this));
 
         return containingDiv;
+    }
+
+    makeMetaParameterSelect(metaParameter) {
+        const selectedValue = this.params[metaParameter.name] || metaParameter.value;
+
+        const containingDiv = document.createElement('div');
+        containingDiv.name = metaParameter.name + '-container';
+        containingDiv.className = 'meta-parameter-container'
+
+        const selectInput = document.createElement('select');
+        selectInput.name = metaParameter.name + '-select';
+
+        _.each(metaParameter.options, function(optionValue) {
+            const option = document.createElement('option');
+            option.value = optionValue;
+            option.text = optionValue;
+            if (optionValue == selectedValue) {
+                option.setAttribute('selected', 'selected');
+            }
+            selectInput.appendChild(option);
+        })
+
+        const textLabelDiv = document.createElement('div');
+        textLabelDiv.name = metaParameter.name + '-text-label';
+        textLabelDiv.className = 'textLabel'
+        textLabelDiv.innerHTML = metaParameter.title;
+       
+        containingDiv.append(textLabelDiv);
+        containingDiv.append(selectInput);
+
+        this.params[metaParameter.name] = selectedValue;
+      
+        selectInput.addEventListener('change', _.bind(function (event) {
+            const selectedValue = event.target.selectedOptions[0].value;
+            this.onParamChange({metaParameter, value: selectedValue})
+            
+        }, this));
+
+        return containingDiv;
+    }
+
+    buildMetaParameterWidget(metaParam) {
+        switch (metaParam.type) {
+            case 'range':
+                return this.makeMetaParameterSlider(metaParam);
+            case 'select':
+                return this.makeMetaParameterSelect(metaParam);
+            default:
+                throw 'unknown metaParam - not slider or select';
+        }
     }
 
     buildMetaParameterWidgets(parameterDiv) {
@@ -120,14 +178,17 @@ export class DavidsPlayground {
                         if (subModelDiv) {
                             divToAppendTo = subModelDiv;
                         }
-                        divToAppendTo.append(this.makeMetaParameterSlider(metaParam))
+
+                        const el = this.buildMetaParameterWidget(metaParam);
+                        divToAppendTo.append(el);
                     })
                 }
             })
         } else {
-            this.modelMaker.metaParameters.forEach((metaParameter) =>
-                parameterDiv.append(this.makeMetaParameterSlider(metaParameter))
-            )
+            this.modelMaker.metaParameters.forEach((metaParameter) => {
+                const el = this.buildMetaParameterWidget(metaParameter);
+                parameterDiv.append(el);
+            })
         }
     }
 
@@ -235,7 +296,7 @@ export class DavidsPlayground {
                 const parts = key.split('.');
                 if (parts.length == 2) {
                     modelParams[parts[0]] = modelParams[parts[0]] || {};
-                    modelParams[parts[0]][parts[1]] = Number(value);
+                    modelParams[parts[0]][parts[1]] = value;
                 }
             })
         }

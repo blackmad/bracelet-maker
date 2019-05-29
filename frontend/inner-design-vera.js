@@ -1,3 +1,5 @@
+import { ShapeMaker } from './shape-maker.js';
+
 var makerjs = require('makerjs');
 
 
@@ -6,7 +8,8 @@ export class InnerDesignVera {
     height, 
     width, 
     boundaryModel, 
-    squareSize,
+    shapeSize1,
+    shapeSize2,
     bufferWidth,
     seed,
     xNoiseCoefficient,
@@ -14,42 +17,32 @@ export class InnerDesignVera {
     xScaleNoiseCoefficient,
     yScaleNoiseCoefficient,
     minScale,
-    maxScale
+    maxScale,
+    shapeName
   }) {
     var simplex = new SimplexNoise(seed.toString());
 
     const models = {};
     const paths = [];
 
-    // const boxWidth = width / cols;
-    // const boxHeight = height / rows;
-    const gridCellSize = (squareSize + bufferWidth);
-    // const gridCellSize = squareSize;
-    const boxWidth = squareSize;
-    const boxHeight = squareSize;
-    const rows = width / gridCellSize;
-    const cols = height / gridCellSize;
+    const gridCellSizeX = (shapeSize1 + bufferWidth);
+    const gridCellSizeY = (shapeSize2 + bufferWidth);
+    const rows = width / (shapeSize1 + bufferWidth);
+    const cols = height / (shapeSize2 + bufferWidth);
 
     for (var r = -1; r <= rows; r++) {
         for (var c = -1; c <= cols; c++) {
 
             models[r + '.' + c] = makerjs.$(
-                // new makerjs.models.Rectangle(
-                //     boxWidth, boxHeight
-                // ),
-                {paths: [
-                    new makerjs.paths.Circle(
-                        boxWidth/2
-                    )
-                ]}
+                ShapeMaker.makeShape(shapeName, shapeSize1, shapeSize2)
+                // ShapeMaker.makeShape(shapeName, boxWidth)
             )
             .rotate(simplex.noise2DInRange(r*xNoiseCoefficient, c*yNoiseCoefficient, 0, 180))
-            
             .scale(simplex.noise2DInRange(r*xScaleNoiseCoefficient, c*yScaleNoiseCoefficient, minScale, maxScale))
             //.move([r*gridCellSize, c*gridCellSize])
-            .move([r*gridCellSize 
+            .move([r*gridCellSizeX 
                 +simplex.noise2DInRange(r*xNoiseCoefficient, c*yNoiseCoefficient, -bufferWidth/2, bufferWidth/2),
-                 c*gridCellSize
+                 c*gridCellSizeY
                  + simplex.noise2DInRange(r*xNoiseCoefficient, c*yNoiseCoefficient, -bufferWidth/2, bufferWidth/2)
             ])
             .$result;
@@ -68,7 +61,8 @@ export class InnerDesignVera {
 
 InnerDesignVera.metaParameters = [
   { title: "Seed", type: "range", min: 1, max: 10000, value: 1, step: 1, name: 'seed' },
-  { title: "Square Size", type: "range", min: 0.1, max: 2.0, value: 0.2, step: 0.01, name: 'squareSize' },
+  { title: "Shape Size 1 (Width?)", type: "range", min: 0.02, max: 2.0, value: 0.2, step: 0.01, name: 'shapeSize1' },
+  { title: "Shape Size 2 (Height?)", type: "range", min: 0.02, max: 2.0, value: 0.2, step: 0.01, name: 'shapeSize2' },
 
   { title: "Border Size (in)", type: "range", min: 0.1, max: 0.75, value: 0.1, step: 0.01, name: 'bufferWidth' },
   { title: "xNoiseCoefficient", type: "range", min: 0.00, max: 0.2, step: 0.001, value: 0.01, name: 'xNoiseCoefficient' },
@@ -79,8 +73,7 @@ InnerDesignVera.metaParameters = [
   { title: "Min scaling", type: "range", min: 0.1, max: 1.0, value: 0.5, step: 0.01, name: 'minScale' },
   { title: "Max scaling", type: "range", min: 1.0, max: 1.5, value: 1.25, step: 0.01, name: 'maxScale' },
 
-  
-
+  { title: "Shape", type: "select", options: ShapeMaker.modelNames, name: 'shapeName', value: 'Rectangle'},
 ];
 
 export default {}
