@@ -68,14 +68,8 @@ export class InnerDesignCircles {
   }) {
     var simplex = new SimplexNoise(seed.toString());
 
-    var currentModel = {}
-   
-    var madeModel = false;
     const paths = [];
-
-    var combineOptions = {};
     for (var c = 1; c <= numCircles; c++) {
-        
         const center = [
             simplex.noise2DInRange(c/centerXNoiseDenom1, c/centerXNoiseDenom2, 0, width),
             simplex.noise2DInRange(c/centerYNoiseDenom1, c/centerYNoiseDenom2, 0, height)
