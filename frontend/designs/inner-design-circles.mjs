@@ -89,6 +89,12 @@ export class InnerDesignCircles {
         // to the start of the next one
         // There's a boundary case here at the very edge/corners of our model
         const paths = []
+        const boundaryArcsByRadius = _.groupBy(extractPaths(boundaryModel, 'arc'), l => l.radius)
+        _.each(boundaryArcsByRadius, (arcs, radius) => {
+            if (!boundaryArcGroups[radius]) {
+                paths.push(arcs[0]);
+            }
+        })
         for (let [radius, value] of Object.entries(boundaryArcGroups)) {
             console.log(extractPaths(boundaryModel))
             const overallArc = _.find(extractPaths(boundaryModel), p => p.radius && p.radius == radius)
@@ -125,9 +131,6 @@ export class InnerDesignCircles {
         // just add in the entire thing
         const boundaryLinesBySlope = _.groupBy(extractPaths(boundaryModel, 'line'), l => approxSlope(l))
         _.each(boundaryLinesBySlope, (lines, slope) => {
-            console.log(slope);
-
-
             if (!boundaryLineGroups[slope]) {
                 paths.push(lines[0]);
             }
@@ -238,7 +241,7 @@ export class InnerDesignCircles {
 
 InnerDesignCircles.metaParameters = [
   { title: "Seed", type: "range", min: 1, max: 10000, value: 1, step: 1, name: 'seed' },
-  { title: "Num Circles", type: "range", min: 1, max: 40, value: 3, step: 1, name: 'numCircles' },
+  { title: "Num Circles", type: "range", min: 1, max: 40, value: 20, step: 1, name: 'numCircles' },
   { title: "Max Border Size", type: "range", min: 0.1, max: 0.25, value: 0.1, step: 0.01, name: 'maxBorderSize' },
   { title: "Min Circle Size", type: "range", min: 0.1, max: 2.0, value: 0.5, step: 0.01, name: 'minCircleSize' },
   { title: "Max Circle Size", type: "range", min: 0.1, max: 3.0, value: 1.5, step: 0.01, name: 'maxCircleSize' },

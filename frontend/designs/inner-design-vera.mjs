@@ -25,10 +25,10 @@ export class InnerDesignVera {
     const models = {};
     const paths = [];
 
-    const gridCellSizeX = (shapeSize1 + bufferWidth);
-    const gridCellSizeY = (shapeSize2 + bufferWidth);
-    const rows = width / (shapeSize1 + bufferWidth);
-    const cols = height / (shapeSize2 + bufferWidth);
+    const gridCellSizeX = (shapeSize1 + bufferWidth*2);
+    const gridCellSizeY = (shapeSize2 + bufferWidth*2);
+    const rows = width / gridCellSizeX;
+    const cols = height / gridCellSizeY;
 
     for (var r = -1; r <= rows; r++) {
         for (var c = -1; c <= cols; c++) {
