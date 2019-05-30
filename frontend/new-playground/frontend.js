@@ -5,11 +5,12 @@ import {InnerDesignHashmarks} from '../designs/inner-design-hashmarks.mjs';
 import {InnerDesignVoronoi} from '../designs/inner-design-voronoi.mjs';
 import {InnerDesignCircles} from '../designs/inner-design-circles.mjs';
 import {InnerDesignVera} from '../designs/inner-design-vera.mjs'
+import {InnerDesignCirclesXVera} from '../designs/inner-design-circles-x-vera.mjs'
 
 let playground = null;
 
 function attachHandlers() {
-    const possibleDesigns = [InnerDesignVoronoi, InnerDesignHashmarks, InnerDesignCircles, InnerDesignVera];
+    const possibleDesigns = [InnerDesignVoronoi, InnerDesignHashmarks, InnerDesignCircles, InnerDesignVera, InnerDesignCirclesXVera];
     const possibleDesignNameMap = {}
     possibleDesigns.forEach(d => { possibleDesignNameMap[d.name] = d })
 

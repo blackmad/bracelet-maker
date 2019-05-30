@@ -2,55 +2,6 @@ import { SimplexNoise } from '../external/simplex-noise.mjs';
 
 var makerjs = require('makerjs');
 
-// This is a super gross way of deleting the paths that lie along the "safe" inner boundary
-// so that the circles are connected to the rest of the cuff
-function extractBoundaryChunks(model) {
-    const chunks = [];
-    extractBoundaryChunksHelper(model, chunks);
-    return chunks;
-}
-
-function extractBoundaryChunksHelper(model, chunks) {
-if (!model || !model.models) { return }
-for (let [key, value] of Object.entries(model.models)) {
-    if (value.alpha) {
-        chunks.push(model.models[key]);
-        delete model.models[key];
-    } else {
-        extractBoundaryChunksHelper(value, chunks)
-    }
-}
-}
-
-function lineLength(line) {
-    return Math.sqrt(Math.pow(line.end[0] - line.origin[0], 2) + Math.pow(line.end[1] - line.origin[1], 2));
-}
-
-function combineIntersection(modelA, modelB, options) {
-    return makerjs.model.combine(modelA, modelB, true, false, true, false);
-}
-
-function extractPaths(model, optionalType) {
-    const paths = [];
-    var walkOptions = {
-        onPath: function (wp) {
-            if (!optionalType || optionalType == wp.pathContext.type) {
-                paths.push(wp.pathContext);
-            }
-        }
-      };
-      
-    makerjs.model.walk(model, walkOptions);
-    return paths;
-}
-
-function approxSlope(line) {
-    if (!line.end) { return NaN; }
-    return Math.round(
-        (line.origin[0] - line.end[0]) / (line.origin[1] - line.end[1]) * 1000
-    )
-}
-
 export class InnerDesignCircles {
   constructor({ 
     height = 2, 
