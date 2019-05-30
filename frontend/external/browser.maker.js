@@ -6882,11 +6882,12 @@ var MakerJs;
                 this.removed.push(value);
                 this.removeValue(el, valueId);
                 this.removeValue(otherElement, valueId);
-                if (otherElement.valueIds.length > 0) {
+                if (otherElement && otherElement.valueIds.length > 0) {
                     this.appendQueue(otherElement, current);
                 }
             };
             DeadEndFinder.prototype.removeValue = function (el, valueId) {
+                if (!el) { return }
                 var pos = el.valueIds.indexOf(valueId);
                 if (pos >= 0) {
                     el.valueIds.splice(pos, 1);

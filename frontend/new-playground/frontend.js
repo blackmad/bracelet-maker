@@ -1,4 +1,4 @@
-import {DavidsPlayground} from './new-playground.mjs'
+import {DavidsPlayground} from './new-playground.js'
 import {ConicCuffOuter} from '../designs/conic-cuff-model.mjs'
 
 import {InnerDesignHashmarks} from '../designs/inner-design-hashmarks.mjs';
@@ -9,7 +9,7 @@ import {InnerDesignVera} from '../designs/inner-design-vera.mjs'
 let playground = null;
 
 function attachHandlers() {
-    const possibleDesigns = [InnerDesignVoronoi, InnerDesignHashmarks, InnerDesignCircles, InnerDesignVera]
+    const possibleDesigns = [InnerDesignVoronoi, InnerDesignHashmarks, InnerDesignCircles, InnerDesignVera];
     const possibleDesignNameMap = {}
     possibleDesigns.forEach(d => { possibleDesignNameMap[d.name] = d })
 

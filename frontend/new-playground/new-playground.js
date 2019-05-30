@@ -3,7 +3,6 @@
 
 var makerjs = require('makerjs');
 import { StringReader } from '../external/string-reader.js';
-import {PDFDocument} from '../external/pdfkit.mjs';
 
 function clone(src) {
   return Object.assign({}, src);
