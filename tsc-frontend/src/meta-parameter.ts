@@ -41,17 +41,20 @@ export class SelectMetaParameter implements MetaParameter {
     public name: string;
     public type: MetaParameterType;
     public title: string;
-    public options: string[]
+    public options: string[];
+    public value: string;
 
-    constructor({ name, title, options}: { 
+    constructor({ name, title, options, value}: { 
         name: string;
         title: string;
         options: string[];
+        value: string;
     }) {
         this.name = name;
         this.type = MetaParameterType.Select;
         this.title = title;
         this.options = options;
+        this.value = value;
     }
 }
 

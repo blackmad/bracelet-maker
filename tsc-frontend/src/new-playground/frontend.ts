@@ -1,17 +1,16 @@
-import {DavidsPlayground} from './new-playground'
+import { DavidsPlayground } from './new-playground'
+import { ModelMaker } from '../model';
+
+import { ConicCuffOuter } from '../designs/conic-cuff';
+
 import { InnerDesignCircles } from '../designs/inner-design-circles';
 import { InnerDesignCirclePacking } from '../designs/inner-design-circle-packing';
-import { ConicCuffOuter } from '../designs/conic-cuff';
-import { ModelMaker } from '../model';
-import * as $ from "jquery";
+import { InnerDesignVera } from '../designs/inner-design-vera'
 
-// import './../../styles/base.css';
-// import './../../styles/stripe-example.css';
-// import './../../styles/onoff.css';
+import * as $ from "jquery";
 
 // import {InnerDesignHashmarks} from '../designs/inner-design-hashmarks.mjs';
 // import {InnerDesignVoronoi} from '../designs/inner-design-voronoi.mjs';
-// import {InnerDesignVera} from '../designs/inner-design-vera.mjs'
 // import {InnerDesignCirclesXVera} from '../designs/inner-design-circles-x-vera.mjs'
 
 function attachHandlers() {
@@ -33,6 +32,8 @@ function attachHandlers() {
             setDesign(new InnerDesignCircles())
         } else if (name == InnerDesignCirclePacking.name) {
             setDesign(new InnerDesignCirclePacking())
+        } else if (name == InnerDesignVera.name) {
+            setDesign(new InnerDesignVera())
         } else {
             throw "can't interpret design: " + name;
         }
