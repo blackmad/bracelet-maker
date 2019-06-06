@@ -74,7 +74,7 @@ export function InnerDesignVoronoi({
             newSeedPoints.push(seed);
         }
 
-        cellModels[i.toString()] = cdModel;
+        cellModels[index.toString()] = cdModel;
         index += 1;
     }
     // Return here to see the clamped triangulation 

@@ -1,5 +1,9 @@
 var makerjs = require('makerjs');
 
+interface ShapeMakerShape {
+    (sizeX: number, sizeY: number): MakerJs.IModel;
+}
+
 function Circle(sizeX, sizeY) {
     return {paths: new makerjs.paths.Circle(sizeX)};
 }
@@ -22,10 +26,10 @@ function RoundRectangle(sizeX, sizeY) {
 
 export class ShapeMaker {
     static get modelNames() {
-        return Object.values(ShapeMaker.models).map(m => m.name);
+        return ShapeMaker.models.map(m => m.name);
     }
 
-    static get models() {
+    static get models(): Array<ShapeMakerShape> {
         return [
             makerjs.models.Rectangle,
             makerjs.models.Ellipse,
@@ -36,18 +40,13 @@ export class ShapeMaker {
         ]
     }
 
-    static findModel(name) {
-        const model = Object.values(ShapeMaker.models).find(m => m.name == name);
+    static findModel(name: string) {
+        const model = ShapeMaker.models.find(m => m.name == name);
         return model;
     }
 
-    static makeShape(name, sizeX, sizeY) {
+    static makeShape(name: string, sizeX: number, sizeY: number) {
         const maker = ShapeMaker.findModel(name);
         return Reflect.construct(maker, [sizeX, sizeY]);
     }
-}
-
-export function makeShape(name, sizeX, sizeY) {
-    const maker = ShapeMaker(name);
-    return Reflect.construct(maker, [sizeX, sizeY]);
 }

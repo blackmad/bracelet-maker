@@ -1,0 +1,15 @@
+{
+    "lib": [ "es2017", "dom", "es2017.object" ],
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": { "*": ["types/*"] },
+        "experimentalDecorators": true,
+        "outDir": "./built",
+        "allowJs": true,
+        "target": "es6",
+        "sourceMap": true
+    },
+    "include": [
+        "./src/**/*"
+    ]
+}

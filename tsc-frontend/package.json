@@ -1,0 +1,36 @@
+{
+  "name": "webpack-demo",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "FIXFIX": "webpack --progress --profile --colors --display-error-details --display-cached"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jquery": "^3.3.29",
+    "@types/maker.js": "^0.9.2",
+    "awesome-typescript-loader": "^5.2.1",
+    "css-loader": "^2.1.1",
+    "dts-gen": "^0.5.7",
+    "source-map-loader": "^0.2.4",
+    "style-loader": "^0.23.1",
+    "transform-loader": "^0.2.4",
+    "typescript": "^3.5.1",
+    "webpack": "^4.33.0",
+    "webpack-cli": "^3.3.2"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.14.133",
+    "jquery": "^3.4.1",
+    "lodash": "^4.17.11",
+    "makerjs": "^0.14.0",
+    "pdfkit": "^0.9.1",
+    "simplex-noise": "^2.4.0",
+    "string-reader": "^0.9.0",
+    "svg-pan-zoom": "github:ariutta/svg-pan-zoom"
+  }
+}

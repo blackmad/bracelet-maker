@@ -1,15 +1,22 @@
-/* TODO
-*/
+const makerjs = require('makerjs');
+const StringReader = require('string-reader');
+const svgPanZoom = require('svg-pan-zoom');
 
-var makerjs = require('makerjs');
-import { StringReader } from '../external/string-reader.js';
+import * as PDFDocument from 'pdfkit';
+import * as $ from "jquery";
+import * as _ from "lodash";
+
+import "core-js/library"
+
+import { ModelMaker } from '../model';
+import { MetaParameter, MetaParameterType } from '../meta-parameter';
 
 function clone(src) {
   return Object.assign({}, src);
 }
 
-function parseParamsString(paramsString) {
-    const params = {};
+function parseParamsString(paramsString): Map<string, string> {
+    const params = new Map<string, string>();
     paramsString.split('&').forEach((p) => {
         const parts = p.split('=');
         params[parts[0]] = decodeURIComponent(parts[1])
@@ -18,19 +25,20 @@ function parseParamsString(paramsString) {
 }
 
 export class DavidsPlayground {
-    constructor({
-        modelMaker,
-        subModels = null,
-        allowPanAndZoom = false
-    }) {
-        this.modelMaker = modelMaker;
-        this.subModels = subModels;
+    private params: Map<string, any>;
+    private svgEl: SVGElement;
+    private model: MakerJs.IModel;
+
+    constructor(
+        public modelMaker: ModelMaker,
+        public subModels: Array<ModelMaker> = null,
+        public allowPanAndZoom?: boolean
+    ) {
         if (this.modelMaker.subModels && !subModels) {
             this.subModels = subModels;
         }
-
         this.allowPanAndZoom = allowPanAndZoom;
-        this.params = {};
+        this.params = new Map();
 
         if (window.location.hash.length > 1) {
             this.params = parseParamsString(window.location.hash.substring(1));
@@ -48,8 +56,13 @@ export class DavidsPlayground {
     }
 
     makeUrlParams() {
-        const encodeGetParams = p => 
-            Object.entries(p).map(kv => kv.map(encodeURIComponent).join("=")).join("&");
+        function encodeGetParams(p: Map<string, any>): string {
+            return _.map(p, (value, key) => {
+                return encodeURIComponent(key) + '=' + encodeURIComponent(value.toString())
+            }).join('&');
+        }
+        console.log(encodeGetParams(this.params));
+    
         window.location.hash = encodeGetParams(this.params)
     }
 
@@ -70,7 +83,6 @@ export class DavidsPlayground {
         const value = Number(this.params[metaParameter.name]) || metaParameter.value;
 
         const containingDiv = document.createElement('div');
-        containingDiv.name = metaParameter.name + '-container';
         containingDiv.className = 'meta-parameter-container'
 
         const rangeInput = document.createElement('input');
@@ -91,7 +103,6 @@ export class DavidsPlayground {
         textInput.value = value;
 
         const textLabelDiv = document.createElement('div');
-        textLabelDiv.name = metaParameter.name + '-text-label';
         textLabelDiv.className = 'textLabel'
         textLabelDiv.innerHTML = metaParameter.title;
 
@@ -119,7 +130,6 @@ export class DavidsPlayground {
         const selectedValue = this.params[metaParameter.name] || metaParameter.value;
 
         const containingDiv = document.createElement('div');
-        containingDiv.name = metaParameter.name + '-container';
         containingDiv.className = 'meta-parameter-container'
 
         const selectInput = document.createElement('select');
@@ -136,7 +146,6 @@ export class DavidsPlayground {
         })
 
         const textLabelDiv = document.createElement('div');
-        textLabelDiv.name = metaParameter.name + '-text-label';
         textLabelDiv.className = 'textLabel'
         textLabelDiv.innerHTML = metaParameter.title;
        
@@ -153,11 +162,11 @@ export class DavidsPlayground {
         return containingDiv;
     }
 
-    buildMetaParameterWidget(metaParam) {
+    buildMetaParameterWidget(metaParam: MetaParameter) {
         switch (metaParam.type) {
-            case 'range':
+            case MetaParameterType.Range:
                 return this.makeMetaParameterSlider(metaParam);
-            case 'select':
+            case MetaParameterType.Select:
                 return this.makeMetaParameterSelect(metaParam);
             default:
                 throw 'unknown metaParam - not slider or select';
@@ -172,8 +181,8 @@ export class DavidsPlayground {
                 if (subModel.metaParameters) {
                     subModel.metaParameters.forEach((metaParameter) => {
                         const metaParam = clone(metaParameter);
-                        metaParam.name = subModel.name + '.' + metaParameter.name;
-                        const subModelDiv = document.getElementById(subModel.name);
+                        metaParam.name = subModel.constructor.name + '.' + metaParameter.name;
+                        const subModelDiv = document.getElementById(subModel.constructor.name);
                         let divToAppendTo = parameterDiv;
                         if (subModelDiv) {
                             divToAppendTo = subModelDiv;
@@ -220,27 +229,28 @@ export class DavidsPlayground {
         var downloadLink = document.createElement("a");
         downloadLink.href = svgUrl;
 
-        name = this.modelMaker.name;
+        let filename = this.modelMaker.constructor.name;
         if (this.subModels) {
-            name = this.subModels.map((f) => f.name).join('-')
+            filename = this.subModels.map((f) => f.constructor.name).join('-')
         }
-        name += '.svg';
+        filename += '.svg';
 
-        downloadLink.download = name;
+        downloadLink.download = filename;
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
     }
 
     cleanModel(model) {
-        if (!model) { return }
-        model.models.forEach(function(value, key, list) {
+        if (!model || !model) { return }
+
+        model.models.map((value: any, key: string) => {
           if (value == null) {
             delete model.models[key];
           } else {
             this.cleanModel(value);
           }
-        }.bind(this));
+        })
       }
 
     downloadPDF() {
@@ -250,13 +260,13 @@ export class DavidsPlayground {
             var downloadLink = document.createElement("a");
             downloadLink.href = pdfUrl;
     
-            name = this.modelMaker.name;
+            let filename = this.modelMaker.name;
             if (this.subModels) {
-                name = this.subModels.map((f) => f.name).join('-')
+                filename = this.subModels.map((f: ModelMaker) => f.constructor.name).join('-')
             }
-            name += '.pdf';
+            filename += '.pdf';
     
-            downloadLink.download = name;
+            downloadLink.download = filename;
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
@@ -281,37 +291,41 @@ export class DavidsPlayground {
         const exportOptions = {
             stroke: '#FF0000'
         }
-        doc.lineWidth('0.0001')
+        doc.lineWidth(0.0001)
         makerjs.exporter.toPDF(doc, this.model, exportOptions);
         doc.end();
     }
 
     doRender() {
+        const previewDiv = document.getElementById('previewArea');
+
         $('body').addClass('loading');
         $('body').removeClass('error');
 
         // rebuild params from X.a to {X: {a: }}
-        const modelParams = {};
+        let modelParams = new Map<string, any>();
         if (this.subModels) {
-            for (let [key, value] of Object.entries(this.params)) {
+            _.each(this.params, (value, key) => {
                 const parts = key.split('.');
                 if (parts.length == 2) {
                     modelParams[parts[0]] = modelParams[parts[0]] || {};
                     modelParams[parts[0]][parts[1]] = value;
+                } else {
+                    throw 'param does not have a dot: ' + key;
                 }
-            }
+            })
+        } else {
+            modelParams = new Map(this.params);
         }
         
-        let model = null;
         // try {
-            model = Reflect.construct(this.modelMaker, [modelParams]);
+            this.model = this.modelMaker.make(modelParams);
+            console.log(this.model);
 
-            const previewDiv = document.getElementById('previewArea');
-            var svg = makerjs.exporter.toSVG(model, {useSvgPathOnly: false} );
-            this.model = model;
+            var svg = makerjs.exporter.toSVG(this.model, {useSvgPathOnly: false} );
             previewDiv.innerHTML = svg;
-
-            this.svgEl = previewDiv.getElementsByTagName('svg')[0];
+            
+            this.svgEl = previewDiv.getElementsByTagName('svg')[0] as SVGElement;
             this.svgEl.setAttribute('width', '100%');
             const panZoomInstance = svgPanZoom(this.svgEl, {
                 zoomEnabled: this.allowPanAndZoom,
@@ -337,5 +351,3 @@ export class DavidsPlayground {
         // }
     }
 }
-
-export default {} 
