@@ -1,4 +1,5 @@
-const SimplexNoise = require('simplex-noise');
+import * as SimplexNoise from "simplex-noise";
+
 const makerjs = require('makerjs');
 
 import { RangeMetaParameter, MetaParameterType, MetaParameter } from '../meta-parameter';
@@ -26,7 +27,8 @@ export class InnerDesignCirclesImpl implements MakerJs.IModel {
       centerYNoiseDenom2
     } = params;
 
-    var simplex = new SimplexNoise(seed.toString());
+    
+    var simplex: SimplexNoise = new SimplexNoise(seed.toString());
 
     const paths = [];
     for (var c = 1; c <= numCircles; c++) {
