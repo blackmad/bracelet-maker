@@ -7,7 +7,7 @@ import { MetaParameter, RangeMetaParameter, SelectMetaParameter } from '../meta-
 
 var makerjs = require('makerjs');
 
-export class InnerDesignVeraImpl {
+export class InnerDesignVeraImpl implements MakerJs.IModel {
   public units = makerjs.unitType.Inch;
   public paths: MakerJs.IPathMap = {};
   public models: MakerJs.IModelMap = {};

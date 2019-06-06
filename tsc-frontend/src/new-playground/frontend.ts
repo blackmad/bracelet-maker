@@ -6,15 +6,16 @@ import { ConicCuffOuter } from '../designs/conic-cuff';
 import { InnerDesignCircles } from '../designs/inner-design-circles';
 import { InnerDesignCirclePacking } from '../designs/inner-design-circle-packing';
 import { InnerDesignVera } from '../designs/inner-design-vera'
+import { InnerDesignHashmarks } from '../designs/inner-design-hashmarks';
 
 import * as $ from "jquery";
 
-// import {InnerDesignHashmarks} from '../designs/inner-design-hashmarks.mjs';
+
 // import {InnerDesignVoronoi} from '../designs/inner-design-voronoi.mjs';
 // import {InnerDesignCirclesXVera} from '../designs/inner-design-circles-x-vera.mjs'
 
 function attachHandlers() {
-    // const possibleDesigns = [InnerDesignVoronoi, InnerDesignHashmarks, InnerDesignCircles, InnerDesignVera, InnerDesignCirclesXVera];
+    // const possibleDesigns = [InnerDesignVoronoi, InnerDesignHashmarks, InnerDesignCircles, InnerDesignVera, InnerDesignCirclesXVera, InnerDesignCirclePacking];
     const possibleDesigns = [InnerDesignCircles, InnerDesignCirclePacking];
     const possibleDesignNameMap = {}
     possibleDesigns.forEach(d => { possibleDesignNameMap[d.name] = d })
@@ -34,6 +35,8 @@ function attachHandlers() {
             setDesign(new InnerDesignCirclePacking())
         } else if (name == InnerDesignVera.name) {
             setDesign(new InnerDesignVera())
+        } else if (name == InnerDesignHashmarks.name) {
+            setDesign(new InnerDesignHashmarks())
         } else {
             throw "can't interpret design: " + name;
         }
