@@ -1,0 +1,8 @@
+TODO
+
+- add an on/off control
+- port the rest of the old designs
+- re-wire in all the css
+- prevent css bounce-in
+- get stripe back to working
+- really see if there's a way to speed up rendering :-/

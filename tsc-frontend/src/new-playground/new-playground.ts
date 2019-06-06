@@ -67,7 +67,7 @@ export class DavidsPlayground {
     }
 
     metaParamRequiresNumber(metaParameter) {
-        return metaParameter.type == 'range';
+        return metaParameter.type == MetaParameterType.Range;
     }
 
     onParamChange({metaParameter, value}) {
@@ -76,6 +76,7 @@ export class DavidsPlayground {
         } else {
             this.params[metaParameter.name] = value;
         }
+        console.log(this.params);
         this.rerender();
     }
 
@@ -162,12 +163,55 @@ export class DavidsPlayground {
         return containingDiv;
     }
 
+    makeMetaParameterOnOff(metaParameter) {
+        const selectedValue = (this.params[metaParameter.name] == 'true') || metaParameter.value;
+
+        const containingDiv = document.createElement('div');
+        containingDiv.className = 'meta-parameter-container'
+
+        const selectInput = document.createElement('select');
+        selectInput.name = metaParameter.name + '-select';
+
+//         const switchDiv = $(`
+//         <div class="onoffswitch">
+//     <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" checked>
+//     <label class="onoffswitch-label" for="myonoffswitch">
+//         <span class="onoffswitch-inner"></span>
+//         <span class="onoffswitch-switch"></span>
+//     </label>
+// </div>`);
+
+        const textLabelDiv = document.createElement('div');
+        textLabelDiv.className = 'textLabel'
+        textLabelDiv.innerHTML = metaParameter.title;
+
+        containingDiv.append(textLabelDiv);
+
+        const switchDiv = $(`<div><input type="checkbox"></input></div>`);
+        containingDiv.append(switchDiv[0]);
+
+        if (metaParameter.value) {
+            $(switchDiv).find('input').prop( "checked", true );
+        }
+
+        this.params[metaParameter.name] = selectedValue;
+      
+        $(switchDiv).find('input').on('change',  function (event) {
+            const selectedValue = (<HTMLInputElement>event.target).checked;
+            this.onParamChange({metaParameter, value: selectedValue})
+        }.bind(this));
+
+        return containingDiv;
+    }
+
     buildMetaParameterWidget(metaParam: MetaParameter) {
         switch (metaParam.type) {
             case MetaParameterType.Range:
                 return this.makeMetaParameterSlider(metaParam);
             case MetaParameterType.Select:
                 return this.makeMetaParameterSelect(metaParam);
+            case MetaParameterType.OnOff:
+                return this.makeMetaParameterOnOff(metaParam);
             default:
                 throw 'unknown metaParam - not slider or select';
         }

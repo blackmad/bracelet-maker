@@ -105,6 +105,8 @@ class ConicCuffOuterImpl { // implements MakerJs.IModel {
 
         // this is some insane terrible logic to preserve the recentering we did above
         // and just use the inner shape as the intersection clamp for our design
+        makerjs.model.originate(completeCuffModel);
+
         var cuffClone = makerjs.model.clone(completeCuffModel);
         var cuffModelInnerClone = cuffClone.models.cuffModelInner;
         cuffClone.models = { c: cuffModelInnerClone };
@@ -135,10 +137,10 @@ export class ConicCuffOuter implements ModelMaker {
 
     get metaParameters() {
         return [
-            new RangeMetaParameter({ title: "Height", type: MetaParameterType.Range, min: 1, max: 5, value: 2, step: 0.25, name: 'height' }),
-            new RangeMetaParameter({ title: "Wrist Circumference", type: MetaParameterType.Range, min: 4, max: 10, value: 7, step: 0.1, name: 'wristCircumference' }),
-            new RangeMetaParameter({ title: "Wide Wrist Circumference", type: MetaParameterType.Range, min: 4, max: 10, value: 7.75, step: 0.1, name: 'forearmCircumference' }),
-            new RangeMetaParameter({ title: "Safe Border (in)", type: MetaParameterType.Range, min: 0.1, max: 0.75, value: 0.25, step: 0.01, name: 'safeBorderWidth' })
+            new RangeMetaParameter({ title: "Height", min: 1, max: 5, value: 2, step: 0.25, name: 'height' }),
+            new RangeMetaParameter({ title: "Wrist Circumference", min: 4, max: 10, value: 7, step: 0.1, name: 'wristCircumference' }),
+            new RangeMetaParameter({ title: "Wide Wrist Circumference", min: 4, max: 10, value: 7.75, step: 0.1, name: 'forearmCircumference' }),
+            new RangeMetaParameter({ title: "Safe Border (in)", min: 0.1, max: 0.75, value: 0.25, step: 0.01, name: 'safeBorderWidth' })
         ]
     }
 

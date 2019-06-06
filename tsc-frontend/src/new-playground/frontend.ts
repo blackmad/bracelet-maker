@@ -1,11 +1,13 @@
 import {DavidsPlayground} from './new-playground'
 import { InnerDesignCircles } from '../designs/inner-design-circles';
+import { InnerDesignCirclePacking } from '../designs/inner-design-circle-packing';
 import { ConicCuffOuter } from '../designs/conic-cuff';
 import { ModelMaker } from '../model';
 import * as $ from "jquery";
 
-import './../../styles/base.css';
-import './../../styles/stripe-example.css';
+// import './../../styles/base.css';
+// import './../../styles/stripe-example.css';
+// import './../../styles/onoff.css';
 
 // import {InnerDesignHashmarks} from '../designs/inner-design-hashmarks.mjs';
 // import {InnerDesignVoronoi} from '../designs/inner-design-voronoi.mjs';
@@ -14,7 +16,7 @@ import './../../styles/stripe-example.css';
 
 function attachHandlers() {
     // const possibleDesigns = [InnerDesignVoronoi, InnerDesignHashmarks, InnerDesignCircles, InnerDesignVera, InnerDesignCirclesXVera];
-    const possibleDesigns = [InnerDesignCircles];
+    const possibleDesigns = [InnerDesignCircles, InnerDesignCirclePacking];
     const possibleDesignNameMap = {}
     possibleDesigns.forEach(d => { possibleDesignNameMap[d.name] = d })
     console.log(possibleDesigns)
@@ -29,6 +31,8 @@ function attachHandlers() {
         var innerDesignClass = null;
         if (name == InnerDesignCircles.name) {
             setDesign(new InnerDesignCircles())
+        } else if (name == InnerDesignCirclePacking.name) {
+            setDesign(new InnerDesignCirclePacking())
         } else {
             throw "can't interpret design: " + name;
         }

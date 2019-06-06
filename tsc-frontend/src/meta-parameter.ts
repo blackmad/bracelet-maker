@@ -1,6 +1,7 @@
 export enum MetaParameterType {
     Range,
-    Select
+    Select,
+    OnOff
 }
 
 export interface MetaParameter {
@@ -18,9 +19,8 @@ export class RangeMetaParameter implements MetaParameter {
     public value: number;
     public step: number;
 
-    constructor({ name, type, title, min, max, value, step }: { 
+    constructor({ name, title, min, max, value, step }: { 
         name: string;
-        type: MetaParameterType;
         title: string;
         min: number;
         max: number;
@@ -28,7 +28,7 @@ export class RangeMetaParameter implements MetaParameter {
         step: number;
     }) {
         this.name = name;
-        this.type = type;
+        this.type = MetaParameterType.Range;
         this.title = title;
         this.min = min;
         this.max = max;
@@ -36,3 +36,40 @@ export class RangeMetaParameter implements MetaParameter {
         this.step = step;
     }
 }
+
+export class SelectMetaParameter implements MetaParameter {
+    public name: string;
+    public type: MetaParameterType;
+    public title: string;
+    public options: string[]
+
+    constructor({ name, title, options}: { 
+        name: string;
+        title: string;
+        options: string[];
+    }) {
+        this.name = name;
+        this.type = MetaParameterType.Select;
+        this.title = title;
+        this.options = options;
+    }
+}
+
+export class OnOffMetaParameter implements MetaParameter {
+    public name: string;
+    public type: MetaParameterType;
+    public title: string;
+    public value: boolean;
+
+    constructor({name, title, value}: { 
+        name: string;
+        title: string;
+        value: boolean;
+    }) {
+        this.name = name;
+        this.type = MetaParameterType.OnOff;
+        this.title = title;
+        this.value = value;
+    }
+}
+

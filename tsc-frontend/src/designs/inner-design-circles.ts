@@ -56,15 +56,15 @@ export class InnerDesignCirclesImpl implements MakerJs.IModel {
 export class InnerDesignCircles implements ModelMaker {
   get metaParameters(): Array<MetaParameter> {
     return [
-      new RangeMetaParameter({title: "Seed", type: MetaParameterType.Range, min: 1, max: 10000, value: 1, step: 1, name: 'seed' }),
-      new RangeMetaParameter({title: "Num Circles", type: MetaParameterType.Range, min: 1, max: 40, value: 20, step: 1, name: 'numCircles' }),
-      new RangeMetaParameter({title: "Border Size", type: MetaParameterType.Range, min: 0.1, max: 0.25, value: 0.1, step: 0.01, name: 'borderSize' }),
-      new RangeMetaParameter({title: "Min Circle Size", type: MetaParameterType.Range, min: 0.1, max: 2.0, value: 0.5, step: 0.01, name: 'minCircleSize' }),
-      new RangeMetaParameter({title: "Max Circle Size", type: MetaParameterType.Range, min: 0.1, max: 3.0, value: 1.5, step: 0.01, name: 'maxCircleSize' }),
-      new RangeMetaParameter({title: "Center X Noise Demon 1", type: MetaParameterType.Range, min: 1, max: 40, value: 20, step: 1, name: 'centerXNoiseDenom1' }),
-      new RangeMetaParameter({title: "Center X Noise Demon 2", type: MetaParameterType.Range, min: 1, max: 40, value: 20, step: 1, name: 'centerXNoiseDenom2' }),
-      new RangeMetaParameter({title: "Center Y Noise Demon 1", type: MetaParameterType.Range, min: 1, max: 40, value: 20, step: 1, name: 'centerYNoiseDenom1' }),
-      new RangeMetaParameter({title: "Center Y Noise Demon 2", type: MetaParameterType.Range, min: 1, max: 40, value: 10, step: 1, name: 'centerYNoiseDenom2' })
+      new RangeMetaParameter({title: "Seed",  min: 1, max: 10000, value: 1, step: 1, name: 'seed' }),
+      new RangeMetaParameter({title: "Num Circles", min: 1, max: 40, value: 20, step: 1, name: 'numCircles' }),
+      new RangeMetaParameter({title: "Border Size", min: 0.1, max: 0.25, value: 0.1, step: 0.01, name: 'borderSize' }),
+      new RangeMetaParameter({title: "Min Circle Size", min: 0.1, max: 2.0, value: 0.5, step: 0.01, name: 'minCircleSize' }),
+      new RangeMetaParameter({title: "Max Circle Size", min: 0.1, max: 3.0, value: 1.5, step: 0.01, name: 'maxCircleSize' }),
+      new RangeMetaParameter({title: "Center X Noise Demon 1", min: 1, max: 40, value: 20, step: 1, name: 'centerXNoiseDenom1' }),
+      new RangeMetaParameter({title: "Center X Noise Demon 2", min: 1, max: 40, value: 20, step: 1, name: 'centerXNoiseDenom2' }),
+      new RangeMetaParameter({title: "Center Y Noise Demon 1", min: 1, max: 40, value: 20, step: 1, name: 'centerYNoiseDenom1' }),
+      new RangeMetaParameter({title: "Center Y Noise Demon 2", min: 1, max: 40, value: 10, step: 1, name: 'centerYNoiseDenom2' })
     ]
   }
 

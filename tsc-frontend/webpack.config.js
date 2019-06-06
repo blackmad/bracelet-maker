@@ -1,4 +1,5 @@
 module.exports = {
+    watch: true,
     entry: "./src/new-playground/frontend.ts",
     output: {
         filename: "main.js",
