@@ -7,16 +7,13 @@ import { InnerDesignCircles } from '../designs/inner-design-circles';
 import { InnerDesignCirclePacking } from '../designs/inner-design-circle-packing';
 import { InnerDesignVera } from '../designs/inner-design-vera'
 import { InnerDesignHashmarks } from '../designs/inner-design-hashmarks';
+import { InnerDesignCirclesXVera } from '../designs/inner-design-circles-x-vera'
+import { InnerDesignVoronoi } from '../designs/inner-design-delaunay';
 
 import * as $ from "jquery";
 
-
-// import {InnerDesignVoronoi} from '../designs/inner-design-voronoi.mjs';
-// import {InnerDesignCirclesXVera} from '../designs/inner-design-circles-x-vera.mjs'
-
 function attachHandlers() {
-    // const possibleDesigns = [InnerDesignVoronoi, InnerDesignHashmarks, InnerDesignCircles, InnerDesignVera, InnerDesignCirclesXVera, InnerDesignCirclePacking];
-    const possibleDesigns = [InnerDesignCircles, InnerDesignCirclePacking];
+    const possibleDesigns = [InnerDesignVoronoi, InnerDesignHashmarks, InnerDesignCircles, InnerDesignVera, InnerDesignCirclesXVera, InnerDesignCirclePacking];
     const possibleDesignNameMap = {}
     possibleDesigns.forEach(d => { possibleDesignNameMap[d.name] = d })
     console.log(possibleDesigns)
@@ -37,6 +34,10 @@ function attachHandlers() {
             setDesign(new InnerDesignVera())
         } else if (name == InnerDesignHashmarks.name) {
             setDesign(new InnerDesignHashmarks())
+        } else if (name == InnerDesignCirclesXVera.name) {
+            setDesign(new InnerDesignCirclesXVera())
+        } else if (name == InnerDesignVoronoi.name) {
+            setDesign(new InnerDesignVoronoi())
         } else {
             throw "can't interpret design: " + name;
         }
