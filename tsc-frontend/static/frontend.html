@@ -2,112 +2,15 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<!--
-    <link rel="stylesheet" href="../external/nouislider/nouislider.css" />
-    <script src="../external/nouislider/nouislider.js"></script>
--->
     <link rel="stylesheet" href="../styles/base.css" />
     <link rel="stylesheet" href="../styles/onoff.css" />
+    <link rel="stylesheet" href="../styles/frontend.css" />
     <link rel="stylesheet" href="../styles/stripe-example.css" />
     
     <!-- <script src="https://js.stripe.com/v3/"></script>
     <script src="../external/stripe/index.js"></script> -->
 
     <script src="../dist/main.js" type="module"></script>
-
-    <style>
-      #mainContainer {
-        display: flex;
-      }
-
-      #previewArea {
-        width: 70%;
-      }
-
-      #parameterDiv,
-      #ConicCuffOuter {
-        flex-wrap: wrap;
-        display: flex;
-      }
-
-      .meta-parameter-container {
-        max-width: 200px;
-      }
-
-      /* .container-flex {
-                    display: flex
-                }
-
-                .preview-cell {
-                  width: 70%
-                }
-
-                .parameter-cell {
-                  width: 30%
-                } */
-
-      .meta-parameter-container input[type="range"] {
-        -webkit-appearance: slider-horizontal !important;
-        -moz-appearance: slider-horizontal !important;
-        appearance: slider-horizontal !important;
-
-        width: 50%;
-        margin: 10px;
-      }
-
-      .meta-parameter-container input[type="number"] {
-        -webkit-appearance: unset !important;
-        -moz-appearance: unset !important;
-        appearance: unset !important;
-
-        border: 1px dashed rgb(238, 238, 238);
-        padding: 1px;
-        text-align: right;
-        width: 45px;
-
-        font-size: small !important;
-      }
-
-      .meta-parameter-container, .design-container {
-        border: 1px solid black;
-        margin: 3px !important;
-        padding: 5px !important;
-        min-width: 180px;
-        flex-grow: 1;
-      }
-
-      .container-flex {
-        flex-wrap: wrap;
-        display: flex;
-      }
-
-      .textLabel {
-        font-size: small !important;
-      }
-
-      h1.title {
-        font-size: 150% !important;
-        font-weight: bold !important;
-      }
-
-      .error #previewArea {
-        display: none;
-      }
-
-      #error, #loading, .error #loading {
-        display: none
-      }
-
-      #error {
-        margin: 20px;
-        background: palevioletred;
-        padding: 30px;
-      }
-      
-      .loading #loading, .error #error {
-        display: block
-      }
-    </style>
   </head>
   <body>
     <main>
