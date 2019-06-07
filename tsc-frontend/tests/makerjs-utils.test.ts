@@ -11,6 +11,13 @@ describe('checkCircleCircleIntersection', () => {
     expect(result).to.equal(true);
   });
 
+  it('should return true on containment', () => {
+    const c1 = new makerjs.paths.Circle([0, 0], 1);
+    const c2 = new makerjs.paths.Circle([0, 0], 2);
+    const result = MakerJsUtils.checkCircleCircleIntersection(c1, c2);
+    expect(result).to.equal(true);
+  });
+
   it('should return true on touching', () => {
     const c1 = new makerjs.paths.Circle([0, 0], 1);
     const c2 = new makerjs.paths.Circle([1, 1], 1);

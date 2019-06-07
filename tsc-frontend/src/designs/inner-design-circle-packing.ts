@@ -24,6 +24,17 @@ export class InnerDesignCirclePackingImpl implements MakerJs.IModel {
       seed,
       forceContainment
     } = params;
+        const origRound = makerjs.round;
+        const origFromPolar =  makerjs.point.fromPolar;
+        makerjs.round = function(x) { return Math.round(x * 1000000) / 1000000 };
+
+        makerjs.point.fromPolar = function(angleInRadians: number, radius: number): MakerJs.IPoint {
+          return [
+              (angleInRadians == Math.PI / 2 || angleInRadians == 3 * Math.PI / 2) ? 0 : radius * Math.cos(angleInRadians),
+              (angleInRadians == Math.PI || 2 * Math.PI) ? 0 : radius * Math.sin(angleInRadians)
+          ];
+        }
+
         const boundaryMeasure = makerjs.measure.modelExtents(boundaryModel);
         var rng = seedrandom(seed.toString());
         // var simplex: SimplexNoise = new SimplexNoise(seed.toString());
@@ -32,9 +43,13 @@ export class InnerDesignCirclePackingImpl implements MakerJs.IModel {
 
         console.log(boundaryModel);
 
+        console.log('forceContainment', forceContainment)
         var radius = maxCircleSize;
-        const triesPerRadius = 300;
+        // const triesPerRadius = 10;
+        const triesPerRadius = 200;
         while (radius > minCircleSize) {
+        // while (radius > maxCircleSize * 0.99) {
+          
             for (let i = 0; i < triesPerRadius; i++) {
                 const center = [
                     rng() * width,
@@ -49,6 +64,9 @@ export class InnerDesignCirclePackingImpl implements MakerJs.IModel {
             }
             radius *= 0.99
         }
+
+        makerjs.round = origRound;
+        makerjs.point.fromPolar = origFromPolar;
 
         const containedCircles = makerjs.model.combineIntersection(
           makerjs.model.clone(boundaryModel),

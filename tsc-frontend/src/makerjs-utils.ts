@@ -52,12 +52,15 @@ export namespace MakerJsUtils {
                 if (doesIntersect) { 
                     return; 
                 }
+
+                doesIntersect = (makerjs.path.intersection(wp.pathContext, path) != null);
                 
                 // var otherPath = wp.pathContext;
-                // if (wp.pathContext.type == 'arc') {
-                //     // console.log('making it a circle');
-                //     otherPath = circleFromArc(wp.pathContext)
-                // }
+                // // if (wp.pathContext.type == 'arc') {
+                // //     // console.log('making it a circle');
+                // //     otherPath = circleFromArc(wp.pathContext)
+                // // }
+                // // var newDoesIntersect = false;
                 // if (otherPath.type == 'circle' && path.type == 'circle') {
                 //     // console.log('corcle/cicle intersection');
                 //     doesIntersect = checkCircleCircleIntersection(otherPath, <MakerJs.paths.Circle>path);
@@ -66,8 +69,21 @@ export namespace MakerJsUtils {
                 // } else if (otherPath.type == 'circle' && path.type == 'line') {
                 //     doesIntersect = checkCircleLineIntersection(<MakerJs.paths.Circle>otherPath, <MakerJs.paths.Line>path);
                 // } else {
-                    doesIntersect = (makerjs.path.intersection(wp.pathContext, path) != null);
+                //     doesIntersect = (makerjs.path.intersection(wp.pathContext, path) != null);
                 // }
+
+                // doesIntersect = newDoesIntersect;
+
+                // if (origDoesIntersect != newDoesIntersect) {
+                //     console.log('new ', newDoesIntersect, 'old ', origDoesIntersect, ' disagrees')
+                //     console.log('testing path ', path);
+                //     console.log('against ', wp.pathContext);
+                //     console.log('turned into ', otherPath);
+                // } else {
+                //     console.log('fine');
+                // }
+                // return origDoesIntersect;
+                // return newDoesIntersect;
             }
           };
           

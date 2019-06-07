@@ -15,10 +15,10 @@ function clone(src) {
   return Object.assign({}, src);
 }
 
-function parseParamsString(paramsString): Map<string, string> {
+function parseParamsString(paramsString: string): Map<string, string> {
     const params = new Map<string, string>();
-    paramsString.split('&').forEach((p) => {
-        const parts = p.split('=');
+    paramsString.split('&').forEach((p: string) => {
+        const parts: string[] = p.split('=');
         params[parts[0]] = decodeURIComponent(parts[1])
     })
     return params;
@@ -61,7 +61,6 @@ export class DavidsPlayground {
                 return encodeURIComponent(key) + '=' + encodeURIComponent(value.toString())
             }).join('&');
         }
-        console.log(encodeGetParams(this.params));
     
         window.location.hash = encodeGetParams(this.params)
     }
@@ -76,7 +75,6 @@ export class DavidsPlayground {
         } else {
             this.params[metaParameter.name] = value;
         }
-        console.log(this.params);
         this.rerender();
     }
 
@@ -164,7 +162,10 @@ export class DavidsPlayground {
     }
 
     makeMetaParameterOnOff(metaParameter) {
-        const selectedValue = (this.params[metaParameter.name] == 'true') || metaParameter.value;
+        var selectedValue = this.params[metaParameter.name] == 'true';
+        if (this.params[metaParameter.name] == null) {
+            selectedValue = metaParameter.value;
+        }
 
         const containingDiv = document.createElement('div');
         containingDiv.className = 'meta-parameter-container'
@@ -173,7 +174,7 @@ export class DavidsPlayground {
         selectInput.name = metaParameter.name + '-select';
 
         const switchDiv = $(`     <div class="onoffswitch">
-          <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" checked>
+          <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch">
           <label class="onoffswitch-label" for="myonoffswitch">
               <span class="onoffswitch-inner"></span>
               <span class="onoffswitch-switch"></span>
@@ -189,9 +190,8 @@ export class DavidsPlayground {
         // const switchDiv = $(`<div><input type="checkbox"></input></div>`);
         containingDiv.append(switchDiv[0]);
 
-        if (metaParameter.value) {
-            $(switchDiv).find('input').prop( "checked", true );
-        }
+    
+        (<HTMLInputElement>$(switchDiv).find('input')[0]).checked = selectedValue;
 
         this.params[metaParameter.name] = selectedValue;
         const id = metaParameter.name;
@@ -199,7 +199,6 @@ export class DavidsPlayground {
         $(switchDiv).find('label').attr('for', id)
 
         $(switchDiv).find('input').on('change',  function (event) {
-            debugger;
             const selectedValue = (<HTMLInputElement>event.target).checked;
             this.onParamChange({metaParameter, value: selectedValue})
         }.bind(this));
@@ -222,7 +221,7 @@ export class DavidsPlayground {
 
     buildMetaParameterWidgets(parameterDiv) {
         $('.meta-parameter-container').remove();
-        //    { title: "Height", type: "range", min: 1, max: 5, value: 2, step: 0.25, name: "height" },
+
         if (this.subModels) {
             this.subModels.forEach((subModel) => {
                 if (subModel.metaParameters) {
@@ -367,7 +366,6 @@ export class DavidsPlayground {
         
         // try {
             this.model = this.modelMaker.make(modelParams);
-            console.log(this.model);
 
             var svg = makerjs.exporter.toSVG(this.model, {useSvgPathOnly: false} );
             previewDiv.innerHTML = svg;
