@@ -172,14 +172,13 @@ export class DavidsPlayground {
         const selectInput = document.createElement('select');
         selectInput.name = metaParameter.name + '-select';
 
-//         const switchDiv = $(`
-//         <div class="onoffswitch">
-//     <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" checked>
-//     <label class="onoffswitch-label" for="myonoffswitch">
-//         <span class="onoffswitch-inner"></span>
-//         <span class="onoffswitch-switch"></span>
-//     </label>
-// </div>`);
+        const switchDiv = $(`     <div class="onoffswitch">
+          <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" checked>
+          <label class="onoffswitch-label" for="myonoffswitch">
+              <span class="onoffswitch-inner"></span>
+              <span class="onoffswitch-switch"></span>
+          </label>
+      </div>`);
 
         const textLabelDiv = document.createElement('div');
         textLabelDiv.className = 'textLabel'
@@ -187,7 +186,7 @@ export class DavidsPlayground {
 
         containingDiv.append(textLabelDiv);
 
-        const switchDiv = $(`<div><input type="checkbox"></input></div>`);
+        // const switchDiv = $(`<div><input type="checkbox"></input></div>`);
         containingDiv.append(switchDiv[0]);
 
         if (metaParameter.value) {
@@ -195,8 +194,12 @@ export class DavidsPlayground {
         }
 
         this.params[metaParameter.name] = selectedValue;
-      
+        const id = metaParameter.name;
+        $(switchDiv).find('input').attr('id', id)
+        $(switchDiv).find('label').attr('for', id)
+
         $(switchDiv).find('input').on('change',  function (event) {
+            debugger;
             const selectedValue = (<HTMLInputElement>event.target).checked;
             this.onParamChange({metaParameter, value: selectedValue})
         }.bind(this));
