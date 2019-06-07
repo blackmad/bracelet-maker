@@ -129,13 +129,13 @@
   background-color: #e25950;
 }
 
-/* .example.example2 input, .example.example2 button {
+.example.example2 .field input, .example.example2 .field button {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
   outline: none;
   border-style: none;
-} */
+}
 
 .example.example2 input:-webkit-autofill {
   -webkit-text-fill-color: #e39f48;

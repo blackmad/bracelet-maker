@@ -1,6 +1,5 @@
 TODO
 
-- port the rest of the old designs
 - re-wire in all the css
 - fix the strip css
 - get stripe back to working
