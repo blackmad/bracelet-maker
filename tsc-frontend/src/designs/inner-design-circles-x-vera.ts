@@ -1,5 +1,3 @@
-import { ShapeMaker } from './shape-maker';
-
 import * as SimplexNoise from "simplex-noise";
 import { SimplexNoiseUtils } from '../simplex-noise-utils'
 import { ModelMaker } from '../model';
@@ -70,7 +68,7 @@ export class InnerDesignCirclesXVeraImpl implements MakerJs.IModel {
 export class InnerDesignCirclesXVera implements ModelMaker {
     get metaParameters(): Array<MetaParameter> {
     return [
-         new RangeMetaParameter({ title: "Seed", min: 1, max: 10000, value: 1, step: 1, name: 'seed' }),
+        new RangeMetaParameter({ title: "Seed", min: 1, max: 10000, value: 1, step: 1, name: 'seed' }),
         new RangeMetaParameter({ title: "Cols", min: 1, max: 10, value: 5, step: 1, name: 'cols' }),
         new RangeMetaParameter({ title: "Rows", min: 1, max: 10, value: 5, step: 1, name: 'rows' }),
         new RangeMetaParameter({ title: "Border Size", min: 0.1, max: 0.25, value: 0.1, step: 0.01, name: 'borderSize' }),

@@ -2,7 +2,9 @@ const makerjs = require('makerjs');
 const StringReader = require('string-reader');
 const svgPanZoom = require('svg-pan-zoom');
 
-import * as PDFDocument from 'pdfkit';
+import PDFDocument from '../external/pdfkit.standalone';
+import blobStream from 'blob-stream';
+// import Helvetica from '!!raw-loader!pdfkit/js/data/Helvetica.afm'
 import * as $ from "jquery";
 import * as _ from "lodash";
 
@@ -10,6 +12,8 @@ import "core-js/library"
 
 import { ModelMaker } from '../model';
 import { MetaParameter, MetaParameterType } from '../meta-parameter';
+
+import * as fs from 'fs'
 
 function clone(src) {
   return Object.assign({}, src);
@@ -290,7 +294,7 @@ export class DavidsPlayground {
     cleanModel(model) {
         if (!model || !model) { return }
 
-        model.models.map((value: any, key: string) => {
+        _(model.models).each((value: any, key: string) => {
           if (value == null) {
             delete model.models[key];
           } else {
@@ -300,8 +304,33 @@ export class DavidsPlayground {
       }
 
     downloadPDF() {
-        function complete(pdfDataString) {
-            var pdfBlob = new Blob([pdfDataString], {type:"application/pdf"});
+        var bbox = makerjs.measure.modelExtents(this.model);
+        const widthInches = bbox.high[0] - bbox.low[0];
+        const heightInches = bbox.high[1] - bbox.low[1];
+        var pdfOptions = {
+            compress: false,
+            info: {
+                Producer: 'MakerJs',
+                Author: 'MakerJs'
+            },
+            size: [widthInches*72, heightInches*72]
+        };
+        console.log(PDFDocument);
+        var doc = new PDFDocument(pdfOptions);
+        const stream = doc.pipe(blobStream());
+        
+        console.log(this.model)
+        this.cleanModel(this.model);
+
+        const exportOptions = {
+            stroke: '#FF0000'
+        }
+        doc.lineWidth(0.0001)
+        makerjs.exporter.toPDF(doc, this.model, exportOptions);
+        doc.end();
+
+        stream.on('finish', _.bind(function() {
+            const pdfBlob = stream.toBlob('application/pdf');
             var pdfUrl = URL.createObjectURL(pdfBlob);
             var downloadLink = document.createElement("a");
             downloadLink.href = pdfUrl;
@@ -316,30 +345,7 @@ export class DavidsPlayground {
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
-        }
-        // TODO - calculate these
-        const widthInches = 10;
-        const heightInches = 3;
-        var pdfOptions = {
-            compress: false,
-            info: {
-                Producer: 'MakerJs',
-                Author: 'MakerJs'
-            },
-            size: [widthInches*72, heightInches*72]
-        };
-        var doc = new PDFDocument(pdfOptions);
-        var reader = new StringReader(complete.bind(this));
-        var stream = doc.pipe(reader);
-        
-        this.cleanModel(this.model);
-
-        const exportOptions = {
-            stroke: '#FF0000'
-        }
-        doc.lineWidth(0.0001)
-        makerjs.exporter.toPDF(doc, this.model, exportOptions);
-        doc.end();
+        }, this));
     }
 
     doRender() {
