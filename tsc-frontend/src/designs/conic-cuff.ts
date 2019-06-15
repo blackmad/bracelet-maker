@@ -44,7 +44,7 @@ class ConicCuffOuterImpl { // implements MakerJs.IModel {
             topCircumference: wristCircumference + 1.0,
             bottomCircumference: forearmCircumference + 1.0,
             height: height,
-            filletRadius: 0.2
+            // filletRadius: 0.2
         });
 
         // Inner "safe" area for design. Not actually printed. Used to calculate intersection of inner design.
@@ -122,7 +122,7 @@ class ConicCuffOuterImpl { // implements MakerJs.IModel {
         const innerDesign = innerDesignClass.make(innerOptions);
 
         this.models.design = innerDesign;
-        // console.log(retVal.models.design )
+        console.log(this.models.design )
 
         /***** END DESIGN *****/
 

@@ -9,11 +9,14 @@ import { InnerDesignVera } from '../designs/inner-design-vera'
 import { InnerDesignHashmarks } from '../designs/inner-design-hashmarks';
 import { InnerDesignCirclesXVera } from '../designs/inner-design-circles-x-vera'
 import { InnerDesignVoronoi } from '../designs/inner-design-delaunay';
+import { InnerDesignArcGrid } from '../designs/inner-design-arc-grid'
 
 import * as $ from "jquery";
 
 function attachHandlers() {
-    const possibleDesigns = [InnerDesignVoronoi, InnerDesignHashmarks, InnerDesignCircles, InnerDesignVera, InnerDesignCirclesXVera, InnerDesignCirclePacking];
+    $('#playArea').hide();
+
+    const possibleDesigns = [InnerDesignVoronoi, InnerDesignHashmarks, InnerDesignCircles, InnerDesignVera, InnerDesignCirclesXVera, InnerDesignCirclePacking, InnerDesignArcGrid];
     const possibleDesignNameMap = {}
     possibleDesigns.forEach(d => { possibleDesignNameMap[d.name] = d })
     console.log(possibleDesigns)
@@ -38,6 +41,8 @@ function attachHandlers() {
             setDesign(new InnerDesignCirclesXVera())
         } else if (name == InnerDesignVoronoi.name) {
             setDesign(new InnerDesignVoronoi())
+        } else if (name == InnerDesignArcGrid.name) {
+            setDesign(new InnerDesignArcGrid())
         } else {
             throw "can't interpret design: " + name;
         }
@@ -53,8 +58,6 @@ function attachHandlers() {
         const design = (<HTMLInputElement>button.target).value;
         setDesignFromName(design);
     })
-
-    $('#playArea').hide();
 }
 
 $(document).ready(attachHandlers);

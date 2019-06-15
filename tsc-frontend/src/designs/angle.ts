@@ -4,7 +4,7 @@ export class Angle {
         this.degrees = radians * 180/Math.PI;
     }
 
-    static fromAngle(angle: number) {
+    static fromDegrees(angle: number) {
         return new Angle(angle * Math.PI/180)
     }
 
