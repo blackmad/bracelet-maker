@@ -2,15 +2,12 @@ import * as SimplexNoise from "simplex-noise";
 import { SimplexNoiseUtils } from '../simplex-noise-utils'
 import { ModelMaker } from '../model';
 import { MetaParameter, RangeMetaParameter } from '../meta-parameter';
+import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 
 var makerjs = require('makerjs');
 
-export class InnerDesignCirclesXVeraImpl implements MakerJs.IModel {
-  public units = makerjs.unitType.Inch;
-  public paths: MakerJs.IPathMap = {};
-  public models: MakerJs.IModelMap = {};
-  
-  constructor(params) {
+export class InnerDesignCirclesXVeraImpl extends FastAbstractInnerDesign {  
+  makeDesign(params) {
       const { 
         height = 2, 
         width = 10, 
@@ -54,14 +51,7 @@ export class InnerDesignCirclesXVeraImpl implements MakerJs.IModel {
         }
     }
 
-    const expandedModels = makerjs.model.expandPaths({paths: paths}, borderSize);
-    this.models = expandedModels.models;
-    this.models = makerjs.model.combineSubtraction(
-        makerjs.model.clone(boundaryModel),
-        expandedModels
-    ).models;
-
-    this.units = makerjs.unitType.Inch;
+    return makerjs.model.expandPaths({paths: paths}, borderSize);
   }
 }
 

@@ -6,14 +6,11 @@ const makerjs = require('makerjs');
 import { RangeMetaParameter, OnOffMetaParameter, MetaParameter } from '../meta-parameter';
 import { ModelMaker } from '../model';
 import * as _ from "lodash";
+import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 const seedrandom = require('seedrandom');
 
-export class InnerDesignCirclePackingImpl implements MakerJs.IModel {
-  public units = makerjs.unitType.Inch;
-  public paths: MakerJs.IPathMap = {};
-  public models: MakerJs.IModelMap = {};
-  
-  constructor(params) {
+export class InnerDesignCirclePackingImpl extends FastAbstractInnerDesign {  
+  makeDesign(params) {
     const { 
       height = 2, 
       width = 10, 
@@ -22,34 +19,21 @@ export class InnerDesignCirclePackingImpl implements MakerJs.IModel {
       maxCircleSize,
       borderSize,
       seed,
-      forceContainment
+      forceContainment,
+      outerModel,
     } = params;
-        const origRound = makerjs.round;
-        const origFromPolar =  makerjs.point.fromPolar;
-        makerjs.round = function(x) { return Math.round(x * 1000000) / 1000000 };
-
-        makerjs.point.fromPolar = function(angleInRadians: number, radius: number): MakerJs.IPoint {
-          return [
-              (angleInRadians == Math.PI / 2 || angleInRadians == 3 * Math.PI / 2) ? 0 : radius * Math.cos(angleInRadians),
-              (angleInRadians == Math.PI || 2 * Math.PI) ? 0 : radius * Math.sin(angleInRadians)
-          ];
-        }
-
         const boundaryMeasure = makerjs.measure.modelExtents(boundaryModel);
         var rng = seedrandom(seed.toString());
-        // var simplex: SimplexNoise = new SimplexNoise(seed.toString());
 
         const circles: MakerJs.paths.Circle[] = [];
 
-        console.log(boundaryModel);
+        // console.log(outerModel);
 
         console.log('forceContainment', forceContainment)
         var radius = maxCircleSize;
-        // const triesPerRadius = 10;
+
         const triesPerRadius = 200;
-        while (radius > minCircleSize) {
-        // while (radius > maxCircleSize * 0.99) {
-          
+        while (radius > minCircleSize) {          
             for (let i = 0; i < triesPerRadius; i++) {
                 const center = [
                     rng() * width,
@@ -65,15 +49,9 @@ export class InnerDesignCirclePackingImpl implements MakerJs.IModel {
             radius *= 0.99
         }
 
-        makerjs.round = origRound;
-        makerjs.point.fromPolar = origFromPolar;
-
-        const containedCircles = makerjs.model.combineIntersection(
-          makerjs.model.clone(boundaryModel),
-          {paths: circles}
-        );
-
-        this.models = containedCircles.models;
+        return { 
+          paths: circles
+        }
     }
 }
 

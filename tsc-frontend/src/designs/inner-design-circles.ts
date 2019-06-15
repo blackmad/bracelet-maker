@@ -5,6 +5,7 @@ const makerjs = require('makerjs');
 import { RangeMetaParameter, MetaParameterType, MetaParameter } from '../meta-parameter';
 import { ModelMaker } from '../model';
 import { SimplexNoiseUtils } from '../simplex-noise-utils'
+import { FastRoundShim } from "./fast-abstract-inner-design";
 
 export class InnerDesignCirclesImpl implements MakerJs.IModel {
 	public units = makerjs.unitType.Inch;
@@ -27,22 +28,24 @@ export class InnerDesignCirclesImpl implements MakerJs.IModel {
       centerYNoiseDenom2
     } = params;
 
-    
-    var simplex: SimplexNoise = new SimplexNoise(seed.toString());
+    const paths = FastRoundShim.useFastRound(function() {
+      var simplex: SimplexNoise = new SimplexNoise(seed.toString());
 
-    const paths = [];
-    for (var c = 1; c <= numCircles; c++) {
-        const center = [
-            SimplexNoiseUtils.noise2DInRange(simplex, c/centerXNoiseDenom1, c/centerXNoiseDenom2, 0, width),
-            SimplexNoiseUtils.noise2DInRange(simplex, c/centerYNoiseDenom1, c/centerYNoiseDenom2, 0, height)
-        ];
+      const paths = [];
+      for (var c = 1; c <= numCircles; c++) {
+          const center = [
+              SimplexNoiseUtils.noise2DInRange(simplex, c/centerXNoiseDenom1, c/centerXNoiseDenom2, 0, width),
+              SimplexNoiseUtils.noise2DInRange(simplex, c/centerYNoiseDenom1, c/centerYNoiseDenom2, 0, height)
+          ];
 
-        const circleSize = SimplexNoiseUtils.noise2DInRange(simplex, c/20, c/10, minCircleSize, maxCircleSize);
+          const circleSize = SimplexNoiseUtils.noise2DInRange(simplex, c/20, c/10, minCircleSize, maxCircleSize);
 
-        paths.push(new makerjs.paths.Circle(
-            center, circleSize
-        ));
-    }
+          paths.push(new makerjs.paths.Circle(
+              center, circleSize
+          ));
+      }
+      return paths;
+    })
 
     const expandedModels = makerjs.model.expandPaths({paths: paths}, borderSize);
     this.models = expandedModels.models;

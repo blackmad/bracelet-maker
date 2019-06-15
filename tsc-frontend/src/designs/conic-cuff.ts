@@ -116,6 +116,8 @@ class ConicCuffOuterImpl { // implements MakerJs.IModel {
         innerOptions.height = totalHeight;
         innerOptions.width = totalWidth;
         innerOptions.boundaryModel = cuffClone;
+        innerOptions.outerModel = {models: {c: makerjs.model.clone(completeCuffModel).models.cuffModel}}
+        
         console.log(innerDesignClass)
         const innerDesign = innerDesignClass.make(innerOptions);
 

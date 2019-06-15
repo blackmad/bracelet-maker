@@ -4,19 +4,15 @@ import * as SimplexNoise from "simplex-noise";
 import { SimplexNoiseUtils } from '../simplex-noise-utils'
 import { ModelMaker } from '../model';
 import { MetaParameter, RangeMetaParameter, SelectMetaParameter } from '../meta-parameter';
+import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
 
 var makerjs = require('makerjs');
 
-export class InnerDesignVeraImpl implements MakerJs.IModel {
-  public units = makerjs.unitType.Inch;
-  public paths: MakerJs.IPathMap = {};
-  public models: MakerJs.IModelMap = {};
-  
-  constructor(params) {
+export class InnerDesignVeraImpl extends FastAbstractInnerDesign {  
+  makeDesign(params) {
     const { 
         height, 
         width, 
-        boundaryModel, 
         shapeSize1,
         shapeSize2,
         bufferWidth,
@@ -32,7 +28,6 @@ export class InnerDesignVeraImpl implements MakerJs.IModel {
     var simplex = new SimplexNoise(seed.toString());
 
     const models = {};
-    const paths = [];
 
     const gridCellSizeX = (shapeSize1 + bufferWidth*2);
     const gridCellSizeY = (shapeSize2 + bufferWidth*2);
@@ -44,7 +39,6 @@ export class InnerDesignVeraImpl implements MakerJs.IModel {
 
             models[r + '.' + c] = makerjs.$(
                 ShapeMaker.makeShape(shapeName, shapeSize1, shapeSize2)
-                // ShapeMaker.makeShape(shapeName, boxWidth)
             )
             .rotate(SimplexNoiseUtils.noise2DInRange(simplex, r*xNoiseCoefficient, c*yNoiseCoefficient, 0, 180))
             .scale(SimplexNoiseUtils.noise2DInRange(simplex, r*xScaleNoiseCoefficient, c*yScaleNoiseCoefficient, minScale, maxScale))
@@ -58,13 +52,7 @@ export class InnerDesignVeraImpl implements MakerJs.IModel {
         }
     }
 
-    this.models = makerjs.model.combineIntersection(
-        makerjs.model.clone(boundaryModel),
-        {models: models}
-        // makerjs.model.expandPaths({models: models}, bufferWidth)
-    ).models;
-
-    this.units = makerjs.unitType.Inch;
+    return {models: models}
   }
 }
 

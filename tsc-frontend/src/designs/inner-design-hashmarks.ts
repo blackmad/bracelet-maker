@@ -1,14 +1,12 @@
 import * as SimplexNoise from "simplex-noise";
 import { ModelMaker } from "../model";
 import { MetaParameter, RangeMetaParameter } from "../meta-parameter";
+import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 
 var makerjs = require('makerjs');
 
-export class InnerDesignHashmarksImpl implements MakerJs.IModel {
-    public units = makerjs.unitType.Inch;
-    public paths: MakerJs.IPathMap = {};
-    public models: MakerJs.IModelMap = {};
-  constructor(params) {
+export class InnerDesignHashmarksImpl extends FastAbstractInnerDesign {
+  makeDesign(params) {
       const { 
         height = 2, 
         width = 10, 
@@ -22,7 +20,7 @@ export class InnerDesignHashmarksImpl implements MakerJs.IModel {
         noiseOffset2, 
         noiseInfluence 
     } = params;
-    console.log(arguments)
+
     var simplex = new SimplexNoise(seed.toString());
     var lastNoise1 = simplex.noise2D(100, 10) * initialNoiseRange1;
     var lastNoise2 = simplex.noise2D(100.5, 10.5) * initialNoiseRange2;
@@ -46,8 +44,7 @@ export class InnerDesignHashmarksImpl implements MakerJs.IModel {
       lastNoise2 = lastNoise2 + newNoise2;
       pos += hashWidth + bufferWidth;
     }
-    this.models = makerjs.model.combineIntersection({ models: models }, boundaryModel).models;
-    this.units = makerjs.unitType.Inch;
+    return {models: models};
   }
 }
 
