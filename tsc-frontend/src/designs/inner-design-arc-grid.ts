@@ -3,6 +3,7 @@ import { SimplexNoiseUtils } from "../simplex-noise-utils";
 import { ModelMaker } from "../model";
 import { MetaParameter, RangeMetaParameter } from "../meta-parameter";
 import Angle from "./angle";
+import * as _ from 'lodash';
 
 var makerjs = require("makerjs");
 
@@ -16,9 +17,29 @@ export class InnerDesignArcGridImpl implements MakerJs.IModel {
       height = 2,
       width = 10,
       boundaryModel,
-      outerModel
+      outerModel,
+      _numRows,
+      initialRotation
     } = params;
+
+    const numRows = _numRows - 1;
     console.log(boundaryModel);
+
+                /***** START SAFE CONE *****/
+                console.log(boundaryModel.models.c.models.cuff.origin);
+
+                const safeCone = new makerjs.models.ConnectTheDots(true, [boundaryModel.models.c.models.cuff.paths.p1.origin, 
+                  [
+                      20 * Math.cos(Angle.fromDegrees(boundaryModel.models.c.models.cuff.paths.p1.startAngle).radians) + boundaryModel.models.c.models.cuff.paths.p1.origin[0] ,
+                      20 * Math.sin(Angle.fromDegrees(boundaryModel.models.c.models.cuff.paths.p1.startAngle).radians) + boundaryModel.models.c.models.cuff.paths.p1.origin[1] ,
+                  ], 
+                  [
+                      20 * Math.cos(Angle.fromDegrees(boundaryModel.models.c.models.cuff.paths.p1.endAngle).radians)  + boundaryModel.models.c.models.cuff.paths.p1.origin[0] ,
+                      20 * Math.sin(Angle.fromDegrees(boundaryModel.models.c.models.cuff.paths.p1.endAngle).radians) + boundaryModel.models.c.models.cuff.paths.p1.origin[1]
+                  ]
+              ])
+              
+              /***** END SAFE CONE *****/
 
     const arcs = [];
     var walkOptions = {
@@ -32,11 +53,9 @@ export class InnerDesignArcGridImpl implements MakerJs.IModel {
     makerjs.model.walk(outerModel, walkOptions);
     console.log(arcs);
 
-
     const startArc = arcs[0];
     const endArc = arcs[1];
     
-    const numRows = 4;
     console.log((startArc.radius - endArc.radius))
     const hexSizeOrig = ((endArc.radius - startArc.radius) / numRows) * 0.5;
 
@@ -44,12 +63,16 @@ export class InnerDesignArcGridImpl implements MakerJs.IModel {
     const numHexesOrig = Math.round(arcLengthOrig / (hexSizeOrig * 2));
 
     const models = {}
+    var outlineModel = {}
     for (let r = 0; r <= numRows; r++) {
+      const dilation = 1 + ((Math.abs(startArc.radius - endArc.radius) / startArc.radius) * (r/numRows));
+      const hexSize = hexSizeOrig //* dilation;
 
       const radius = startArc.radius + (Math.abs(startArc.radius - endArc.radius) * (r / numRows))
-      // TODO: fix this to be correcter
-      // const extraArcLengthInRadians = r % 2 ? hexSize / (2*Math.PI*radius): 0;
-      const extraArcLengthInRadians = r % 2 ? 2: 0;
+      const extraArcLengthInRadians = r % 2 ? (hexSize*2*(r+1)) / (radius - startArc.radius): 0;
+      console.log('hexSize', hexSize);
+      console.log('radius', radius);
+      console.log('extraArc', extraArcLengthInRadians);
 
       const numHexes = r %2 ? numHexesOrig + 2: numHexesOrig;
 
@@ -57,10 +80,7 @@ export class InnerDesignArcGridImpl implements MakerJs.IModel {
       const endAngle = startArc.endAngle + (Math.abs(startArc.endAngle - endArc.endAngle) * (r / numRows)) + extraArcLengthInRadians
       const arc = new makerjs.paths.Arc(arcs[0].origin, radius, startAngle, endAngle);
 
-      const dilation = 1 + ((Math.abs(startArc.radius - endArc.radius) / startArc.radius) * (r/numRows));
-      const hexSize = hexSizeOrig * dilation;
-
-      var hex = new makerjs.models.Polygon(6, hexSize, 30);
+      var hex = new makerjs.models.Polygon(6, hexSize, initialRotation);
 
       const offset = r % 2
 
@@ -68,45 +88,25 @@ export class InnerDesignArcGridImpl implements MakerJs.IModel {
       makerjs.layout.childrenOnPath(row, arc, 0);
 
       models[r.toString()] = row;
+
+      if (r == 0 || r == numRows) {
+        _.each(row.models, (model) => {
+          outlineModel = makerjs.model.combineUnion(makerjs.model.scale(makerjs.model.clone(model), 1.6), outlineModel)
+        });
+      }
     }
+
+    const tmpModel = { models: {
+      shapes: {models: models},
+    }}
 
     this.models = {
-      shapes: {models: models},
+      design: tmpModel
+     // design: makerjs.model.combineIntersection(tmpModel, safeCone),
+      outline: outlineModel
     }
-
-    // this.models = makerjs.model.expandPaths({models: models}, 0.1).models;
+    
     console.log(this.models);
-
-    // const rowCellSize = width/cols;
-    // const widthCellSize = height/rows;
-
-    // const paths = [];
-
-    // const boundaryExtents = makerjs.measure.modelExtents(boundaryModel);
-    // for (var r = 0; r < rows; r++) {
-    //     for (var c = 0; c < cols; c++) {
-    //         const center = [
-    //             ((r%2) * rowOffset*rowCellSize) + c*rowCellSize + SimplexNoiseUtils.noise2DInRange(simplex, c/centerXNoiseDenom1, c/centerXNoiseDenom2, -rowCellSize*2, rowCellSize*2),
-    //              yOffset + (r*widthCellSize + SimplexNoiseUtils.noise2DInRange(simplex, r/centerYNoiseDenom1, r/centerYNoiseDenom2, -widthCellSize*2, widthCellSize*2))
-    //         ];
-
-    //         const circleSize = SimplexNoiseUtils.noise2DInRange(simplex, r/10, c/10, minCircleSize, maxCircleSize);
-
-    //         const possibleCircle = new makerjs.paths.Circle(center, circleSize);
-    //         const shouldUseCircle = makerjs.measure.isMeasurementOverlapping(boundaryExtents, makerjs.measure.modelExtents({paths: [possibleCircle]}));
-    //         // if (true) {
-    //         if (shouldUseCircle) {
-    //             paths.push(possibleCircle);
-    //         }
-    //     }
-    // }
-
-    // const expandedModels = makerjs.model.expandPaths({paths: paths}, borderSize);
-    // this.models = expandedModels.models;
-    // this.models = makerjs.model.combineSubtraction(
-    //     makerjs.model.clone(boundaryModel),
-    //     expandedModels
-    // ).models;
 
     this.units = makerjs.unitType.Inch;
   }
@@ -115,101 +115,37 @@ export class InnerDesignArcGridImpl implements MakerJs.IModel {
 export class InnerDesignArcGrid implements ModelMaker {
   get metaParameters(): Array<MetaParameter> {
     return [
-      new RangeMetaParameter({
-        title: "Seed",
-        min: 1,
-        max: 10000,
-        value: 1,
-        step: 1,
-        name: "seed"
-      }),
-      new RangeMetaParameter({
-        title: "Cols",
-        min: 1,
-        max: 10,
-        value: 5,
-        step: 1,
-        name: "cols"
-      }),
+      // new RangeMetaParameter({
+      //   title: "Seed",
+      //   min: 1,
+      //   max: 10000,
+      //   value: 1,
+      //   step: 1,
+      //   name: "seed"
+      // }),
+      // new RangeMetaParameter({
+      //   title: "Cols",
+      //   min: 1,
+      //   max: 10,
+      //   value: 5,
+      //   step: 1,
+      //   name: "cols"
+      // }),
       new RangeMetaParameter({
         title: "Rows",
         min: 1,
         max: 10,
         value: 5,
         step: 1,
-        name: "rows"
+        name: "_numRows"
       }),
       new RangeMetaParameter({
-        title: "Border Size",
-        min: 0.1,
-        max: 0.25,
-        value: 0.1,
-        step: 0.01,
-        name: "borderSize"
-      }),
-      new RangeMetaParameter({
-        title: "Min Circle Size",
-        min: 0.1,
-        max: 2.0,
-        value: 0.5,
-        step: 0.01,
-        name: "minCircleSize"
-      }),
-      new RangeMetaParameter({
-        title: "Max Circle Size",
-        min: 0.1,
-        max: 3.0,
-        value: 1.5,
-        step: 0.01,
-        name: "maxCircleSize"
-      }),
-      new RangeMetaParameter({
-        title: "Center X Noise Demon 1",
-        min: 1,
-        max: 400,
-        value: 20,
+        title: "initialRotation",
+        min: 0,
+        max: 180,
+        value: 30,
         step: 1,
-        name: "centerXNoiseDenom1"
-      }),
-      new RangeMetaParameter({
-        title: "Center X Noise Demon 2",
-        min: 1,
-        max: 400,
-        value: 20,
-        step: 1,
-        name: "centerXNoiseDenom2"
-      }),
-      new RangeMetaParameter({
-        title: "Center Y Noise Demon 1",
-        min: 1,
-        max: 400,
-        value: 20,
-        step: 1,
-        name: "centerYNoiseDenom1"
-      }),
-      new RangeMetaParameter({
-        title: "Center Y Noise Demon 2",
-        min: 1,
-        max: 400,
-        value: 10,
-        step: 1,
-        name: "centerYNoiseDenom2"
-      }),
-      new RangeMetaParameter({
-        title: "Y Offset",
-        min: 0.1,
-        max: 3.0,
-        value: 0.5,
-        step: 0.01,
-        name: "yOffset"
-      }),
-      new RangeMetaParameter({
-        title: "Row Offset",
-        min: 0.0,
-        max: 1.0,
-        value: 0.2,
-        step: 0.01,
-        name: "rowOffset"
+        name: "initialRotation"
       })
     ];
   }

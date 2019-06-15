@@ -1,6 +1,7 @@
 import {makeConicSection} from './conic-section'
 import { RangeMetaParameter, MetaParameterType } from '../meta-parameter';
 import { ModelMaker } from '../model';
+import Angle from './angle';
 
 var makerjs = require('makerjs');
 
@@ -122,7 +123,19 @@ class ConicCuffOuterImpl { // implements MakerJs.IModel {
         const innerDesign = innerDesignClass.make(innerOptions);
 
         this.models.design = innerDesign;
-        console.log(this.models.design )
+        console.log(innerDesign)
+
+        if (innerDesign.models.outline) {
+            console.log('outline');
+            this.models.completeCuffModel.models.cuffModel = 
+                makerjs.model.combineUnion(innerDesign.models.outline,
+                    this.models.completeCuffModel.models.cuffModel);
+            innerDesign.models.outline = undefined;
+            this.models.completeCuffModel.models.completeCuffModel = undefined
+            this.models.completeCuffModel.models.cuff = undefined
+            // this.models.completeCuffModel.models.cuffModel = undefined
+            console.log(this.models);
+        }
 
         /***** END DESIGN *****/
 
