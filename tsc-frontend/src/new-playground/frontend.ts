@@ -53,6 +53,8 @@ function attachHandlers() {
         const design = (<HTMLInputElement>button.target).value;
         setDesignFromName(design);
     })
+
+    $('#playArea').hide();
 }
 
 $(document).ready(attachHandlers);
