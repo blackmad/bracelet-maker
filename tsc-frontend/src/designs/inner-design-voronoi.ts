@@ -143,7 +143,7 @@ export function InnerDesignVoronoiImpl(params) {
         }
     };
 
-    const expandedModels = makerjs.model.expandPaths(voronoiTmpModel, expandWidth);
+    const expandedModels = makerjs.model.expandPaths(voronoiTmpModel, expandWidth/2);
 
     const chainModels = {}
     const chains = makerjs.model.findChains(expandedModels);
@@ -168,7 +168,7 @@ export class InnerDesignVoronoi implements ModelMaker {
         return [
             new RangeMetaParameter({ title: "Seed", min: 1, max: 10000, value: 1, step: 1, name: 'seed' }),
             new RangeMetaParameter({ title: "Num Points", min: 3, max: 100, value: 20, step: 1, name: 'numPoints' }),
-            new RangeMetaParameter({ title: "Border Size (in)", min: 0.1, max: 0.75, value: 0.1, step: 0.01, name: 'expandWidth' }),
+            new RangeMetaParameter({ title: "Border Size (in)", min: 0.1, max: 0.75, value: 0.2, step: 0.01, name: 'expandWidth' }),
             new RangeMetaParameter({ title: "Min Cell Border Length", min: 0.5, max: 5, value: 1.0, step: 0.1, name: 'minPathLength' })
         ]
     }
