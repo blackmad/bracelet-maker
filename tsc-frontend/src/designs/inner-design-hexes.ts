@@ -5,10 +5,11 @@ import { MetaParameter, RangeMetaParameter } from "../meta-parameter";
 import Angle from "./angle";
 import * as _ from 'lodash';
 import { start } from "repl";
+import { MakerJsUtils } from "../makerjs-utils";
 
 var makerjs = require("makerjs");
 
-export class InnerDesignArcGridImpl implements MakerJs.IModel {
+export class InnerDesignHexesImpl implements MakerJs.IModel {
   public units = makerjs.unitType.Inch;
   public paths: MakerJs.IPathMap = {};
   public models: MakerJs.IModelMap = {};
@@ -18,30 +19,13 @@ export class InnerDesignArcGridImpl implements MakerJs.IModel {
       height = 2,
       width = 10,
       boundaryModel,
+      safeCone,
       outerModel,
-      sides,
       _numRows,
-      initialRotation
+      stretchWidth
     } = params;
 
     const numRows = _numRows - 1;
-    console.log(boundaryModel);
-
-                /***** START SAFE CONE *****/
-                console.log(boundaryModel.models.c.models.cuff.origin);
-
-                const safeCone = new makerjs.models.ConnectTheDots(true, [boundaryModel.models.c.models.cuff.paths.p1.origin, 
-                  [
-                      20 * Math.cos(Angle.fromDegrees(boundaryModel.models.c.models.cuff.paths.p1.startAngle).radians) + boundaryModel.models.c.models.cuff.paths.p1.origin[0] ,
-                      20 * Math.sin(Angle.fromDegrees(boundaryModel.models.c.models.cuff.paths.p1.startAngle).radians) + boundaryModel.models.c.models.cuff.paths.p1.origin[1] ,
-                  ], 
-                  [
-                      20 * Math.cos(Angle.fromDegrees(boundaryModel.models.c.models.cuff.paths.p1.endAngle).radians)  + boundaryModel.models.c.models.cuff.paths.p1.origin[0] ,
-                      20 * Math.sin(Angle.fromDegrees(boundaryModel.models.c.models.cuff.paths.p1.endAngle).radians) + boundaryModel.models.c.models.cuff.paths.p1.origin[1]
-                  ]
-              ])
-              
-              /***** END SAFE CONE *****/
 
     const boundaryArcs = [];
     var walkOptions = {
@@ -53,7 +37,6 @@ export class InnerDesignArcGridImpl implements MakerJs.IModel {
     };
 
     makerjs.model.walk(boundaryModel, walkOptions);
-    console.log(boundaryArcs);
 
     const outerArcs = [];
     var walkOptions = {
@@ -65,7 +48,6 @@ export class InnerDesignArcGridImpl implements MakerJs.IModel {
     };
 
     makerjs.model.walk(outerModel, walkOptions);
-    console.log(boundaryArcs);
 
     const startArc = boundaryArcs[0];
     const endArc = boundaryArcs[1];
@@ -73,19 +55,21 @@ export class InnerDesignArcGridImpl implements MakerJs.IModel {
     const outerStartArc = outerArcs[0];
     const outerEndArc = outerArcs[1];
     
-    const hexSizeOrig = ((outerEndArc.radius - outerStartArc.radius) / numRows) * 0.5;
+    const rowHeight = (outerEndArc.radius - outerStartArc.radius) / numRows
+    const hexSize = rowHeight * 0.5;
 
-    const arcLengthOrig = Math.abs(Angle.fromDegrees(startArc.startAngle).radians - Angle.fromDegrees(startArc.endAngle).radians) * startArc.radius;
-    const numHexes = Math.round(arcLengthOrig / (hexSizeOrig * 2));
+    const startLength = MakerJsUtils.arcLength(startArc)
+    const numHexes = Math.round(startLength / (hexSize * 2 * stretchWidth));
+
+    const endLength = MakerJsUtils.arcLength(endArc)
 
     const models = {}
     var outlineModel = {}
     for (let r = 0; r <= numRows; r++) {
-      const hexSize = hexSizeOrig;
+      const dilation = 1 + ((r/numRows) * ((endLength / startLength) - 1))
 
-      console.log(startArc.startAngle)
       const radius = outerStartArc.radius + (Math.abs(outerStartArc.radius - outerEndArc.radius) * (r / numRows))
-      const extraArcLengthInDegrees = r % 2 ? Angle.fromRadians(hexSize/radius).degrees : 0;
+      const extraArcLengthInDegrees = r % 2 ? Angle.fromRadians(hexSize*stretchWidth/radius).degrees : 0;
 
       const offset = r % 2 ? 1 : 0;
 
@@ -94,6 +78,9 @@ export class InnerDesignArcGridImpl implements MakerJs.IModel {
       const arc = new makerjs.paths.Arc(startArc.origin, radius, startAngle, endAngle);
 
       var hex = new makerjs.models.Polygon(6, hexSize, 30);
+      if (stretchWidth != 1) {
+        hex = makerjs.model.distort(hex, stretchWidth*dilation, 1)
+      }
       // var hex = {paths: [new makerjs.paths.Circle(hexSize) ]}
 
       var row = makerjs.layout.cloneToRow(hex, numHexes - offset, 0);
@@ -114,35 +101,16 @@ export class InnerDesignArcGridImpl implements MakerJs.IModel {
 
     this.models = {
       design: tmpModel,
-     // design: makerjs.model.combineIntersection(tmpModel, safeCone),
       outline: outlineModel
-    }
-    
-    console.log(this.models);
+    }    
 
     this.units = makerjs.unitType.Inch;
   }
 }
 
-export class InnerDesignArcGrid implements ModelMaker {
+export class InnerDesignHexes implements ModelMaker {
   get metaParameters(): Array<MetaParameter> {
     return [
-      // new RangeMetaParameter({
-      //   title: "Seed",
-      //   min: 1,
-      //   max: 10000,
-      //   value: 1,
-      //   step: 1,
-      //   name: "seed"
-      // }),
-      // new RangeMetaParameter({
-      //   title: "Cols",
-      //   min: 1,
-      //   max: 10,
-      //   value: 5,
-      //   step: 1,
-      //   name: "cols"
-      // }),
       new RangeMetaParameter({
         title: "Rows",
         min: 3,
@@ -150,11 +118,19 @@ export class InnerDesignArcGrid implements ModelMaker {
         value: 5,
         step: 1,
         name: "_numRows"
+      }),
+      new RangeMetaParameter({
+        title: "stretchWidth",
+        min: 0.5,
+        max: 3,
+        value: 1,
+        step: 0.01,
+        name: "stretchWidth"
       })
     ];
   }
 
   public make(params: Map<string, any>): MakerJs.IModel {
-    return new InnerDesignArcGridImpl(params);
+    return new InnerDesignHexesImpl(params);
   }
 }

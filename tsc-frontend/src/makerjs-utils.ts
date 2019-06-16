@@ -1,6 +1,12 @@
+import Angle from "./designs/angle";
+
 const makerjs = require('makerjs');
 
 export namespace MakerJsUtils {
+    export function arcLength(arc: MakerJs.paths.Arc): number {
+        return Angle.fromDegrees(arc.endAngle - arc.startAngle).radians * arc.radius;
+    }
+
     export function checkCircleCircleIntersection(c1: MakerJs.paths.Circle, c2: MakerJs.paths.Circle, border?: number): boolean {
         const xDistance = c1.origin[0] - c2.origin[0];
         const yDistance = c1.origin[1] - c2.origin[1];

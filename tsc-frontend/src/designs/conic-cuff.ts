@@ -5,7 +5,7 @@ import Angle from './angle';
 
 var makerjs = require('makerjs');
 
-function makeTwoEvenlySpacedBolts(p1, p2) {
+function makeEvenlySpacedBolts(numBolts, p1, p2) {
     var MillimeterToInches = 0.0393701;
 
     var RivetRadius = 2.5 * MillimeterToInches;
@@ -14,11 +14,16 @@ function makeTwoEvenlySpacedBolts(p1, p2) {
     var rivetRow = null;
 
     // still don't love where these are centered
-    rivetRow = makerjs.layout.cloneToRow(rivetHole, 5);
+    rivetRow = makerjs.layout.cloneToRow(rivetHole, (numBolts * 2) + 1);
     var leftBoltPath = new makerjs.paths.Line(p1, p2);
     var leftBolts = makerjs.layout.childrenOnPath(rivetRow, leftBoltPath);
-    delete leftBolts['models']['0']; delete leftBolts['models']['2']; delete leftBolts['models']['4'];
 
+    for (const key in leftBolts['models']) { 
+        if (Number(key) % 2 == 0) {
+            delete leftBolts['models'][key]
+        }
+    }
+    
     return leftBolts;
 }
 
@@ -28,7 +33,6 @@ class ConicCuffOuterImpl { // implements MakerJs.IModel {
     public models: MakerJs.IModelMap = {};
 
     constructor(innerDesignClass: ModelMaker, options) {
-        console.log(options);
         var {height, wristCircumference, forearmCircumference, safeBorderWidth} = options['ConicCuffOuter'];
 
         if (wristCircumference > forearmCircumference) {
@@ -82,16 +86,16 @@ class ConicCuffOuterImpl { // implements MakerJs.IModel {
             cuffModel.shortRadius * Math.cos(cuffModel.alpha.radians - cuffModelInner.widthOffset.radians/2),
             cuffModel.shortRadius * Math.sin(cuffModel.alpha.radians - cuffModelInner.widthOffset.radians/2)
         ];
-        completeCuffModel.models['leftBolts'] = makeTwoEvenlySpacedBolts(boltGuideLine1P1, boltGuideLine1P2);
-        completeCuffModel.models['rightBolts'] = makeTwoEvenlySpacedBolts(boltGuideLine2P1, boltGuideLine2P2);
+
+        const numBolts = Math.round(height)
+        completeCuffModel.models['leftBolts'] = makeEvenlySpacedBolts(numBolts, boltGuideLine1P1, boltGuideLine1P2);
+        completeCuffModel.models['rightBolts'] = makeEvenlySpacedBolts(numBolts, boltGuideLine2P1, boltGuideLine2P2);
         /***** END RIVET HOLES *****/
 
         /***** START RECENTER SHAPE *****/
         // Model is way far out, move it close to origin
         makerjs.model.rotate(completeCuffModel, 90 - cuffModel.alpha.degrees/2);
         makerjs.model.zero(completeCuffModel);
-
-        // console.log(completeCuffModel)
 
         this.models = {
             completeCuffModel: completeCuffModel
@@ -112,21 +116,31 @@ class ConicCuffOuterImpl { // implements MakerJs.IModel {
         var cuffModelInnerClone = cuffClone.models.cuffModelInner;
         cuffClone.models = { c: cuffModelInnerClone };
 
-        console.log(innerDesignClass.constructor.name);
+
+        const boundaryModel = cuffClone;
+        const safeCone = new makerjs.models.ConnectTheDots(true, [boundaryModel.models.c.models.cuff.paths.p1.origin, 
+            [
+                20 * Math.cos(Angle.fromDegrees(boundaryModel.models.c.models.cuff.paths.p1.startAngle).radians) + boundaryModel.models.c.models.cuff.paths.p1.origin[0] ,
+                20 * Math.sin(Angle.fromDegrees(boundaryModel.models.c.models.cuff.paths.p1.startAngle).radians) + boundaryModel.models.c.models.cuff.paths.p1.origin[1] ,
+            ], 
+            [
+                20 * Math.cos(Angle.fromDegrees(boundaryModel.models.c.models.cuff.paths.p1.endAngle).radians)  + boundaryModel.models.c.models.cuff.paths.p1.origin[0] ,
+                20 * Math.sin(Angle.fromDegrees(boundaryModel.models.c.models.cuff.paths.p1.endAngle).radians) + boundaryModel.models.c.models.cuff.paths.p1.origin[1]
+            ]
+        ])
+
         const innerOptions = options[innerDesignClass.constructor.name] || {};
         innerOptions.height = totalHeight;
         innerOptions.width = totalWidth;
         innerOptions.boundaryModel = cuffClone;
+        innerOptions.safeCone = safeCone;
         innerOptions.outerModel = {models: {c: makerjs.model.clone(completeCuffModel).models.cuffModel}}
         
-        console.log(innerDesignClass)
         const innerDesign = innerDesignClass.make(innerOptions);
 
         this.models.design = innerDesign;
-        console.log(innerDesign)
 
         if (innerDesign.models.outline) {
-            console.log('outline');
             this.models.completeCuffModel.models.cuffModel = 
                 makerjs.model.combineUnion(innerDesign.models.outline,
                     this.models.completeCuffModel.models.cuffModel);
@@ -134,7 +148,6 @@ class ConicCuffOuterImpl { // implements MakerJs.IModel {
             this.models.completeCuffModel.models.completeCuffModel = undefined
             this.models.completeCuffModel.models.cuff = undefined
             // this.models.completeCuffModel.models.cuffModel = undefined
-            console.log(this.models);
         }
 
         /***** END DESIGN *****/
