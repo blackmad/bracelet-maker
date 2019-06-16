@@ -2,11 +2,10 @@ var makerjs = require('makerjs');
 
 import { Delaunay } from 'd3-delaunay';
 
-import * as SimplexNoise from "simplex-noise";
-import { SimplexNoiseUtils } from '../simplex-noise-utils'
 import { RangeMetaParameter, MetaParameter } from '../meta-parameter';
 import { ModelMaker } from 'src/model';
 
+const seedrandom = require('seedrandom');
 
 // function polygonArea(points,signed) {
 //     var l = points.length
@@ -40,22 +39,26 @@ export function InnerDesignVoronoiImpl(params) {
         numPoints = 100,
         expandWidth = 0.1,
         minPathLength = 1,
-        xNoiseCoefficient,
-        yNoiseCoefficient,
         seed,
         boundaryModel
     } = params;
     const maxX = width;
     const maxY = height;
 
-    var simplex = new SimplexNoise(seed.toString());
+    var rng = seedrandom(seed.toString());
 
     var seedPoints = []
-    for (let i = 0; i < numPoints; i++) {
-        seedPoints.push([
-            SimplexNoiseUtils.positiveNoise2D(simplex, i, i*xNoiseCoefficient) * maxX, 
-            SimplexNoiseUtils.positiveNoise2D(simplex, i, i*yNoiseCoefficient) * maxY
-        ]);
+    for (let i = 0; i < numPoints * 10; i++) {
+        if (seedPoints.length == numPoints) {
+            break;
+        }
+        const testPoint = [
+            rng() * maxX,
+            rng() * maxY
+        ]
+        if (makerjs.measure.isPointInsideModel(testPoint, boundaryModel)) {
+            seedPoints.push(testPoint);
+        }
     }
 
     var delaunay = Delaunay.from(seedPoints);
@@ -78,7 +81,7 @@ export function InnerDesignVoronoiImpl(params) {
         // console.log(tmpModel)
 
         var pathLength = makerjs.measure.modelPathLength(tmpModel.models.a);
-        console.log(tmpModel.models.a)
+
         if (pathLength > minPathLength) {
             newSeedPoints.push(seed);
         }
@@ -164,11 +167,9 @@ export class InnerDesignVoronoi implements ModelMaker {
     get metaParameters(): Array<MetaParameter> {
         return [
             new RangeMetaParameter({ title: "Seed", min: 1, max: 10000, value: 1, step: 1, name: 'seed' }),
-            new RangeMetaParameter({ title: "Num Points", min: 10, max: 100, value: 20, step: 1, name: 'numPoints' }),
+            new RangeMetaParameter({ title: "Num Points", min: 3, max: 100, value: 20, step: 1, name: 'numPoints' }),
             new RangeMetaParameter({ title: "Border Size (in)", min: 0.1, max: 0.75, value: 0.1, step: 0.01, name: 'expandWidth' }),
-            new RangeMetaParameter({ title: "Min Cell Border Length", min: 0.5, max: 5, value: 1.0, step: 0.1, name: 'minPathLength' }),
-            new RangeMetaParameter({ title: "xNoiseCoefficient", min: 0.01, max: 1, step: 0.1, value: 0.5, name: 'xNoiseCoefficient' }),
-            new RangeMetaParameter({ title: "yNoiseCoefficient", min: 0.01, max: 1, step: 0.1, value: 0.2, name: 'yNoiseCoefficient' })
+            new RangeMetaParameter({ title: "Min Cell Border Length", min: 0.5, max: 5, value: 1.0, step: 0.1, name: 'minPathLength' })
         ]
     }
 

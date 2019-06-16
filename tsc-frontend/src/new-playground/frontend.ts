@@ -8,7 +8,7 @@ import { InnerDesignCirclePacking } from "../designs/inner-design-circle-packing
 import { InnerDesignVera } from "../designs/inner-design-vera";
 import { InnerDesignHashmarks } from "../designs/inner-design-hashmarks";
 import { InnerDesignCirclesXVera } from "../designs/inner-design-circles-x-vera";
-import { InnerDesignVoronoi } from "../designs/inner-design-delaunay";
+import { InnerDesignVoronoi } from "../designs/inner-design-voronoi";
 import { InnerDesignHexes } from "../designs/inner-design-hexes";
 
 import * as $ from "jquery";
