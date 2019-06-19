@@ -49,7 +49,10 @@ export class DavidsPlayground {
 
     this.buildMetaParameterWidgets(document.getElementById("parameterDiv"));
 
+    console.log('binding clicks now')
+    $('.downloadSVG').off("click");
     $(".downloadSVG").click(this.downloadSVG.bind(this));
+    $('.downloadPDF').off("click");
     $(".downloadPDF").click(this.downloadPDF.bind(this));
   }
 
@@ -330,6 +333,7 @@ export class DavidsPlayground {
   }
 
   downloadPDF() {
+    console.log('downloading pdf')
     var bbox = makerjs.measure.modelExtents(this.model);
     const widthInches = bbox.high[0] - bbox.low[0];
     const heightInches = bbox.high[1] - bbox.low[1];

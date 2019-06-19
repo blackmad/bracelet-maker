@@ -37,21 +37,20 @@ export abstract class FastAbstractInnerDesign implements MakerJs.IModel {
   public paths: MakerJs.IPathMap = {};
   public models: MakerJs.IModelMap = {};
 
-  public fastRound = true;
-
   abstract makeDesign(params: any): any;
 
   constructor(params) {
     const self = this;
-    const model = FastRoundShim.useFastRound(function() {
-      return self.makeDesign(params);
+    let model = null;
+    FastRoundShim.useFastRound(function() {
+      model = self.makeDesign(params);
     });
 
-    const containedCircles = makerjs.model.combineIntersection(
+    const containedDesign = makerjs.model.combineIntersection(
       makerjs.model.clone(params.boundaryModel),
       model
     );
 
-    this.models = containedCircles.models;
+    this.models = containedDesign.models;
   }
 }

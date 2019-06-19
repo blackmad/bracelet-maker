@@ -53,6 +53,7 @@ function attachHandlers() {
 
   $(".designButton").click(function(button) {
     const design = (<HTMLInputElement>button.target).value;
+    window.location.hash = '';
     setDesignFromName(design);
   });
 }
