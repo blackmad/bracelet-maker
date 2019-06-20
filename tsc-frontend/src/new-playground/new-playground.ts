@@ -101,7 +101,7 @@ export class DavidsPlayground {
     rangeInput.step = metaParameter.step;
     rangeInput.id = metaParameter.name + "-range";
     rangeInput.value = value;
-    rangeInput.className = 'col-xs-4 col-sm-4 col-md-9 px-1'
+    rangeInput.className = 'col-4 px-1'
 
     const textInput = document.createElement("input");
     textInput.type = "number";
@@ -110,7 +110,7 @@ export class DavidsPlayground {
     textInput.step = metaParameter.step;
     textInput.id = metaParameter.name + "-num-input";
     textInput.value = value;
-    textInput.className = 'col-xs-3 col-sm-3 col-md-3'
+    textInput.className = 'col-3'
 
     containingDiv.append(rangeInput);
     containingDiv.append(textInput);
@@ -139,15 +139,15 @@ export class DavidsPlayground {
 
   makeMetaParameterContainer(title) {
     const sizingDiv = document.createElement("div");
-    sizingDiv.className="col-xs-12 col-sm-12 col-md-4 card border-0 m-1";
+    sizingDiv.className="col-md-12 col-lg-6 card border-0";
 
     const containingDiv = document.createElement("div");
-    containingDiv.className = "meta-parameter-container row";
+    containingDiv.className = "meta-parameter-container row m-1";
 
     sizingDiv.append(containingDiv);
 
     const textLabelDiv = document.createElement("div");
-    textLabelDiv.className = "col-xs-5 col-sm-5 col-md-12";
+    textLabelDiv.className = "col-5";
     textLabelDiv.innerHTML = title;
     containingDiv.append(textLabelDiv);
 
