@@ -140,10 +140,10 @@ export class DavidsPlayground {
 
   makeMetaParameterContainer(title) {
     const sizingDiv = document.createElement("div");
-    sizingDiv.className="col-md-12 col-lg-6 small border-top border-bottom py-1";
+    sizingDiv.className="meta-parameter-container col-md-12 col-lg-6 small border-top border-bottom py-1";
 
     const containingDiv = document.createElement("div");
-    containingDiv.className = "meta-parameter-container row";
+    containingDiv.className = "row";
 
     sizingDiv.append(containingDiv);
 

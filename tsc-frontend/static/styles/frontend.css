@@ -31,3 +31,7 @@ svg {
 .error #error {
   display: block;
 }
+
+#playArea {
+  display: none;
+}
