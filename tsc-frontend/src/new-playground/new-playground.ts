@@ -1,9 +1,7 @@
 const makerjs = require("makerjs");
-const StringReader = require("string-reader");
-const svgPanZoom = require("svg-pan-zoom");
 
 // @ts-ignore - this works fine, wtf typescript?
-import * as PDFDocument from "../external/pdfkit.standalone";
+// import * as PDFDocument from "../external/pdfkit.standalone";
 import * as blobStream from "blob-stream";
 import * as $ from "jquery";
 import * as _ from "lodash";
@@ -101,8 +99,10 @@ export class DavidsPlayground {
     rangeInput.step = metaParameter.step;
     rangeInput.id = metaParameter.name + "-range";
     rangeInput.value = value;
-    rangeInput.className = 'col-4 px-1'
+    rangeInput.className = 'col-5'
 
+    const inputWrapDiv = document.createElement("div");
+    inputWrapDiv.className = 'col-2'
     const textInput = document.createElement("input");
     textInput.type = "number";
     textInput.min = metaParameter.min;
@@ -110,10 +110,11 @@ export class DavidsPlayground {
     textInput.step = metaParameter.step;
     textInput.id = metaParameter.name + "-num-input";
     textInput.value = value;
-    textInput.className = 'col-3'
+    textInput.className = 'mx-1'
 
     containingDiv.append(rangeInput);
-    containingDiv.append(textInput);
+    containingDiv.append(inputWrapDiv);
+    inputWrapDiv.append(textInput);
 
     this.params[metaParameter.name] = Number(value);
 
@@ -139,10 +140,10 @@ export class DavidsPlayground {
 
   makeMetaParameterContainer(title) {
     const sizingDiv = document.createElement("div");
-    sizingDiv.className="col-md-12 col-lg-6 card border-0";
+    sizingDiv.className="col-md-12 col-lg-6 small border-top border-bottom py-1";
 
     const containingDiv = document.createElement("div");
-    containingDiv.className = "meta-parameter-container row m-1";
+    containingDiv.className = "meta-parameter-container row";
 
     sizingDiv.append(containingDiv);
 
@@ -150,6 +151,9 @@ export class DavidsPlayground {
     textLabelDiv.className = "col-5";
     textLabelDiv.innerHTML = title;
     containingDiv.append(textLabelDiv);
+
+    // const hr = $('<hr class="d-lg-none"/>');
+    // sizingDiv.append(hr[0]);
 
     return {parentDiv: sizingDiv, containingDiv};
   }
@@ -355,6 +359,7 @@ export class DavidsPlayground {
       },
       size: [widthInches * 72, heightInches * 72]
     };
+    // @ts-ignore - loading this from external js so our upload bundle is smaller
     var doc = new PDFDocument(pdfOptions);
     const stream = doc.pipe(blobStream());
 
