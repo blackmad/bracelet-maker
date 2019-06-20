@@ -1,72 +1,9 @@
 body {
-  overflow-x: auto !important;
-
-  font-family: Source Code Pro, Consolas, Menlo, monospace;
-  font-size: 16px;
-  font-weight: 500;
-
-}
-#mainContainer {
-  display: flex;
+  font-family: Source Code Pro, Consolas, Menlo, monospace !important;
 }
 
-#previewArea {
-  position: -webkit-sticky;
-  position: sticky;
-  top: 0; /* become sticky once touching left edge */
+#topArea {
   background: white;
-
-}
-
-#parameterDiv,
-#ConicCuffOuter {
-  flex-wrap: wrap;
-  display: flex;
-}
-
-.meta-parameter-container input[type="range"] {
-  -webkit-appearance: slider-horizontal !important;
-  -moz-appearance: slider-horizontal !important;
-  appearance: slider-horizontal !important;
-
-  width: 50%;
-  margin: 10px;
-}
-
-.meta-parameter-container input[type="number"] {
-  -webkit-appearance: unset !important;
-  -moz-appearance: unset !important;
-  appearance: unset !important;
-
-  border: 1px dashed rgb(238, 238, 238);
-  padding: 1px;
-  text-align: right;
-  width: 55px;
-
-  font-size: small !important;
-}
-
-.meta-parameter-container,
-.design-container {
-  border: 1px solid black;
-  margin: 3px !important;
-  padding: 5px !important;
-  min-width: 180px;
-  flex-grow: 1;
-}
-
-.container-flex {
-  flex-wrap: wrap;
-  display: flex;
-}
-
-.textLabel {
-  font-size: small !important;
-}
-
-h1.title {
-  font-size: 150% !important;
-  font-weight: bold !important;
 }
 
 .error #previewArea {
@@ -88,35 +25,4 @@ h1.title {
 .loading #loading,
 .error #error {
   display: block;
-}
-
-svg {
-  width: 100%;
-  height: auto;
-}
-
-#downloadContainer {
-  text-align: center;
-}
-
-
-@media only screen and (max-width: 600px) {
-  body {
-    background-color: lightblue;
-  }
-
-  .meta-parameter-container {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .textLabel {
-    display: inline;
-  }
-}
-
-@media only screen and (min-width: 600px) {
-  .meta-parameter-container {
-    max-width: 200px;
-  }
 }

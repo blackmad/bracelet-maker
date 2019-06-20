@@ -31,6 +31,17 @@ export class InnerDesignCirclePackingImpl extends FastAbstractInnerDesign {
 
         console.log('forceContainment', forceContainment)
         var radius = maxCircleSize;
+    console.log(boundaryMeasure);
+        const lines = [
+          new makerjs.paths.Line(
+            boundaryMeasure.low,
+            boundaryMeasure.high
+          ),
+          makerjs.path.moveRelative(new makerjs.paths.Line(
+            [boundaryMeasure.low[0], boundaryMeasure.high[1]],
+            [boundaryMeasure.high[0], boundaryMeasure.low[1]]
+          ), [-1, -1])
+        ];
 
         const triesPerRadius = 200;
         while (radius > minCircleSize) {          
@@ -42,7 +53,8 @@ export class InnerDesignCirclePackingImpl extends FastAbstractInnerDesign {
                 const testCircle = new makerjs.paths.Circle(center, radius);
                 if (MakerJsUtils.checkPathMeasureOverlap(testCircle, boundaryMeasure) &&
                     (!forceContainment || !MakerJsUtils.checkPathIntersectsModel(testCircle, boundaryModel)) &&
-                    _.every(circles, (c) => !MakerJsUtils.checkCircleCircleIntersection(c, testCircle, borderSize))) {
+                    _.every(circles, (c) => !MakerJsUtils.checkCircleCircleIntersection(c, testCircle, borderSize))&&
+                    _.every(lines, (l) => !MakerJsUtils.checkCircleLineIntersection(testCircle, l))) {
                         circles.push(testCircle)
                 }
             }
@@ -50,6 +62,7 @@ export class InnerDesignCirclePackingImpl extends FastAbstractInnerDesign {
         }
 
         return { 
+          //paths: [...circles, ...lines]
           paths: circles
         }
     }

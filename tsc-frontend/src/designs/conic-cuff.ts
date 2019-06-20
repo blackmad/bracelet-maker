@@ -217,7 +217,7 @@ class ConicCuffOuterImpl {
 
     this.models.design = innerDesign;
 
-    if (innerDesign.models.outline) {
+    if (innerDesign.models && innerDesign.models.outline) {
       this.models.completeCuffModel.models.cuffModel = makerjs.model.combineUnion(
         innerDesign.models.outline,
         this.models.completeCuffModel.models.cuffModel

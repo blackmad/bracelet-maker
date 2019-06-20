@@ -18,12 +18,14 @@ export namespace MakerJsUtils {
     }
 
     export function checkCircleLineIntersection(circle: MakerJs.paths.Circle, l: MakerJs.paths.Line): boolean {
+        return makerjs.path.intersection(circle, l) != null;
+
         // copied entirely from https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm
         //p1 is the first line point
         //p2 is the second line point
         //c is the circle's center
         //r is the circle's radius
-
+        console.log(l);
         const p1 = {x: l.origin[0], y: l.origin[1] }
         const p2 = {x: l.end[0], y: l.end[1] }
         const c = {x: circle.origin[0], y: circle.origin[1] }
@@ -34,6 +36,8 @@ export namespace MakerJsUtils {
 
         var m = (p4.y - p3.y) / (p4.x - p3.x); //slope of the line
         var b = p3.y - m * p3.x; //y-intercept of line
+
+        console.log(p3, p4, m ,b);
 
         var underRadical = Math.pow((Math.pow(r,2)*(Math.pow(m,2)+1)),2)-Math.pow(b,2); //the value under the square root sign 
         return underRadical > 0;

@@ -91,8 +91,7 @@ export class DavidsPlayground {
     const value =
       Number(this.params[metaParameter.name]) || metaParameter.value;
 
-    const containingDiv = document.createElement("div");
-    containingDiv.className = "meta-parameter-container";
+    const {parentDiv, containingDiv} = this.makeMetaParameterContainer(metaParameter.title);
 
     const rangeInput = document.createElement("input");
     rangeInput.type = "range";
@@ -102,6 +101,7 @@ export class DavidsPlayground {
     rangeInput.step = metaParameter.step;
     rangeInput.id = metaParameter.name + "-range";
     rangeInput.value = value;
+    rangeInput.className = 'col-xs-4 col-sm-4 col-md-9 px-1'
 
     const textInput = document.createElement("input");
     textInput.type = "number";
@@ -110,12 +110,8 @@ export class DavidsPlayground {
     textInput.step = metaParameter.step;
     textInput.id = metaParameter.name + "-num-input";
     textInput.value = value;
+    textInput.className = 'col-xs-3 col-sm-3 col-md-3'
 
-    const textLabelDiv = document.createElement("div");
-    textLabelDiv.className = "textLabel";
-    textLabelDiv.innerHTML = metaParameter.title;
-
-    containingDiv.append(textLabelDiv);
     containingDiv.append(rangeInput);
     containingDiv.append(textInput);
 
@@ -138,15 +134,31 @@ export class DavidsPlayground {
       }.bind(this)
     );
 
-    return containingDiv;
+    return parentDiv;
+  }
+
+  makeMetaParameterContainer(title) {
+    const sizingDiv = document.createElement("div");
+    sizingDiv.className="col-xs-12 col-sm-12 col-md-4 card border-0 m-1";
+
+    const containingDiv = document.createElement("div");
+    containingDiv.className = "meta-parameter-container row";
+
+    sizingDiv.append(containingDiv);
+
+    const textLabelDiv = document.createElement("div");
+    textLabelDiv.className = "col-xs-5 col-sm-5 col-md-12";
+    textLabelDiv.innerHTML = title;
+    containingDiv.append(textLabelDiv);
+
+    return {parentDiv: sizingDiv, containingDiv};
   }
 
   makeMetaParameterSelect(metaParameter) {
     const selectedValue =
       this.params[metaParameter.name] || metaParameter.value;
 
-    const containingDiv = document.createElement("div");
-    containingDiv.className = "meta-parameter-container";
+    const {parentDiv, containingDiv} = this.makeMetaParameterContainer(metaParameter.title);
 
     const selectInput = document.createElement("select");
     selectInput.name = metaParameter.name + "-select";
@@ -159,13 +171,9 @@ export class DavidsPlayground {
         option.setAttribute("selected", "selected");
       }
       selectInput.appendChild(option);
-    });
+    })
+    
 
-    const textLabelDiv = document.createElement("div");
-    textLabelDiv.className = "textLabel";
-    textLabelDiv.innerHTML = metaParameter.title;
-
-    containingDiv.append(textLabelDiv);
     containingDiv.append(selectInput);
 
     this.params[metaParameter.name] = selectedValue;
@@ -178,7 +186,7 @@ export class DavidsPlayground {
       }.bind(this)
     );
 
-    return containingDiv;
+    return parentDiv;
   }
 
   makeMetaParameterOnOff(metaParameter) {
@@ -187,25 +195,14 @@ export class DavidsPlayground {
       selectedValue = metaParameter.value;
     }
 
-    const containingDiv = document.createElement("div");
-    containingDiv.className = "meta-parameter-container";
-
+    const {parentDiv, containingDiv} = this.makeMetaParameterContainer(metaParameter.title);
     const selectInput = document.createElement("select");
     selectInput.name = metaParameter.name + "-select";
 
-    const switchDiv = $(`     <div class="onoffswitch">
-          <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch">
-          <label class="onoffswitch-label" for="myonoffswitch">
-              <span class="onoffswitch-inner"></span>
-              <span class="onoffswitch-switch"></span>
-          </label>
-      </div>`);
-
-    const textLabelDiv = document.createElement("div");
-    textLabelDiv.className = "textLabel";
-    textLabelDiv.innerHTML = metaParameter.title;
-
-    containingDiv.append(textLabelDiv);
+    const switchDiv = $(`<div class="col-2">
+      <input type="checkbox" checked autocomplete="off">
+  </div>`)     
+    
 
     // const switchDiv = $(`<div><input type="checkbox"></input></div>`);
     containingDiv.append(switchDiv[0]);
@@ -231,7 +228,7 @@ export class DavidsPlayground {
         }.bind(this)
       );
 
-    return containingDiv;
+    return parentDiv;
   }
 
   buildMetaParameterWidget(metaParam: MetaParameter) {

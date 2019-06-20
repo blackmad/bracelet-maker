@@ -46,11 +46,18 @@ export abstract class FastAbstractInnerDesign implements MakerJs.IModel {
       model = self.makeDesign(params);
     });
 
-    const containedDesign = makerjs.model.combineIntersection(
-      makerjs.model.clone(params.boundaryModel),
-      model
-    );
+    const debug = false;
+    
+    if (debug) {
+      this.models = model.models;
+      this.paths = model.paths;
+    } else {
+      const containedDesign = makerjs.model.combineIntersection(
+        makerjs.model.clone(params.boundaryModel),
+        model
+      );
 
-    this.models = containedDesign.models;
+      this.models = containedDesign.models;
+    }
   }
 }
