@@ -1,19 +1,27 @@
+body {
+  overflow-x: auto !important;
+
+  font-family: Source Code Pro, Consolas, Menlo, monospace;
+  font-size: 16px;
+  font-weight: 500;
+
+}
 #mainContainer {
   display: flex;
 }
 
 #previewArea {
-  width: 70%;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0; /* become sticky once touching left edge */
+  background: white;
+
 }
 
 #parameterDiv,
 #ConicCuffOuter {
   flex-wrap: wrap;
   display: flex;
-}
-
-.meta-parameter-container {
-  max-width: 200px;
 }
 
 .meta-parameter-container input[type="range"] {
@@ -80,4 +88,35 @@ h1.title {
 .loading #loading,
 .error #error {
   display: block;
+}
+
+svg {
+  width: 100%;
+  height: auto;
+}
+
+#downloadContainer {
+  text-align: center;
+}
+
+
+@media only screen and (max-width: 600px) {
+  body {
+    background-color: lightblue;
+  }
+
+  .meta-parameter-container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .textLabel {
+    display: inline;
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  .meta-parameter-container {
+    max-width: 200px;
+  }
 }

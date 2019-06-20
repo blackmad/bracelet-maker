@@ -2,10 +2,12 @@ const makerjs = require("makerjs");
 const StringReader = require("string-reader");
 const svgPanZoom = require("svg-pan-zoom");
 
+// @ts-ignore - this works fine, wtf typescript?
 import * as PDFDocument from "../external/pdfkit.standalone";
 import * as blobStream from "blob-stream";
 import * as $ from "jquery";
 import * as _ from "lodash";
+import 'rangeslider.js';
 
 import "core-js/library";
 
@@ -274,6 +276,9 @@ export class DavidsPlayground {
         parameterDiv.append(el);
       });
     }
+
+    // @ts-ignore
+    $('input[type="range"]').rangeslider();
   }
 
   showError(errorMessage) {
@@ -328,6 +333,7 @@ export class DavidsPlayground {
   }
 
   makeFilename(extension: string): string {
+    // @ts-ignore
     let filename = this.modelMaker.name;
     if (this.subModels) {
       filename = this.subModels
@@ -413,18 +419,18 @@ export class DavidsPlayground {
 
     this.svgEl = previewDiv.getElementsByTagName("svg")[0] as SVGElement;
     this.svgEl.setAttribute("width", "100%");
-    const panZoomInstance = svgPanZoom(this.svgEl, {
-      zoomEnabled: this.allowPanAndZoom,
-      panEnabled: this.allowPanAndZoom,
-      controlIconsEnabled: this.allowPanAndZoom,
-      fit: true,
-      center: true,
-      minZoom: 0.1
-    });
-    panZoomInstance.resize();
-    panZoomInstance.updateBBox();
-    panZoomInstance.fit();
-    panZoomInstance.center();
+    // const panZoomInstance = svgPanZoom(this.svgEl, {
+    //   zoomEnabled: this.allowPanAndZoom,
+    //   panEnabled: this.allowPanAndZoom,
+    //   controlIconsEnabled: this.allowPanAndZoom,
+    //   fit: true,
+    //   center: true,
+    //   minZoom: 0.1
+    // });
+    // panZoomInstance.resize();
+    // panZoomInstance.updateBBox();
+    // panZoomInstance.fit();
+    // panZoomInstance.center();
     $("body").removeClass("loading");
     $('#previewArea')[0].scrollIntoView();
 

@@ -128,7 +128,7 @@ class ConicCuffOuterImpl {
             boltGuideLine2P1,
             boltGuideLine2P2
         );
-        }]
+    }
 
     const numBolts = Math.round(height);
     completeCuffModel.models["leftBolts"] = makeEvenlySpacedBolts(
