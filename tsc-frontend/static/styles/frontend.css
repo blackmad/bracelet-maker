@@ -32,6 +32,6 @@ svg {
   display: block;
 }
 
-#playArea {
+.playArea {
   display: none;
 }

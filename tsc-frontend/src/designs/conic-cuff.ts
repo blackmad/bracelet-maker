@@ -265,7 +265,7 @@ export class ConicCuffOuter implements ModelMaker {
         title: "Wide Wrist Circumference",
         min: 4,
         max: 10,
-        value: 7.75,
+        value: 7.4,
         step: 0.1,
         name: "forearmCircumference"
       }),

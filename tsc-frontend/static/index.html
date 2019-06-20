@@ -28,82 +28,100 @@
   <body>
     <div class="container">
       <!--Example 2-->
-      <div>
-        <h1>Choose a base design</h1>
-        <div class="row">
-          <div class="design-container col-sm-*">
-            <button class="designButton btn btn-primary m-3" value="InnerDesignHashmarks">
+      <div class="m-3">
+        <h1>AlgoPattern</h1>
+        <div class="row justify-content-center">
+          <div class="design-container ">
+            <button
+              class="designButton btn btn-primary m-1"
+              value="InnerDesignHashmarks"
+            >
               Hashmarks
             </button>
           </div>
-          <div class="design-container col-sm-*">
-            <button class="designButton btn btn-primary m-3" val.cue="InnerDesignVoronoi">
+          <div class="design-container ">
+            <button
+              class="designButton btn btn-primary m-1"
+              val.cue="InnerDesignVoronoi"
+            >
               Voronoi
             </button>
           </div>
-          <div class="design-container col-sm-*">
-            <button class="designButton btn btn-primary m-3" value="InnerDesignCircles">
+          <div class="design-container ">
+            <button
+              class="designButton btn btn-primary m-1"
+              value="InnerDesignCircles"
+            >
               Circles!
             </button>
           </div>
-          <div class="design-container col-sm-*">
-            <button class="designButton btn btn-primary m-3" value="InnerDesignVera">
+          <div class="design-container ">
+            <button
+              class="designButton btn btn-primary m-1"
+              value="InnerDesignVera"
+            >
               Vera<3
             </button>
           </div>
-          <div class="design-container col-sm-*">
-            <button class="designButton btn btn-primary m-3" value="InnerDesignCirclesXVera">
+          <div class="design-container ">
+            <button
+              class="designButton btn btn-primary m-1"
+              value="InnerDesignCirclesXVera"
+            >
               Circles! x Vera<3
             </button>
           </div>
-          <div class="design-container col-sm-*">
-            <button class="designButton btn btn-primary m-3" value="InnerDesignCirclePacking">
+          <div class="design-container ">
+            <button
+              class="designButton btn btn-primary m-1"
+              value="InnerDesignCirclePacking"
+            >
               Circle Packing
             </button>
           </div>
-          <div class="design-container col-sm-*">
-            <button class="designButton btn btn-primary m-3" value="InnerDesignHexes">
+          <div class="design-container ">
+            <button
+              class="designButton btn btn-primary m-1"
+              value="InnerDesignHexes"
+            >
               Hexes
             </button>
           </div>
         </div>
       </div>
-
-      <section class="container-lg container-flex" id="playArea">
-        <div class="cell example example2 preview-cell">
-            <div id="loading">Rendering ...</div>
-            <div id="error">
-              Error rendering design. Sorry :-/ <br />
-              <span id="errorMessage"></span>
-            </div>
-
-            <div class="sticky-top" id="topArea">
-              <div id="previewArea"></div>
-              <div id="downloadContainer" class="text-center">
-                <a href="#" class="downloadSVG">Download SVG</a>
-                <a href="#" class="downloadPDF">Download PDF</a>
-              </div>
-            </div>
-
-          <div>
-            <h1 class="title">Sizing</h1>
-            7"+7.5" wrist widths are often a good fit for male-like bodies, and
-            6.5"+7" wrist widths are often good for female-like bodies.
-            <div id="ConicCuffOuter" class="row"></div>
-          </div>
- 
-          <!-- </div>
-                <div class="cell example example2 parameter-cell"> -->
-          <div id="parameterSection">
-            <h1 class="title">Design</h1>
-            Not all of these variables do what they say. Consider them various
-            ways to play with the randomness until you find a design you like.
-            <div id="parameterDiv" class="row"></div>
-          </div>
-        </div>
-      </section>
     </div>
 
-    <!-- <script src="../external/stripe/stripe-example.js"></script> -->
+      <div class="playArea sticky-top">
+        <div id="loading">Rendering ...</div>
+        <div id="error">
+          Error rendering design. Sorry :-/ <br />
+          <span id="errorMessage"></span>
+        </div>
+
+        <div class="" id="topArea">
+          <div id="previewArea"></div>
+          <div id="downloadContainer" class="text-center">
+            <a href="#" class="downloadSVG">Download SVG</a>
+            <a href="#" class="downloadPDF">Download PDF</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="playArea container">
+        <div class="m-3">
+          <h1 class="title">Sizing</h1>
+          7"+7.5" wrist widths are often a good fit for male-like bodies, and
+          6.5"+7" wrist widths are often good for female-like bodies.
+          <div id="ConicCuffOuter" class="row"></div>
+        </div>
+
+        <div id="parameterSection" class="m-3">
+          <h1 class="title">Design</h1>
+          Not all of these variables do what they say. Consider them various
+          ways to play with the randomness until you find a design you like.
+          <div id="parameterDiv" class="row"></div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

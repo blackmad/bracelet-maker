@@ -396,7 +396,7 @@ export class DavidsPlayground {
 
     $("body").addClass("loading");
     $("body").removeClass("error");
-    $('#playArea').show();
+    $('.playArea').show();
 
     // rebuild params from X.a to {X: {a: }}
     let modelParams = new Map<string, any>();
