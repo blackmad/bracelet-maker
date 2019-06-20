@@ -49,7 +49,6 @@ export class DavidsPlayground {
 
     this.buildMetaParameterWidgets(document.getElementById("parameterDiv"));
 
-    console.log('binding clicks now')
     $('.downloadSVG').off("click");
     $(".downloadSVG").click(this.downloadSVG.bind(this));
     $('.downloadPDF').off("click");
@@ -304,11 +303,7 @@ export class DavidsPlayground {
     var downloadLink = document.createElement("a");
     downloadLink.href = dataUri;
 
-    let filename = this.modelMaker.constructor.name;
-    if (this.subModels) {
-      filename = this.subModels.map(f => f.constructor.name).join("-");
-    }
-    filename += ".svg";
+    const filename = this.makeFilename('svg');
 
     downloadLink.download = filename;
     document.body.appendChild(downloadLink);
@@ -330,6 +325,18 @@ export class DavidsPlayground {
         this.cleanModel(value);
       }
     });
+  }
+
+  makeFilename(extension: string): string {
+    let filename = this.modelMaker.name;
+    if (this.subModels) {
+      filename = this.subModels
+        .map((f: ModelMaker) => f.constructor.name)
+        .join("-");
+    }
+    filename += `-${this.params['ConicCuffOuter.height']}x${this.params['ConicCuffOuter.wristCircumference']}x${this.params['ConicCuffOuter.forearmCircumference']}`;
+    filename += "." + extension;
+    return filename
   }
 
   downloadPDF() {
@@ -365,14 +372,7 @@ export class DavidsPlayground {
         var downloadLink = document.createElement("a");
         downloadLink.href = pdfUrl;
 
-        let filename = this.modelMaker.name;
-        if (this.subModels) {
-          filename = this.subModels
-            .map((f: ModelMaker) => f.constructor.name)
-            .join("-");
-        }
-        filename += ".pdf";
-
+        const filename = this.makeFilename('pdf');
         downloadLink.download = filename;
         document.body.appendChild(downloadLink);
         downloadLink.click();
