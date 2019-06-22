@@ -1,7 +1,0 @@
-TODO
-
-- re-wire in all the css
-- fix the strip css
-- get stripe back to working
-- really see if there's a way to speed up rendering :-/
-- make the on/off control prettier

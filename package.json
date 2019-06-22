@@ -7,7 +7,8 @@
     "FIXFIX": "webpack --progress --profile --colors --display-error-details --display-cached",
     "test": "mocha -r ts-node/register tests/**/*.test.ts",
     "testWithCoverage": "nyc -r lcov -e .ts -x \"*.test.ts\" mocha -r ts-node/register tests/**/*.test.ts && nyc report",
-    "release": "s3cmd sync --follow-symlinks --exclude '*node_modules*' static/* s3://gen1-alpha.blackmade.co/"
+    "release": "s3cmd sync --follow-symlinks --exclude '*node_modules*' static/* s3://gen1-alpha.blackmade.co/",
+    "serve": "serve static & webpack"
   },
   "keywords": [],
   "author": "",
@@ -46,6 +47,7 @@
     "pdfkit": "^0.9.1",
     "rangeslider.js": "^2.3.2",
     "seedrandom": "^3.0.1",
+    "serve": "^11.0.2",
     "simplex-noise": "^2.4.0",
     "string-reader": "^0.9.0",
     "svg-pan-zoom": "github:ariutta/svg-pan-zoom"
