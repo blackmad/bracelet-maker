@@ -14,7 +14,8 @@ class StraightCollarImpl {
     var {
       height,
       neckSize,
-      safeBorderWidth
+      safeBorderWidth,
+      debug = false
     } = options["StraightCollar"];
     
     // quarter inch, two bolts
@@ -95,13 +96,16 @@ class StraightCollarImpl {
       [beltAreaLength + safeAreaPadding,
        safeBorderWidth]
     );
-    this.models.safeArea = safeArea;
     
+    if (debug) {
+     this.models.safeArea = safeArea;
+    }
     // TODO
     // round belt end
     // round other belt end more
     // replace straight lines with arcs
     // make safe cone
+    // get it to work with outlines
     
         const innerOptions = options[innerDesignClass.constructor.name] || {};
     innerOptions.height = height;
@@ -113,6 +117,14 @@ class StraightCollarImpl {
     const innerDesign = innerDesignClass.make(innerOptions);
 
     this.models.design = innerDesign;
+    if (this.models && this.models.design && this.models.design.models.outline) {
+      console.log('outline!!')
+      this.models.outerModel = makerjs.model.combineUnion(
+        this.models.outerModel,
+        this.models.design.models.outline)
+      delete this.models.design.models.outline;
+    }
+    console.log('???');
     console.log(innerDesign);
 
   }

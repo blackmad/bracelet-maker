@@ -2,7 +2,7 @@ import * as SimplexNoise from "simplex-noise";
 
 const makerjs = require('makerjs');
 
-import { RangeMetaParameter, MetaParameterType, MetaParameter } from '../meta-parameter';
+import { OnOffMetaParameter, RangeMetaParameter, MetaParameterType, MetaParameter } from '../meta-parameter';
 import { ModelMaker } from '../model';
 import { SimplexNoiseUtils } from '../simplex-noise-utils'
 import { FastRoundShim } from "./fast-abstract-inner-design";
@@ -13,10 +13,10 @@ export class InnerDesignCirclesImpl implements MakerJs.IModel {
   public models: MakerJs.IModelMap = {};
   
   constructor(params) {
-    const { 
-      height = 2, 
-      width = 10, 
-      boundaryModel, 
+    const {
+      height = 2,
+      width = 10,
+      boundaryModel,
       numCircles,
       minCircleSize,
       maxCircleSize,
@@ -25,7 +25,8 @@ export class InnerDesignCirclesImpl implements MakerJs.IModel {
       centerXNoiseDenom1,
       centerXNoiseDenom2,
       centerYNoiseDenom1,
-      centerYNoiseDenom2
+      centerYNoiseDenom2,
+      forceContainment
     } = params;
 
     const paths = FastRoundShim.useFastRound(function() {
@@ -47,12 +48,27 @@ export class InnerDesignCirclesImpl implements MakerJs.IModel {
       return paths;
     })
 
-    const expandedModels = makerjs.model.expandPaths({paths: paths}, borderSize);
+    const expandedModels = makerjs.model.expandPaths(
+      makerjs.model.clone({paths: paths}), borderSize);
     this.models = expandedModels.models;
-    this.models = makerjs.model.combineSubtraction(
-        makerjs.model.clone(boundaryModel),
-        expandedModels
-    ).models;
+    
+    if (forceContainment) {
+      this.models = makerjs.model.combineSubtraction(
+          makerjs.model.clone(boundaryModel),
+          expandedModels
+      ).models;
+    } else {
+      let outlineModel = {};
+      var expanded = makerjs.model.expandPaths({paths: paths}, borderSize*3);
+      // outlineModel = makerjs.model.combineUnion(
+      //     makerjs.model.clone(boundaryModel),
+      //     expanded
+      // );
+      this.models.outline = expanded;
+    // this.models.outline = outlineModel;
+
+      console.log(this.models.outline)
+    }
   }
 }
 
@@ -67,7 +83,8 @@ export class InnerDesignCircles implements ModelMaker {
       new RangeMetaParameter({title: "Center X Noise Demon 1", min: 1, max: 40, value: 20, step: 1, name: 'centerXNoiseDenom1' }),
       new RangeMetaParameter({title: "Center X Noise Demon 2", min: 1, max: 40, value: 20, step: 1, name: 'centerXNoiseDenom2' }),
       new RangeMetaParameter({title: "Center Y Noise Demon 1", min: 1, max: 40, value: 20, step: 1, name: 'centerYNoiseDenom1' }),
-      new RangeMetaParameter({title: "Center Y Noise Demon 2", min: 1, max: 40, value: 10, step: 1, name: 'centerYNoiseDenom2' })
+      new RangeMetaParameter({title: "Center Y Noise Demon 2", min: 1, max: 40, value: 10, step: 1, name: 'centerYNoiseDenom2' }),
+      new OnOffMetaParameter({title: "Force Containment", name: 'forceContainment', value: false }),
     ]
   }
 
