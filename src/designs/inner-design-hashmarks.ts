@@ -7,24 +7,25 @@ var makerjs = require('makerjs');
 
 export class InnerDesignHashmarksImpl extends FastAbstractInnerDesign {
   makeDesign(params) {
-      const { 
-        height = 2, 
-        width = 10, 
-        boundaryModel, 
-        seed, 
-        bufferWidth, 
-        hashWidth, 
-        initialNoiseRange1, 
-        initialNoiseRange2, 
-        noiseOffset1, 
-        noiseOffset2, 
-        noiseInfluence 
+      const {
+        height = 2,
+        width = 10,
+        boundaryModel,
+        seed,
+        bufferWidth,
+        hashWidth,
+        initialNoiseRange1,
+        initialNoiseRange2,
+        noiseOffset1,
+        noiseOffset2,
+        noiseInfluence
     } = params;
 
     var simplex = new SimplexNoise(seed.toString());
     var lastNoise1 = simplex.noise2D(100, 10) * initialNoiseRange1;
     var lastNoise2 = simplex.noise2D(100.5, 10.5) * initialNoiseRange2;
     var models = {};
+    console.log(width);
     var pos = -width;
     var i = 0;
     while (pos <= width) {
