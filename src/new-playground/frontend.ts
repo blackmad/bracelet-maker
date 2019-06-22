@@ -2,6 +2,7 @@ import { DavidsPlayground } from "./new-playground";
 import { ModelMaker } from "../model";
 
 import { ConicCuffOuter } from "../designs/conic-cuff";
+import { StraightCollar } from "../designs/collar";
 
 import { InnerDesignCircles } from "../designs/inner-design-circles";
 import { InnerDesignCirclePacking } from "../designs/inner-design-circle-packing";
@@ -31,7 +32,7 @@ function attachHandlers() {
   });
 
   function setDesign(designClass: ModelMaker) {
-    const modelMaker: ModelMaker = new ConicCuffOuter(designClass);
+    const modelMaker: ModelMaker = new StraightCollar(designClass);
     new DavidsPlayground(modelMaker, [modelMaker, designClass]).rerender();
   }
 

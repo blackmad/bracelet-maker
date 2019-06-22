@@ -113,8 +113,7 @@ export class InnerDesignHexesImpl implements MakerJs.IModel {
       makerjs.model.originate(outlineModel);
 
       makerjs.model.findChains(outlineModel).forEach((outlineChain, index) => {
-        console.log(index);
-        outlineModel.models['fillets'+ index] = makerjs.chain.fillet(outlineChain, filletOutlineRadius);
+        outlineModel['models']['fillets'+ index] = makerjs.chain.fillet(outlineChain, filletOutlineRadius);
       })
       
       console.log(outlineModel);
