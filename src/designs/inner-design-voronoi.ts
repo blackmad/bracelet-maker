@@ -121,7 +121,7 @@ export class InnerDesignVoronoi implements ModelMaker {
         title: "Num Points",
         min: 3,
         max: 100,
-        value: 40,
+        value: 20,
         step: 1,
         name: "numPoints"
       }),

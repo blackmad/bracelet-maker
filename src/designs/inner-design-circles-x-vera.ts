@@ -16,6 +16,7 @@ export class InnerDesignCirclesXVeraImpl implements MakerJs.IModel {
       height = 2,
       width = 10,
       boundaryModel,
+      safeCone,
       cols,
       rows,
       minCircleSize,
@@ -74,21 +75,31 @@ export class InnerDesignCirclesXVeraImpl implements MakerJs.IModel {
           boundaryExtents,
           makerjs.measure.modelExtents({ paths: [possibleCircle] })
         );
-        // if (true) {
+
         if (shouldUseCircle) {
           paths.push(possibleCircle);
         }
       }
     }
 
-    const expandedModels = makerjs.model.expandPaths(
+    const expandedModel = makerjs.model.expandPaths(
       { paths: paths },
       borderSize
     );
-    this.models = makerjs.model.combineSubtraction(
-      makerjs.model.clone(boundaryModel),
-      expandedModels
-    ).models;
+    if (true) {
+      this.models.design = makerjs.model.combineSubtraction(
+        makerjs.model.clone(boundaryModel),
+        expandedModel
+      );
+    } else {
+      const intersectedModel = makerjs.model.combineIntersection(
+        makerjs.model.clone(safeCone),
+        expandedModel
+      );
+      this.models = {};
+      // this.models.intersectedModels = intersectedModels;
+      this.models.oo = makerjs.model.outline(expandedModel, 0.01);
+    }
     console.log(this.models);
 
     return this;

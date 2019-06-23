@@ -6,6 +6,7 @@ import { OnOffMetaParameter, RangeMetaParameter, MetaParameterType, MetaParamete
 import { ModelMaker } from '../model';
 import { SimplexNoiseUtils } from '../simplex-noise-utils'
 import { FastRoundShim } from "./fast-abstract-inner-design";
+const seedrandom = require('seedrandom');
 
 export class InnerDesignCirclesImpl implements MakerJs.IModel {
 	public units = makerjs.unitType.Inch;
@@ -17,6 +18,7 @@ export class InnerDesignCirclesImpl implements MakerJs.IModel {
       height = 2,
       width = 10,
       boundaryModel,
+      safeCone,
       numCircles,
       minCircleSize,
       maxCircleSize,
@@ -29,45 +31,55 @@ export class InnerDesignCirclesImpl implements MakerJs.IModel {
       forceContainment
     } = params;
 
+
+    const boundaryMeasure = makerjs.measure.modelExtents(boundaryModel);
+    const boundaryWidth = boundaryMeasure.high[0] - boundaryMeasure.low[0];
+    const boundaryHeight = boundaryMeasure.high[1] - boundaryMeasure.low[1];
+
+    
     const paths = FastRoundShim.useFastRound(function() {
       var simplex: SimplexNoise = new SimplexNoise(seed.toString());
-
+      
+      var rng = seedrandom(seed.toString());
+      
       const paths = [];
       for (var c = 1; c <= numCircles; c++) {
           const center = [
-              SimplexNoiseUtils.noise2DInRange(simplex, c/centerXNoiseDenom1, c/centerXNoiseDenom2, 0, width),
-              SimplexNoiseUtils.noise2DInRange(simplex, c/centerYNoiseDenom1, c/centerYNoiseDenom2, 0, height)
+              boundaryMeasure.low[0] + rng() * boundaryWidth,
+              boundaryMeasure.low[1] + rng() * boundaryHeight
           ];
 
-          const circleSize = SimplexNoiseUtils.noise2DInRange(simplex, c/20, c/10, minCircleSize, maxCircleSize);
+          const circleSize = SimplexNoiseUtils.noise2DInRange(simplex, center[0]/10, center[1]/10, minCircleSize, maxCircleSize);
 
           paths.push(new makerjs.paths.Circle(
               center, circleSize
           ));
       }
       return paths;
-    })
+    });
 
-    const expandedModels = makerjs.model.expandPaths(
-      makerjs.model.clone({paths: paths}), borderSize);
-    this.models = expandedModels.models;
+    const clampedModel = makerjs.model.combineIntersection(
+      makerjs.model.clone(safeCone),
+      makerjs.model.clone({paths: paths})
+
+    );
+    // this.models.clampedModel = clampedModel;
+    // const clampedModels = makerjs.model.clone({paths: paths});
+
+    const expandedModel = makerjs.model.expandPaths(
+     makerjs.model.clone(clampedModel), borderSize);
+
     
     if (forceContainment) {
-      this.models = makerjs.model.combineSubtraction(
+      this.models.expanded = makerjs.model.combineSubtraction(
           makerjs.model.clone(boundaryModel),
-          expandedModels
-      ).models;
+          expandedModel
+      );
     } else {
-      let outlineModel = {};
-      var expanded = makerjs.model.expandPaths({paths: paths}, borderSize*3);
-      // outlineModel = makerjs.model.combineUnion(
-      //     makerjs.model.clone(boundaryModel),
-      //     expanded
-      // );
-      this.models.outline = expanded;
-    // this.models.outline = outlineModel;
-
-      console.log(this.models.outline)
+      this.models.expanded = expandedModel;
+      var outline = makerjs.model.outline(makerjs.model.clone(clampedModel), borderSize*3);
+  
+      this.models.outline = outline;
     }
   }
 }

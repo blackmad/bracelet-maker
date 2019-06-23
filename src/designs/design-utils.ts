@@ -22,3 +22,26 @@ export function makeEvenlySpacedBolts(numBolts, p1, p2) {
 
   return leftBolts;
 }
+
+export function expandWithoutOutline(model, border, mode) {
+  const m = makerjs;
+  
+  var expansion = m.model.expandPaths(model, border, mode);
+
+  m.model.originate(expansion);
+  m.model.simplify(expansion);
+
+  //find chains
+  var chains = m.model.findChains(expansion);
+
+  const newModel = { models: {} }
+
+  //start at 1 - ignore the longest chain which is the perimeter
+  for (var i = 0; i < chains.length; i++) {
+
+    //save the fillets in the model tree
+    newModel.models['' + i] = m.chain.toNewModel(chains[i])
+  }
+
+  return newModel;
+}

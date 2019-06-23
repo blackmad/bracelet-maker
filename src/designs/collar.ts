@@ -78,7 +78,6 @@ class StraightCollarImpl {
     
     const holes = []
     for (let h = 0; h < numHoles; h++) {
-      console.log(BeltHoleRadius);
       holes.push(
         makerjs.path.move(
           new makerjs.paths.Circle(BeltHoleRadius),
@@ -86,20 +85,33 @@ class StraightCollarImpl {
         )
       );
     }
-    console.log(holes);
     this.models.holes = {paths: holes}
     
     const safeAreaPadding = 0.5;
+    const safeAreaLength =
+      totalLength - beltAreaLength - holesAreaLength - safeAreaPadding*2
     const safeArea = makerjs.model.move(
-      new makerjs.models.Rectangle(totalLength - beltAreaLength - holesAreaLength - safeAreaPadding*2,
-      height - safeBorderWidth*2),
+      new makerjs.models.Rectangle(
+        safeAreaLength,
+        height - safeBorderWidth*2
+      ),
       [beltAreaLength + safeAreaPadding,
        safeBorderWidth]
+    );
+    
+    const safeCone = makerjs.model.move(
+      new makerjs.models.Rectangle(
+        safeAreaLength,
+        height*4
+      ),
+      [beltAreaLength + safeAreaPadding,
+       -height*2]
     );
     
     if (debug) {
      this.models.safeArea = safeArea;
     }
+    
     // TODO
     // round belt end
     // round other belt end more
@@ -107,11 +119,11 @@ class StraightCollarImpl {
     // make safe cone
     // get it to work with outlines
     
-        const innerOptions = options[innerDesignClass.constructor.name] || {};
+    const innerOptions = options[innerDesignClass.constructor.name] || {};
     innerOptions.height = height;
     innerOptions.width = totalLength;
     innerOptions.boundaryModel = makerjs.model.clone(safeArea);
-    // innerOptions.safeCone = safeCone;
+    innerOptions.safeCone = safeCone;
     innerOptions.outerModel = makerjs.model.clone(this.models.outerModel);
 
     const innerDesign = innerDesignClass.make(innerOptions);
@@ -119,14 +131,15 @@ class StraightCollarImpl {
     this.models.design = innerDesign;
     if (this.models && this.models.design && this.models.design.models.outline) {
       console.log('outline!!')
+      console.log('outline:', this.models.design.models.outline);
       this.models.outerModel = makerjs.model.combineUnion(
         this.models.outerModel,
         this.models.design.models.outline)
-      delete this.models.design.models.outline;
-    }
-    console.log('???');
-    console.log(innerDesign);
+      // delete this.models.design.models.outline;
+   
 
+
+    }
   }
 }
 

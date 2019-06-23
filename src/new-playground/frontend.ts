@@ -11,6 +11,8 @@ import { InnerDesignHashmarks } from "../designs/inner-design-hashmarks";
 import { InnerDesignCirclesXVera } from "../designs/inner-design-circles-x-vera";
 import { InnerDesignVoronoi } from "../designs/inner-design-voronoi";
 import { InnerDesignHexes } from "../designs/inner-design-hexes";
+import { InnerDesignLines } from "../designs/inner-design-lines";
+
 
 import * as $ from "jquery";
 
@@ -44,7 +46,7 @@ function attachHandlers() {
   });
   
   possibleOuterDesigns.forEach(d => {
-    if (window.location.hash.indexOf(d.name) > 0) {
+    if (window.location.hash.indexOf(d.name + '.') > 0) {
       setOuterDesignFromName(d.name);
     }
   });
@@ -76,7 +78,8 @@ function attachHandlers() {
     InnerDesignVera,
     InnerDesignCirclesXVera,
     InnerDesignCirclePacking,
-    InnerDesignHexes
+    InnerDesignHexes,
+    InnerDesignLines
   ];
   
   
@@ -97,7 +100,7 @@ function attachHandlers() {
   }
 
   possibleDesigns.forEach(d => {
-    if (window.location.hash.indexOf(d.name) > 0) {
+    if (window.location.hash.indexOf(d.name + '.') > 0) {
       setInnerDesignFromName(d.name);
     }
   });
