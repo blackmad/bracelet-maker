@@ -11,7 +11,7 @@ export class InnerDesignCirclesXVeraImpl implements MakerJs.IModel {
   public paths: MakerJs.IPathMap = {};
   public models: MakerJs.IModelMap = {};
 
-  makeDesign(params):MakerJs.IModel {
+  makeDesign(params): MakerJs.IModel {
     const {
       height = 2,
       width = 10,
@@ -85,11 +85,11 @@ export class InnerDesignCirclesXVeraImpl implements MakerJs.IModel {
       { paths: paths },
       borderSize
     );
-    const models = expandedModels.models;
     this.models = makerjs.model.combineSubtraction(
       makerjs.model.clone(boundaryModel),
       expandedModels
-    );
+    ).models;
+    console.log(this.models);
 
     return this;
   }
