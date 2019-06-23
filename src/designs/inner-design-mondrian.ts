@@ -19,7 +19,7 @@ export class InnerDesignMondrianImpl implements MakerJs.IModel {
   splitChance: number;
   rng: () => number;
   xyBias: number;
-  minSizeMultiplier: number;
+  minCellSize: number;
   borderSize: number;
   
   splitRect(lo, hi, depth = 0) {
@@ -56,7 +56,7 @@ export class InnerDesignMondrianImpl implements MakerJs.IModel {
       console.log('splitting x', depth)
       const splitSize = splitPercent*(hi[0] - lo[0]);
       
-      if (splitSize < this.borderSize * this.minSizeMultiplier) {
+      if (splitSize < this.minCellSize) {
         makeThisRect();
         return;
       }
@@ -72,7 +72,7 @@ export class InnerDesignMondrianImpl implements MakerJs.IModel {
       console.log('first')
       const splitSize = splitPercent*(hi[1] - lo[1]);
       
-      if (splitSize < this.borderSize * this.minSizeMultiplier) {
+      if (splitSize < this.minCellSize) {
         makeThisRect();
         return;
       }
@@ -100,14 +100,14 @@ export class InnerDesignMondrianImpl implements MakerJs.IModel {
       maxDepth,
       splitChance,
       xyBias,
-      minSizeMultiplier
+      minCellSize
     } = params;
     
     this.maxDepth = maxDepth;
     this.splitChance = splitChance;
     this.borderSize = borderSize;
     this.xyBias = xyBias;
-    this.minSizeMultiplier = minSizeMultiplier;
+    this.minCellSize = minCellSize;
   
     const boundaryMeasure = makerjs.measure.modelExtents(boundaryModel);
     const boundaryWidth = boundaryMeasure.high[0] - boundaryMeasure.low[0];
@@ -135,7 +135,7 @@ export class InnerDesignMondrian implements ModelMaker {
       new RangeMetaParameter({title: "Max Depth", min: 1, max: 10, value: 4, step: 1, name: 'maxDepth' }),
       new RangeMetaParameter({title: "Split Chance", min: 0.1, max: 1.0, value: 0.7, step: 0.01, name: 'splitChance' }),
       new RangeMetaParameter({title: "X/Y Bias", min: 0.0, max: 1.0, value: 0.5, step: 0.01, name: 'xyBias' }),
-      new RangeMetaParameter({title: "Min Size Multiplier", min: 2, max: 10, value: 3, step: 0.1, name: 'minSizeMultiplier' }),
+      new RangeMetaParameter({title: "Min Cell Size", min: 0.1, max: 1, value: 0.25, step: 0.01, name: 'minCellSize' }),
     ]
   }
 
