@@ -205,7 +205,7 @@ export class DavidsPlayground {
 
     const switchDiv = $(`<div class="col-2">
       <input type="checkbox" checked autocomplete="off">
-  </div>`)     
+  </div>`)
     
 
     // const switchDiv = $(`<div><input type="checkbox"></input></div>`);

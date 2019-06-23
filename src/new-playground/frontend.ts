@@ -12,6 +12,8 @@ import { InnerDesignCirclesXVera } from "../designs/inner-design-circles-x-vera"
 import { InnerDesignVoronoi } from "../designs/inner-design-voronoi";
 import { InnerDesignHexes } from "../designs/inner-design-hexes";
 import { InnerDesignLines } from "../designs/inner-design-lines";
+import { InnerDesignMondrian } from "../designs/inner-design-mondrian";
+
 
 
 import * as $ from "jquery";
@@ -29,6 +31,7 @@ function attachHandlers() {
       if (innerDesignClass) {
         const innerDesign = new innerDesignClass();
         const modelMaker: ModelMaker = new outerDesignClass(innerDesign);
+        $('.clear-on-reinit').empty();
         new DavidsPlayground(modelMaker, [modelMaker, innerDesign]).rerender();
       }
     }
@@ -79,7 +82,8 @@ function attachHandlers() {
     InnerDesignCirclesXVera,
     InnerDesignCirclePacking,
     InnerDesignHexes,
-    InnerDesignLines
+    InnerDesignLines,
+    InnerDesignMondrian
   ];
   
   

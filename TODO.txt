@@ -1,4 +1,5 @@
 - make circles a little more linear
 - experiment with veras being outlines
-- random lines
-- bad / random grid
+- posture collar
+- make random lines prettier & faster
+- save variables when only changing outer design
