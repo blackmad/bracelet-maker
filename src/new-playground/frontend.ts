@@ -16,6 +16,58 @@ import * as $ from "jquery";
 
 function attachHandlers() {
   $("#playArea").hide();
+  $(".algoPattern").hide();
+  
+  let innerDesignClass = null;
+  let outerDesignClass = null;
+  
+  function trySetDesign() {
+    if (outerDesignClass) {
+      $('.algoPattern').show();
+      if (innerDesignClass) {
+        const innerDesign = new innerDesignClass();
+        const modelMaker: ModelMaker = new outerDesignClass(innerDesign);
+        new DavidsPlayground(modelMaker, [modelMaker, innerDesign]).rerender();
+      }
+    }
+  }``
+  
+  // outer
+  const possibleOuterDesigns = [
+    StraightCollar,
+    ConicCuffOuter
+  ];
+  
+  const possibleOuterDesignNameMap = {};
+  possibleOuterDesigns.forEach(d => {
+    possibleOuterDesignNameMap[d.name] = d;
+  });
+  
+  possibleOuterDesigns.forEach(d => {
+    if (window.location.hash.indexOf(d.name) > 0) {
+      setOuterDesignFromName(d.name);
+    }
+  });
+  
+  function setOuterDesignFromName(name: String) {
+    outerDesignClass = possibleOuterDesigns.find(d => d.name == name);
+
+    if (!outerDesignClass) {
+      throw "can't interpret design: " + name;
+    }
+  
+    trySetDesign();
+  }
+
+  $(".outerDesignButton").click(function(button) {
+    const design = (<HTMLInputElement>button.target).value;
+    window.location.hash = '';
+    setOuterDesignFromName(design);
+  });
+  
+
+  
+  // inner
 
   const possibleDesigns = [
     InnerDesignVoronoi,
@@ -26,37 +78,34 @@ function attachHandlers() {
     InnerDesignCirclePacking,
     InnerDesignHexes
   ];
+  
+  
   const possibleDesignNameMap = {};
   possibleDesigns.forEach(d => {
     possibleDesignNameMap[d.name] = d;
   });
 
-  function setDesign(designClass: ModelMaker) {
-    // const modelMaker: ModelMaker = new StraightCollar(designClass);
-    const modelMaker: ModelMaker = new ConicCuffOuter(designClass);
-    new DavidsPlayground(modelMaker, [modelMaker, designClass]).rerender();
-  }
 
-  function setDesignFromName(name: String) {
-    const innerDesignClass = possibleDesigns.find(d => d.name == name);
+ function setInnerDesignFromName(name: String) {
+    innerDesignClass = possibleDesigns.find(d => d.name == name);
 
     if (!innerDesignClass) {
       throw "can't interpret design: " + name;
     }
-
-    setDesign(new innerDesignClass());
+  
+    trySetDesign();
   }
 
   possibleDesigns.forEach(d => {
     if (window.location.hash.indexOf(d.name) > 0) {
-      setDesignFromName(d.name);
+      setInnerDesignFromName(d.name);
     }
   });
 
   $(".designButton").click(function(button) {
     const design = (<HTMLInputElement>button.target).value;
     window.location.hash = '';
-    setDesignFromName(design);
+    setInnerDesignFromName(design);
   });
 }
 
