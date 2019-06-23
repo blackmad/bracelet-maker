@@ -32,7 +32,8 @@ function attachHandlers() {
   });
 
   function setDesign(designClass: ModelMaker) {
-    const modelMaker: ModelMaker = new StraightCollar(designClass);
+    // const modelMaker: ModelMaker = new StraightCollar(designClass);
+    const modelMaker: ModelMaker = new ConicCuffOuter(designClass);
     new DavidsPlayground(modelMaker, [modelMaker, designClass]).rerender();
   }
 
