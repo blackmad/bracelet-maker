@@ -3,6 +3,7 @@ import { ModelMaker } from "../model";
 
 import { ConicCuffOuter } from "../designs/conic-cuff";
 import { StraightCollar } from "../designs/collar";
+import { PostureCollar } from "../designs/posture-collar";
 
 import { InnerDesignCircles } from "../designs/inner-design-circles";
 import { InnerDesignCirclePacking } from "../designs/inner-design-circle-packing";
@@ -40,7 +41,8 @@ function attachHandlers() {
   // outer
   const possibleOuterDesigns = [
     StraightCollar,
-    ConicCuffOuter
+    ConicCuffOuter,
+    PostureCollar
   ];
   
   const possibleOuterDesignNameMap = {};
