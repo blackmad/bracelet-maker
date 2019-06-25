@@ -4,6 +4,24 @@ import { ModelMaker } from "../model";
 var makerjs = require("makerjs");
 import {makeEvenlySpacedBolts, BeltHoleRadius, RivetRadius} from './design-utils'
 
+class PostureCollarMainSection implements MakerJs.IModel {
+  public units = makerjs.unitType.Inch;
+  public paths: MakerJs.IPathMap = {};
+  public models: MakerJs.IModelMap = {};
+
+  constructor({neckSize, height}) {
+
+    const BottomCurvePadding = 1
+    const BottomCurveDepth = height - 1.5;
+    const BottomCurveLength = neckSize - BottomCurvePadding *2;
+
+    // new makerjs.models.BezierCurve(
+    //   [BottomCurvePadding, 0],
+    //   [
+    // )
+  }
+}
+
 class PostureCollarImpl {
   // implements MakerJs.IModel {
   public units = makerjs.unitType.Inch;
