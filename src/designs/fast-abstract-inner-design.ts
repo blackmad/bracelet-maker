@@ -40,6 +40,8 @@ export abstract class FastAbstractInnerDesign implements MakerJs.IModel {
   abstract makeDesign(params: any): any;
 
   constructor(params) {
+    console.log('coming from fast ab inner')
+
     const self = this;
     let model = null;
     FastRoundShim.useFastRound(function() {
@@ -47,11 +49,13 @@ export abstract class FastAbstractInnerDesign implements MakerJs.IModel {
     });
 
     const debug = false;
+    console.log('coming from fast ab inner')
     
     if (debug) {
       this.models = model.models;
       this.paths = model.paths;
     } else {
+      console.log(model);
       const containedDesign = makerjs.model.combineIntersection(
         makerjs.model.clone(params.boundaryModel),
         model

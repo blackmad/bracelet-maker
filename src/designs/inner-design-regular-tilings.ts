@@ -3,16 +3,13 @@ import { MetaParameter, RangeMetaParameter } from "../meta-parameter";
 
 var makerjs = require("makerjs");
 
-// WIDTH = 1024
-// HEIGHT = 1024
-// SCALE = 64
-
 // BACKGROUND_COLOR = 0x000000
 // LINE_WIDTH = 0.1
 // MARGIN = 0.1
 // SHOW_LABELS = False
 
 import * as _ from "lodash";
+import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 
 function normalize(x: number, y: number): string[] {
   return [x.toFixed(6), y.toFixed(6)];
@@ -77,15 +74,19 @@ class Shape {
   }
 
   adjacent(sides, edge) {
-    console.log(`adjacent: sides ${sides}, edge: ${edge}`)
-    const points = this.points()
+    // console.log(`adjacent: sides ${sides}, edge: ${edge}`)
+    const points = this.points();
     const [x1, y1] = points[edge];
-    const nextIndex = edge + 2 == points.length ? 0 : edge +2;
+    // console.log(edge, x1, y1)
+    const nextIndex = edge + 1 == points.length ? 0 : edge + 1;
     const [x2, y2] = points[nextIndex];
     const angle = (2 * Math.PI) / sides;
+    // console.log(nextIndex, x2, y2)
+    // console.log('angle', angle)
     let a = Math.atan2(y2 - y1, x2 - x1);
     const b = a - Math.PI / 2;
     const d = 0.5 / Math.tan(angle / 2);
+    // console.log(a, b, d)
     const x = x1 + (x2 - x1) / 2.0 + Math.cos(b) * d;
     const y = y1 + (y2 - y1) / 2.0 + Math.sin(b) * d;
     a += angle * ((sides - 1) / 2);
@@ -124,7 +125,7 @@ class DualShape extends Shape {
     this.data = points;
   }
 
-  points(self, margin = 0) {
+  points(margin = 0) {
     if (margin == 0) {
       return this.data;
     } else {
@@ -135,7 +136,7 @@ class DualShape extends Shape {
 
 class Model {
   shapes: Shape[] = [];
-  lookup: Map<string[], Shape> = new Map<string[], Shape>();
+  lookup: Map<string, Shape> = new Map<string, Shape>();
   constructor(
     public width: number,
     public height: number,
@@ -143,13 +144,15 @@ class Model {
   ) {}
 
   append(shape: Shape) {
+    // console.log('appending ', shape)
     this.shapes.push(shape);
-    const key: string[] = normalize(shape.x, shape.y);
+    const key: string = normalize(shape.x, shape.y).toString();
+    // console.log(`setting ${key}, size ${this.lookup.size}`);
     this.lookup.set(key, shape);
   }
 
   _add(index: number, edge: number, sides: number) {
-    console.log(`_add: index ${index}, edge: ${edge}, sides: ${sides}`)
+    // console.log(`_add: index ${index}, edge: ${edge}, sides: ${sides}`)
     const parent = this.shapes[index];
     const shape = parent.adjacent(sides, edge);
     this.append(shape);
@@ -160,7 +163,7 @@ class Model {
     _edges: number | number[],
     sides: number
   ): number[] {
-    console.log(`add: indexes ${_indexes}, edges: ${_edges}, sides: ${sides}`)
+    // console.log(`add: indexes ${_indexes}, edges: ${_edges}, sides: ${sides}`)
     let indexes: number[];
     if (_.isNumber(_indexes)) {
       indexes = [_indexes];
@@ -185,9 +188,14 @@ class Model {
 
   add_repeats(x: number, y: number) {
     this.shapes.forEach(shape => {
-      const key = normalize(x + shape.x, y + shape.y);
+      const key = normalize(x + shape.x, y + shape.y).toString();
       if (!this.lookup.has(key)) {
         this.lookup.set(key, shape.copy(x + shape.x, y + shape.y));
+        // console.log(
+        //   `AR: setting ${key}, size ${this.lookup.size}, has? ${this.lookup.has(
+        //     key
+        //   )}`
+        // );
       }
     });
   }
@@ -207,14 +215,15 @@ class Model {
     if (previous_depth >= depth) {
       return;
     }
-    console.log('adding ', key)
+    // console.log('adding ', key)
     memo.set(key, depth);
     if (previous_depth == -1) {
       this.add_repeats(x, y);
     }
+    // console.log('indexes', indexes)
     indexes.forEach(index => {
       const shape = this.shapes[index];
-      console.log('shape ', shape.x, shape.y)
+      // console.log('shape ', shape.x, shape.y)
       this._repeat(indexes, x + shape.x, y + shape.y, depth - 1, memo);
     });
   }
@@ -242,11 +251,14 @@ class Model {
       const tr = memoHas((x, y) => x > w && y < -h);
       const bl = memoHas((x, y) => x < -w && y > h);
       const br = memoHas((x, y) => x > w && y > h);
-      console.log('depth', depth)
+      console.log(w, h);
+      console.log(memo.keys());
+      console.log(tl, tr, bl, br);
+      console.log("depth", depth);
       if (tl && tr && bl && br) {
         break;
       }
-      if (depth > 1) {
+      if (depth > 6) {
         break;
       }
       depth += 1;
@@ -292,31 +304,83 @@ class Model {
   }
 }
 
-export class InnerDesignTilingsImpl implements MakerJs.IModel {
-  public units = makerjs.unitType.Inch;
-  public paths: MakerJs.IPathMap = {};
-  public models: MakerJs.IModelMap = {};
-
+export class InnerDesignTilingsImpl extends FastAbstractInnerDesign {
   makeDesign(params): MakerJs.IModel {
-    const model = new Model(1024, 1024, 64);
-    model.append(new Shape(6))
-    const a = model.add(0, _.range(6), 3)
-    const b = model.add(a, 1, 6)
-    model.repeat(b)
-// return model.render(dual)
+    const {
+      height = 2,
+      width = 10,
+      boundaryModel,
+      safeCone,
+      seed,
+      scale,
+      scale1,
+      margin
+    } = params;
+
+    const models = {};
+
+    const model = new Model(width, height, scale);
+    model.append(new Shape(6));
+    const a = model.add(0, _.range(6), 3);
+    const b = model.add(a, 1, 6);
+    model.repeat(b);
+    // return model.render(dual)
+    // console.log('rendering!!!!')
+    // console.log(model.getShapes().length)
+    // dual is 100% not working here
     model.getShapes().forEach((shape: Shape, index: number) => {
-      this.models[index.toString()] = 
-        new makerjs.models.ConnectTheDots(true, shape.points());
-    })
-    return this;
+      models[index.toString()] = makerjs.model.move(
+        makerjs.model.scale(
+          new makerjs.models.ConnectTheDots(true, shape.points(margin)),
+          scale1
+        ),
+        [width / 2, height / 2]
+      );
+    });
+    return {models: models};
   }
 }
 
 export class InnerDesignTilings implements ModelMaker {
-  get metaParameters(): Array<MetaParameter> { return [] }
+  get metaParameters(): Array<MetaParameter> {
+    return [
+      new RangeMetaParameter({
+        title: "Seed",
+        min: 1,
+        max: 10000,
+        value: 1,
+        step: 1,
+        name: "seed"
+      }),
+      new RangeMetaParameter({
+        title: "Scale",
+        min: 0.01,
+        max: 100,
+        value: 1,
+        step: 0.1,
+        name: "scale"
+      }),
+      new RangeMetaParameter({
+        title: "Scale",
+        min: 0.01,
+        max: 2,
+        value: 1,
+        step: 0.01,
+        name: "scale1"
+      }),
+      new RangeMetaParameter({
+        title: "Margin",
+        min: 0.01,
+        max: 10,
+        value: 1,
+        step: 0.01,
+        name: "margin"
+      })
+    ];
+  }
 
   public make(params: Map<string, any>): MakerJs.IModel {
-    return new InnerDesignTilingsImpl().makeDesign(params);
+    return new InnerDesignTilingsImpl(params);
   }
 }
 
@@ -334,7 +398,7 @@ export class InnerDesignTilings implements ModelMaker {
 //         dc.scale(self.scale, self.scale)
 //         dc.set_source_rgb(*color(background_color))
 //         dc.paint()
-//         shapes = 
+//         shapes =
 //         if show_labels:
 //             for shape in shapes:
 //                 shape.render_edge_labels(dc, margin - 0.25)
