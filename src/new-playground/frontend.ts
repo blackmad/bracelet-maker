@@ -13,8 +13,7 @@ import { InnerDesignVoronoi } from "../designs/inner-design-voronoi";
 import { InnerDesignHexes } from "../designs/inner-design-hexes";
 import { InnerDesignLines } from "../designs/inner-design-lines";
 import { InnerDesignMondrian } from "../designs/inner-design-mondrian";
-
-
+import { InnerDesignTilings } from "../designs/inner-design-regular-tilings";
 
 import * as $ from "jquery";
 
@@ -83,7 +82,8 @@ function attachHandlers() {
     InnerDesignCirclePacking,
     InnerDesignHexes,
     InnerDesignLines,
-    InnerDesignMondrian
+    InnerDesignMondrian,
+    InnerDesignTilings
   ];
   
   

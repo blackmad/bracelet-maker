@@ -1,5 +1,30 @@
 - make circles a little more linear
 - experiment with veras being outlines
+- circle packing could break the plane, could also be swiss cheese
 - posture collar
 - make random lines prettier & faster
 - save variables when only changing outer design
+
+hinged tesselations
+file:///private/tmp/hinged-tess-app/index.html - yes yes yes - https://github.com/algrant/hinged-tess-app
+
+tile coverings by regular polygons 
+https://en.wikipedia.org/wiki/Euclidean_tilings_by_convex_regular_polygons
+
+tetronimo designs
+https://github.com/aaaidan/TetraSolver
+https://fdossena.com/?p=talos/solver.frag?6,8,1,5,2,0,1,2,1
+https://github.com/SimonHung/Polyomino-Puzzle
+
+triangle inspiration
+https://brendankenny.github.io/libtess.js/test/browser/expectations-viewer.html
+https://github.com/mapbox/earcut
+
+lots of fun patterns & tesselations here
+http://apps.amandaghassaei.com/OrigamiSimulator/
+
+tiling generator in python https://github.com/fogleman/Tiling
+
+decompose polygons into convexes https://github.com/schteppe/poly-decomp.js/
+
+islamic star patterns: https://github.com/CodingTrain/StarPatterns
