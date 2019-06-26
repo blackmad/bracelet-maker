@@ -1,6 +1,7 @@
 import { MakerJsUtils } from '../src/makerjs-utils'
 import { expect } from 'chai';
 import 'mocha';
+import * as _ from 'lodash';
 var makerjs = require('makerjs');
 
 describe('checkCircleCircleIntersection', () => {
@@ -57,5 +58,14 @@ describe('checkPathIntersectsModel', () => {
 
     const result = MakerJsUtils.checkPathIntersectsModel(circle, <MakerJs.IModel>model);
     expect(result).to.equal(true);
+  })
+
+  it('randomPointOnPathsInModel should work', () => {
+    const model = new makerjs.models.Rectangle(100, 20);
+    const point = MakerJsUtils.randomPointOnPathsInModel(model);
+
+    const paths = MakerJsUtils.collectPaths(model);
+
+    expect(_.some(paths, (path) => makerjs.measure.isPointOnPath(point, path))).to.equal(true);
   })
 });

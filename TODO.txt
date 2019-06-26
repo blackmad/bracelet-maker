@@ -1,5 +1,10 @@
 - make circles a little more linear
-- experiment with veras being outlines
+- experiment with veras being outline
+- experiment with veras-x-circle being outline
 - posture collar
 - make random lines prettier & faster
 - save variables when only changing outer design
+
+- implement tilings
+- implement hinged tessels
+- what about a chinese lattice generator
