@@ -1,8 +1,7 @@
-- make circles a little more linear
+- make circles a little more linear + better in general
 - experiment with veras being outline
 - experiment with veras-x-circle being outline
 - posture collar
-- make random lines prettier & faster
 - save variables when only changing outer design
 
 - implement tilings
