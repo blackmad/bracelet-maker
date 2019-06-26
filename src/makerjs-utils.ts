@@ -142,7 +142,7 @@ export namespace MakerJsUtils {
     return [x, yAtX(slope, x)];
   }
 
-  function randomPointOnLine(pathToUse: MakerJs.IPathLine) {
+  function randomPointOnLine(pathToUse: MakerJs.IPathLine, rng?: () => number) {
     // now pick a random point on that path
     const lowX =
       pathToUse.origin[0] < pathToUse.end[0]
@@ -166,18 +166,18 @@ export namespace MakerJsUtils {
           : pathToUse.end[1];
       const yRange = highY - lowY;
 
-      const newY = lowY + Math.random() * yRange;
+      const newY = lowY + random(rng) * yRange;
       return [lowX, newY];
     } else {
-      const newX = lowX + Math.random() * xRange;
+      const newX = lowX + random(rng) * xRange;
       return pointOnSlopeAtX(pathToUse, newX);
     }
   }
 
-  export function randomPointOnPathsInModel(model: MakerJs.IModel) {
+  export function randomPointOnPathsInModel(model: MakerJs.IModel, rng: () => number) {
     // to be unbiased, imagine we're walking the entire outline to find a point
     const totalLength = makerjs.measure.modelPathLength(model);
-    const randomPointOnLength = Math.random() * totalLength;
+    const randomPointOnLength = random(rng) * totalLength;
 
     // find the path that corresponds to
     const paths = MakerJsUtils.collectPaths(model);
@@ -202,20 +202,34 @@ export namespace MakerJsUtils {
       lengthSoFar += pathLength;
     }
 
-    return randomPointOnLine(pathToUse);
+    return randomPointOnLine(pathToUse, rng);
   }
 
-  export function randomLineInRectangle(_model: MakerJs.models.Rectangle) {
+  export function randomLineInRectangle(_model: MakerJs.models.Rectangle, rng?: () => number) {
     const model = makerjs.model.clone(_model);
     makerjs.model.originate(model);
-    const p1 = MakerJsUtils.randomPointOnPathsInModel(model);
-    let p2 = MakerJsUtils.randomPointOnPathsInModel(model);
+    const p1 = MakerJsUtils.randomPointOnPathsInModel(model, rng);
+    let p2 = MakerJsUtils.randomPointOnPathsInModel(model, rng);
     while (p2[0] == p1[0] || p2[1] == p1[1]) {
-      console.log("some coodinate matches", p1, p2);
-      p2 = MakerJsUtils.randomPointOnPathsInModel(model);
+      p2 = MakerJsUtils.randomPointOnPathsInModel(model, rng);
     }
-    const line = new makerjs.paths.Line(p1, p2)
-    console.log(line);
+    const line = new makerjs.paths.Line(p1, p2);
     return line;
+  }
+
+  function random(rng?: () => number) {
+    if (rng) { return rng(); }
+    else { throw new Error('return Math.random()') }
+  }
+
+  export function randomPointInRectangle(
+    rect: MakerJs.models.Rectangle,
+    rng?: () => number
+  ): MakerJs.IPoint {
+    const boundaryExtents = makerjs.measure.modelExtents(rect);
+    return [
+      (boundaryExtents.low[0] + boundaryExtents.high[0]) * random(rng),
+      (boundaryExtents.low[1] + boundaryExtents.high[1]) * random(rng)
+    ];
   }
 }

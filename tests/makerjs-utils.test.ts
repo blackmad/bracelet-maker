@@ -62,7 +62,7 @@ describe('checkPathIntersectsModel', () => {
 
   it('randomPointOnPathsInModel should work', () => {
     const model = new makerjs.models.Rectangle(100, 20);
-    const point = MakerJsUtils.randomPointOnPathsInModel(model);
+    const point = MakerJsUtils.randomPointOnPathsInModel(model, () => Math.random());
 
     const paths = MakerJsUtils.collectPaths(model);
 
