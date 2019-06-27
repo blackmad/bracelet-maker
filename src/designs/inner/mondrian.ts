@@ -1,28 +1,17 @@
-import * as SimplexNoise from "simplex-noise";
-
 const makerjs = require("makerjs");
 
 import {
-  OnOffMetaParameter,
   RangeMetaParameter,
-  MetaParameterType,
   MetaParameter
-} from "../meta-parameter";
-import { ModelMaker } from "../model";
-import { SimplexNoiseUtils } from "../simplex-noise-utils";
-import { FastRoundShim } from "./fast-abstract-inner-design";
-const seedrandom = require("seedrandom");
+} from "../../meta-parameter";
 import * as _ from "lodash";
 
-export class InnerDesignMondrianImpl implements MakerJs.IModel {
-  public units = makerjs.unitType.Inch;
-  public paths: MakerJs.IPathMap = {};
-  public models: MakerJs.IModelMap = {};
+import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
 
+export class InnerDesignMondrian extends FastAbstractInnerDesign {
   rects: any[] = [];
   maxDepth: number;
   splitChance: number;
-  rng: () => number;
   xyBias: number;
   minCellSize: number;
   borderSize: number;
@@ -73,19 +62,17 @@ export class InnerDesignMondrianImpl implements MakerJs.IModel {
     }
   }
 
-  constructor(params) {
+  makeDesign(params) {
     const {
-      height = 2,
-      width = 10,
       boundaryModel,
-      safeCone,
       borderSize,
-      seed,
       maxDepth,
       splitChance,
       xyBias,
       minCellSize
     } = params;
+
+    this.rects = [];
 
     this.maxDepth = maxDepth;
     this.splitChance = splitChance;
@@ -94,35 +81,17 @@ export class InnerDesignMondrianImpl implements MakerJs.IModel {
     this.minCellSize = minCellSize;
 
     const boundaryMeasure = makerjs.measure.modelExtents(boundaryModel);
-    const boundaryWidth = boundaryMeasure.high[0] - boundaryMeasure.low[0];
-    const boundaryHeight = boundaryMeasure.high[1] - boundaryMeasure.low[1];
-
-    this.rng = seedrandom(seed.toString());
 
     this.splitRect(boundaryMeasure.low, boundaryMeasure.high, 0);
 
     const gridModel = { models: {} };
     _(this.rects).each((rect, i) => (gridModel.models[i.toString()] = rect));
 
-    // this.models.grid = gridModel;
-    this.models.clamped = makerjs.model.combineIntersection(
-      gridModel,
-      boundaryModel
-    );
+    return gridModel;
   }
-}
 
-export class InnerDesignMondrian implements ModelMaker {
-  get metaParameters(): Array<MetaParameter> {
+  get designMetaParameters(): Array<MetaParameter> {
     return [
-      new RangeMetaParameter({
-        title: "Seed",
-        min: 1,
-        max: 10000,
-        value: 1,
-        step: 1,
-        name: "seed"
-      }),
       new RangeMetaParameter({
         title: "Border Size",
         min: 0.05,
@@ -164,9 +133,5 @@ export class InnerDesignMondrian implements ModelMaker {
         name: "minCellSize"
       })
     ];
-  }
-
-  public make(params: Map<string, any>): MakerJs.IModel {
-    return new InnerDesignMondrianImpl(params);
   }
 }

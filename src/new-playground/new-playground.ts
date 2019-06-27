@@ -9,7 +9,7 @@ import 'rangeslider.js';
 
 import "core-js/library";
 
-import { ModelMaker } from "../model";
+import { ModelMaker } from "../model-maker";
 import { MetaParameter, MetaParameterType } from "../meta-parameter";
 
 import * as fs from "fs";
@@ -415,6 +415,7 @@ export class DavidsPlayground {
     }
 
     this.model = this.modelMaker.make(modelParams);
+    console.log(this.model)
 
     var svg = makerjs.exporter.toSVG(this.model, { useSvgPathOnly: false });
     previewDiv.innerHTML = svg;

@@ -1,4 +1,5 @@
 const makerjs = require("makerjs");
+const seedrandom = require("seedrandom");
 
 export class FastRoundShim {
   static useFastRound(callback) {
@@ -37,16 +38,21 @@ export abstract class FastAbstractInnerDesign implements MakerJs.IModel {
   public paths: MakerJs.IPathMap = {};
   public models: MakerJs.IModelMap = {};
 
+  rng: () => number;
+
   abstract makeDesign(params: any): any;
 
   constructor(params) {
     const self = this;
     let model = null;
+
+    this.rng = seedrandom(params.seed.toString());
+
     FastRoundShim.useFastRound(function() {
       model = self.makeDesign(params);
     });
 
-    const debug = false;
+    const debug = true;
     
     if (debug) {
       this.models = model.models;

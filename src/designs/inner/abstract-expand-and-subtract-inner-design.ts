@@ -1,27 +1,25 @@
 import * as _ from "lodash";
-import { RangeMetaParameter } from "../meta-parameter";
+import * as SimplexNoise from "simplex-noise";
 
 const makerjs = require("makerjs");
-
 const seedrandom = require("seedrandom");
 
-export abstract class AbstractExpandAndSubtractInnerDesign
-  implements MakerJs.IModel {
-  public units = makerjs.unitType.Inch;
-  public paths: MakerJs.IPathMap = {};
-  public models: MakerJs.IModelMap = {};
+import { RangeMetaParameter, MetaParameter } from "../../meta-parameter";
+import { ModelMaker } from "src/model-maker";
 
+export abstract class AbstractExpandAndSubtractInnerDesign
+  implements ModelMaker {
   rng: () => number;
+  simplex: SimplexNoise;
 
   abstract makePaths(params): MakerJs.IPath[];
-
-  constructor(params) {
+  abstract get designMetaParameters(): Array<MetaParameter>;
+  
+  make(params) {
     const { boundaryModel, borderSize, seed } = params;
 
-    const boundaryRect = new makerjs.models.Rectangle(boundaryModel);
-    makerjs.model.originate(boundaryRect);
-
     this.rng = seedrandom(seed.toString());
+    this.simplex = new SimplexNoise(params.seed.toString())
 
     const lines = { paths: this.makePaths(params) };
 
@@ -35,7 +33,7 @@ export abstract class AbstractExpandAndSubtractInnerDesign
       1
     );
 
-    this.models.design = makerjs.model.combineSubtraction(
+    return makerjs.model.combineSubtraction(
       makerjs.model.clone(boundaryModel),
       expandedModel
     );
@@ -58,7 +56,8 @@ export abstract class AbstractExpandAndSubtractInnerDesign
         value: 0.04,
         step: 0.01,
         name: "borderSize"
-      })
+      }),
+      ...this.designMetaParameters
     ];
   }
 }

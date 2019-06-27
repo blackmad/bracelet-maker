@@ -1,4 +1,4 @@
-import {Angle} from './angle';
+import {Angle} from '../../utils/angle';
 
 var makerjs = require('makerjs');
 

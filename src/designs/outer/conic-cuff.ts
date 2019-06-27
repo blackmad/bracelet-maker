@@ -1,18 +1,13 @@
 import { makeConicSection } from "./conic-section";
-import { RangeMetaParameter, MetaParameterType } from "../meta-parameter";
-import { ModelMaker } from "../model";
-import Angle from "./angle";
-import {makeEvenlySpacedBolts} from './design-utils';
+import { RangeMetaParameter, MetaParameterType } from "../../meta-parameter";
+import { ModelMaker } from "../../model-maker";
+import Angle from "../../utils/angle";
+import {makeEvenlySpacedBolts} from '../design-utils';
 
 var makerjs = require("makerjs");
 
-class ConicCuffOuterImpl {
-  // implements MakerJs.IModel {
-  public units = makerjs.unitType.Inch;
-  public paths: MakerJs.IPathMap = {};
-  public models: MakerJs.IModelMap = {};
-
-  constructor(innerDesignClass: ModelMaker, options) {
+export class ConicCuffOuter implements ModelMaker {
+  make(options): MakerJs.IModel {
     var {
       height,
       wristCircumference,
@@ -128,7 +123,7 @@ class ConicCuffOuterImpl {
     makerjs.model.rotate(completeCuffModel, 90 - cuffModel.alpha.degrees / 2);
     makerjs.model.zero(completeCuffModel);
 
-    this.models = {
+    const models: any = {
       completeCuffModel: completeCuffModel
     };
     /***** END RECENTER SHAPE *****/
@@ -184,7 +179,7 @@ class ConicCuffOuterImpl {
       ]
     ]);
 
-    const innerOptions = options[innerDesignClass.constructor.name] || {};
+    const innerOptions = options[this.innerDesignClass.constructor.name] || {};
     innerOptions.height = totalHeight;
     innerOptions.width = totalWidth;
     innerOptions.boundaryModel = cuffClone;
@@ -193,19 +188,19 @@ class ConicCuffOuterImpl {
       models: { c: makerjs.model.clone(completeCuffModel).models.cuffModel }
     };
 
-    const innerDesign = innerDesignClass.make(innerOptions);
+    const innerDesign = this.innerDesignClass.make(innerOptions);
 
-    this.models.design = innerDesign;
+    models.design = innerDesign;
 
     if (innerDesign.models && innerDesign.models.outline) {
-      this.models.completeCuffModel.models.cuffModel = makerjs.model.combineUnion(
+      models.completeCuffModel.models.cuffModel = makerjs.model.combineUnion(
         innerDesign.models.outline,
-        this.models.completeCuffModel.models.cuffModel
+        models.completeCuffModel.models.cuffModel
       );
       innerDesign.models.outline = undefined;
-      this.models.completeCuffModel.models.completeCuffModel = undefined;
-      this.models.completeCuffModel.models.cuff = undefined;
-      // this.models.completeCuffModel.models.cuffModel = undefined
+      models.completeCuffModel.models.completeCuffModel = undefined;
+      models.completeCuffModel.models.cuff = undefined;
+      // models.completeCuffModel.models.cuffModel = undefined
     }
 
     /***** END DESIGN *****/
@@ -213,15 +208,17 @@ class ConicCuffOuterImpl {
     /***** START CLEANUP *****/
     // now take out the original inner cuff model, not actually used as a cut
     if (!debug) {
-      delete this.models.completeCuffModel.models.cuffModelInner;
+      delete models.completeCuffModel.models.cuffModelInner;
     }
     /***** END CLEANUP *****/
-  }
-}
 
-export class ConicCuffOuter implements ModelMaker {
-  innerDesignClass: ModelMaker;
-  options: Object;
+    console.log(models);
+
+    return {
+      models: models,
+      units: makerjs.unitType.Inch
+    }
+  }
 
   get metaParameters() {
     return [
@@ -260,11 +257,6 @@ export class ConicCuffOuter implements ModelMaker {
     ];
   }
 
-  constructor(innerDesignClass: ModelMaker) {
-    this.innerDesignClass = innerDesignClass;
-  }
-
-  make(options): MakerJs.IModel {
-    return new ConicCuffOuterImpl(this.innerDesignClass, options);
+  constructor(public innerDesignClass: ModelMaker) {
   }
 }

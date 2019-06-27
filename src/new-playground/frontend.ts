@@ -1,21 +1,20 @@
 import { DavidsPlayground } from "./new-playground";
-import { ModelMaker } from "../model";
+import { ModelMaker } from "../model-maker";
 
-import { ConicCuffOuter } from "../designs/conic-cuff";
-import { StraightCollar } from "../designs/collar";
+import { ConicCuffOuter } from "../designs/outer/conic-cuff";
+import { StraightCollarOuter } from "../designs/outer/collar";
 
-import { InnerDesignCircles } from "../designs/inner-design-circles";
-import { InnerDesignCirclePacking } from "../designs/inner-design-circle-packing";
-import { InnerDesignVera } from "../designs/inner-design-vera";
-import { InnerDesignHashmarks } from "../designs/inner-design-hashmarks";
-import { InnerDesignCirclesXVera } from "../designs/inner-design-circles-x-vera";
-import { InnerDesignVoronoi } from "../designs/inner-design-voronoi";
-import { InnerDesignHexes } from "../designs/inner-design-hexes";
-import { InnerDesignLines } from "../designs/inner-design-lines";
-import { InnerDesignMondrian } from "../designs/inner-design-mondrian";
-import { InnerDesignExplode } from "../designs/inner-design-explode";
-
-
+// import { InnerDesignCircles } from "../designs/inner-design-circles";
+// import { InnerDesignCirclePacking } from "../designs/inner-design-circle-packing";
+import { InnerDesignVera } from "../designs/inner/vera";
+import { InnerDesignHashmarks } from "../designs/inner/hashmarks";
+// import { InnerDesignCirclesXVera } from "../designs/inner-design-circles-x-vera";
+import { InnerDesignVoronoi } from "../designs/inner/voronoi";
+// import { InnerDesignHexes } from "../designs/inner-design-hexes";
+import { InnerDesignLines } from "../designs/inner/lines";
+import { InnerDesignMondrian } from "../designs/inner/mondrian";
+import { InnerDesignExplode } from "../designs/inner/explode"
+// import { InnerDesignHingedTesselation } from "../designs/inner-design-hinged-tesselation";
 
 import * as $ from "jquery";
 
@@ -40,7 +39,7 @@ function attachHandlers() {
   
   // outer
   const possibleOuterDesigns = [
-    StraightCollar,
+    StraightCollarOuter,
     ConicCuffOuter
   ];
   
@@ -70,24 +69,20 @@ function attachHandlers() {
     window.location.hash = '';
     setOuterDesignFromName(design);
   });
-  
-
-  
-  // inner
 
   const possibleDesigns = [
     InnerDesignVoronoi,
     InnerDesignHashmarks,
-    InnerDesignCircles,
+    // InnerDesignCircles,
     InnerDesignVera,
-    InnerDesignCirclesXVera,
-    InnerDesignCirclePacking,
-    InnerDesignHexes,
+    // InnerDesignCirclesXVera,
+    // InnerDesignCirclePacking,
+    // InnerDesignHexes,
     InnerDesignLines,
     InnerDesignMondrian,
-    InnerDesignExplode
+    InnerDesignExplode,
+    // InnerDesignHingedTesselation
   ];
-  
   
   const possibleDesignNameMap = {};
   possibleDesigns.forEach(d => {

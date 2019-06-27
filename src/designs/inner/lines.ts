@@ -1,17 +1,14 @@
-import * as _ from "lodash";
-
 const makerjs = require("makerjs");
 
 import {
   RangeMetaParameter,
   MetaParameter
-} from "../meta-parameter";
-import { ModelMaker } from "../model";
-import { MakerJsUtils } from "../makerjs-utils";
+} from "../../meta-parameter";
+import { MakerJsUtils } from "../../utils/makerjs-utils";
 
 import { AbstractExpandAndSubtractInnerDesign } from './abstract-expand-and-subtract-inner-design'
 
-export class InnerDesignLinesImpl extends AbstractExpandAndSubtractInnerDesign {
+export class InnerDesignLines extends AbstractExpandAndSubtractInnerDesign {
   makePaths(params): MakerJs.IPath[] {
     const { boundaryModel, numLines } = params;
 
@@ -27,12 +24,9 @@ export class InnerDesignLinesImpl extends AbstractExpandAndSubtractInnerDesign {
 
     return paths;
   }
-}
 
-export class InnerDesignLines implements ModelMaker {
-  get metaParameters(): Array<MetaParameter> {
+  get designMetaParameters(): Array<MetaParameter> {
     return [
-      ...AbstractExpandAndSubtractInnerDesign.prototype.metaParameters,
       new RangeMetaParameter({
         title: "Num Lines",
         min: 1,
@@ -42,9 +36,5 @@ export class InnerDesignLines implements ModelMaker {
         name: "numLines"
       })
     ];
-  }
-
-  public make(params: Map<string, any>): MakerJs.IModel {
-    return new InnerDesignLinesImpl(params);
   }
 }

@@ -8,7 +8,7 @@ import {
   OnOffMetaParameter,
   MetaParameter
 } from "../meta-parameter";
-import { ModelMaker } from "../model";
+import { ModelMaker } from "../model-maker";
 import * as _ from "lodash";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 const seedrandom = require("seedrandom");

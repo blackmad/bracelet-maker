@@ -1,4 +1,4 @@
-import Angle from "./designs/angle";
+import Angle from "./angle";
 import * as _ from "lodash";
 
 const makerjs = require("makerjs");
@@ -231,5 +231,16 @@ export namespace MakerJsUtils {
       (boundaryExtents.low[0] + boundaryExtents.high[0]) * random(rng),
       (boundaryExtents.low[1] + boundaryExtents.high[1]) * random(rng)
     ];
+  }
+
+  export function polygonArea(points) {
+    var l = points.length;
+    var det = 0;
+  
+    for (var i = 0; i < l - 1; i++) {
+      det += points[i][0] * points[i + 1][1] - points[i][1] * points[i + 1][0];
+    }
+  
+    return Math.abs(det) / 2;
   }
 }
