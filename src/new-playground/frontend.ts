@@ -10,7 +10,7 @@ import { InnerDesignVera } from "../designs/inner/vera";
 import { InnerDesignHashmarks } from "../designs/inner/hashmarks";
 // import { InnerDesignCirclesXVera } from "../designs/inner-design-circles-x-vera";
 import { InnerDesignVoronoi } from "../designs/inner/voronoi";
-// import { InnerDesignHexes } from "../designs/inner-design-hexes";
+import { InnerDesignHexes } from "../designs/inner/hexes";
 import { InnerDesignLines } from "../designs/inner/lines";
 import { InnerDesignMondrian } from "../designs/inner/mondrian";
 import { InnerDesignExplode } from "../designs/inner/explode"
@@ -77,7 +77,7 @@ function attachHandlers() {
     InnerDesignVera,
     // InnerDesignCirclesXVera,
     // InnerDesignCirclePacking,
-    // InnerDesignHexes,
+    InnerDesignHexes,
     InnerDesignLines,
     InnerDesignMondrian,
     InnerDesignExplode,

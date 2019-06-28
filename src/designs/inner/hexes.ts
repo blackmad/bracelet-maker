@@ -1,25 +1,21 @@
-import * as SimplexNoise from "simplex-noise";
-import { SimplexNoiseUtils } from "../simplex-noise-utils";
-import { ModelMaker } from "../model";
-import { MetaParameter, RangeMetaParameter, OnOffMetaParameter } from "../meta-parameter";
-import Angle from "./angle";
-import * as _ from 'lodash';
-import { start } from "repl";
-import { MakerJsUtils } from "../makerjs-utils";
+import { SimplexNoiseUtils } from "../../utils/simplex-noise-utils";
+import {
+  MetaParameter,
+  RangeMetaParameter,
+  OnOffMetaParameter
+} from "../../meta-parameter";
+import Angle from "../../utils/angle";
+import * as _ from "lodash";
+import { MakerJsUtils } from "../../utils/makerjs-utils";
+import { ModelMaker } from "../../model-maker"
+import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 
 var makerjs = require("makerjs");
 
-export class InnerDesignHexesImpl implements MakerJs.IModel {
-  public units = makerjs.unitType.Inch;
-  public paths: MakerJs.IPathMap = {};
-  public models: MakerJs.IModelMap = {};
-
-  constructor(params) {
+export class InnerDesignHexes implements ModelMaker {
+  make(params) {
     const {
-      height = 2,
-      width = 10,
       boundaryModel,
-      safeCone,
       outerModel,
       _numRows,
       stretchWidth,
@@ -56,80 +52,97 @@ export class InnerDesignHexesImpl implements MakerJs.IModel {
 
     const outerStartArc = outerArcs[0];
     const outerEndArc = outerArcs[1];
-    
+
     let numVirtualRows = numRows;
     if (forceContainment) {
       numVirtualRows += 2;
     }
-    const rowHeight = (outerEndArc.radius - outerStartArc.radius) / (numVirtualRows)
+    const rowHeight =
+      (outerEndArc.radius - outerStartArc.radius) / numVirtualRows;
+    console;
     const hexSize = rowHeight * 0.5;
 
-    const startLength = MakerJsUtils.arcLength(startArc)
+    const startLength = MakerJsUtils.arcLength(startArc);
     const numHexes = Math.round(startLength / (hexSize * 2 * stretchWidth));
 
-    const endLength = MakerJsUtils.arcLength(endArc)
+    const endLength = MakerJsUtils.arcLength(endArc);
 
     const models = {};
     let outlineModel = {};
     for (let r = 0; r <= numRows; r++) {
-      const dilation = 1 + ((r/numRows) * ((endLength / startLength) - 1))
+      const dilation = 1 + (r / numRows) * (endLength / startLength - 1);
 
       let virtualRow = r;
       if (forceContainment) {
-        virtualRow += 1
+        virtualRow += 1;
       }
-      const radius = outerStartArc.radius + (Math.abs(outerStartArc.radius - outerEndArc.radius) * (virtualRow / numVirtualRows))
-      const extraArcLengthInDegrees = r % 2 ? Angle.fromRadians(hexSize*stretchWidth/radius).degrees : 0;
+      const radius =
+        outerStartArc.radius +
+        Math.abs(outerStartArc.radius - outerEndArc.radius) *
+          (virtualRow / numVirtualRows);
+      const extraArcLengthInDegrees =
+        r % 2
+          ? Angle.fromRadians((hexSize * stretchWidth) / radius).degrees
+          : 0;
 
       const offset = r % 2 ? 1 : 0;
 
-      const startAngle = startArc.startAngle + extraArcLengthInDegrees
-      const endAngle = startArc.endAngle - extraArcLengthInDegrees
-      const arc = new makerjs.paths.Arc(startArc.origin, radius, startAngle, endAngle);
+      const startAngle = startArc.startAngle + extraArcLengthInDegrees;
+      const endAngle = startArc.endAngle - extraArcLengthInDegrees;
+      const arc = new makerjs.paths.Arc(
+        startArc.origin,
+        radius,
+        startAngle,
+        endAngle
+      );
 
       let hex = new makerjs.models.Polygon(6, hexSize, 30);
       if (stretchWidth != 1) {
-        hex = makerjs.model.distort(hex, stretchWidth*dilation, 1)
+        hex = makerjs.model.distort(hex, stretchWidth * dilation, 1);
       }
-      // var hex = {paths: [new makerjs.paths.Circle(hexSize) ]}
+      console.log(hex);
+      console.log(numHexes - offset);
 
       const row = makerjs.layout.cloneToRow(hex, numHexes - offset, 0);
       makerjs.layout.childrenOnPath(row, arc, 0);
+      console.log(row);
 
       models[r.toString()] = row;
 
       if (r == 0 || r == numRows) {
-        _.each(row.models, (model) => {
-          outlineModel = makerjs.model.combineUnion(makerjs.model.scale(makerjs.model.clone(model), 1.7), outlineModel)
+        _.each(row.models, model => {
+          outlineModel = makerjs.model.combineUnion(
+            makerjs.model.scale(makerjs.model.clone(model), 1.7),
+            outlineModel
+          );
         });
       }
     }
+    console.log(models);
+    const tmpModel = { models: models };
+    console.log(tmpModel);
 
-    const tmpModel = { models: {
-      shapes: {models: models},
-    }}
-    
     if (filletOutlineRadius > 0) {
       makerjs.model.originate(outlineModel);
 
       makerjs.model.findChains(outlineModel).forEach((outlineChain, index) => {
-        outlineModel['models']['fillets'+ index] = makerjs.chain.fillet(outlineChain, filletOutlineRadius);
-      })
-      
+        outlineModel["models"]["fillets" + index] = makerjs.chain.fillet(
+          outlineChain,
+          filletOutlineRadius
+        );
+      });
+
       console.log(outlineModel);
     }
-    
 
-    this.models = {
-      design: tmpModel,
-      outline: outlineModel
-    }
-
-    this.units = makerjs.unitType.Inch;
+    return {
+      models: {
+        design: tmpModel,
+        outline: outlineModel
+      }
+    };
   }
-}
 
-export class InnerDesignHexes implements ModelMaker {
   get metaParameters(): Array<MetaParameter> {
     return [
       new RangeMetaParameter({
@@ -156,11 +169,11 @@ export class InnerDesignHexes implements ModelMaker {
         step: 0.01,
         name: "filletOutlineRadius"
       }),
-      new OnOffMetaParameter({title: "Force Containment", name: 'forceContainment', value: false }),
+      new OnOffMetaParameter({
+        title: "Force Containment",
+        name: "forceContainment",
+        value: false
+      })
     ];
-  }
-
-  public make(params: Map<string, any>): MakerJs.IModel {
-    return new InnerDesignHexesImpl(params);
   }
 }
