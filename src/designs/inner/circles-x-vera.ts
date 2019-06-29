@@ -1,13 +1,15 @@
 import { SimplexNoiseUtils } from "../../utils/simplex-noise-utils";
 import { MetaParameter, RangeMetaParameter } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
+import { MakerJsUtils } from "../../utils/makerjs-utils";
+import { AbstractExpandAndSubtractInnerDesign } from "./abstract-expand-and-subtract-inner-design";
 
 var makerjs = require("makerjs");
 
-export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
+export class InnerDesignCirclesXVera extends AbstractExpandAndSubtractInnerDesign {
   useFastRound = false;
 
-  makeDesign(params): MakerJs.IModel {
+  makePaths(params): MakerJs.IPath[] {
     const {
       height = 2,
       width = 10,
@@ -18,17 +20,19 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
       maxCircleSize,
       borderSize,
       yOffset,
+      colOffset,
       rowOffset,
       centerXNoiseDenom1,
       centerXNoiseDenom2,
       centerYNoiseDenom1,
-      centerYNoiseDenom2
+      centerYNoiseDenom2,
+      patternNoiseInfluence
     } = params;
 
     const rowCellSize = width / cols;
     const widthCellSize = height / rows;
 
-    const paths = [];
+    let paths = [];
 
     const boundaryExtents = makerjs.measure.modelExtents(boundaryModel);
     for (var r = 0; r < rows; r++) {
@@ -36,16 +40,17 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
         const center = [
           (r % 2) * rowOffset * rowCellSize +
             c * rowCellSize +
-            SimplexNoiseUtils.noise2DInRange(
+            patternNoiseInfluence*SimplexNoiseUtils.noise2DInRange(
               this.simplex,
               c / centerXNoiseDenom1,
               c / centerXNoiseDenom2,
               -rowCellSize * 2,
               rowCellSize * 2
             ),
-          yOffset +
+            yOffset +
+            (c % 2) * colOffset +
             (r * widthCellSize +
-              SimplexNoiseUtils.noise2DInRange(
+              patternNoiseInfluence*SimplexNoiseUtils.noise2DInRange(
                 this.simplex,
                 r / centerYNoiseDenom1,
                 r / centerYNoiseDenom2,
@@ -66,33 +71,16 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
         const possibleCircle = new makerjs.paths.Circle(center, circleSize);
         const shouldUseCircle = makerjs.measure.isMeasurementOverlapping(
           boundaryExtents,
-          makerjs.measure.modelExtents({ paths: [possibleCircle] })
+          makerjs.measure.modelExtents({paths: [possibleCircle]})
         );
 
         if (shouldUseCircle) {
-          paths.push(possibleCircle);
+          paths.push(possibleCircle)
         }
       }
     }
 
-    const expandedModel = makerjs.model.expandPaths(
-      { paths: paths },
-      borderSize
-    );
-    if (true) {
-      return makerjs.model.combineSubtraction(
-        makerjs.model.clone(boundaryModel),
-        expandedModel
-      );
-    } else {
-      // const intersectedModel = makerjs.model.combineIntersection(
-      //   makerjs.model.clone(safeCone),
-      //   expandedModel
-      // );
-      // this.models = {};
-      // // this.models.intersectedModels = intersectedModels;
-      // this.models.oo = makerjs.model.outline(expandedModel, 0.01);
-    }
+    return paths;
   }
   
   get designMetaParameters(): Array<MetaParameter> {
@@ -114,14 +102,6 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
         name: "rows"
       }),
       new RangeMetaParameter({
-        title: "Border Size",
-        min: 0.1,
-        max: 0.25,
-        value: 0.1,
-        step: 0.01,
-        name: "borderSize"
-      }),
-      new RangeMetaParameter({
         title: "Min Circle Size",
         min: 0.1,
         max: 2.0,
@@ -136,6 +116,14 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
         value: 1.5,
         step: 0.01,
         name: "maxCircleSize"
+      }),
+      new RangeMetaParameter({
+        title: "Pattern Noise Influence",
+        min: 0.0,
+        max: 2.0,
+        value: 1.0,
+        step: 0.01,
+        name: "patternNoiseInfluence"
       }),
       new RangeMetaParameter({
         title: "Center X Noise Demon 1",
@@ -171,9 +159,9 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
       }),
       new RangeMetaParameter({
         title: "Y Offset",
-        min: 0.1,
+        min: 0.0,
         max: 3.0,
-        value: 0.5,
+        value: 0.0,
         step: 0.01,
         name: "yOffset"
       }),
@@ -184,6 +172,14 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
         value: 0.2,
         step: 0.01,
         name: "rowOffset"
+      }),
+      new RangeMetaParameter({
+        title: "Col Offset",
+        min: 0.0,
+        max: 1.0,
+        value: 0.2,
+        step: 0.01,
+        name: "colOffset"
       })
     ];
   }

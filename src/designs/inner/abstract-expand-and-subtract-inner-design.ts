@@ -21,22 +21,29 @@ export abstract class AbstractExpandAndSubtractInnerDesign
     this.rng = seedrandom(seed.toString());
     this.simplex = new SimplexNoise(params.seed.toString())
 
-    const lines = { paths: this.makePaths(params) };
+    const pathModel = { paths: this.makePaths(params) };
+    console.log(pathModel);
+    
+    const debug = false;
 
-    const expandedModel = makerjs.model.expandPaths(
-      {
-        models: {
-          lines
-        }
-      },
-      borderSize,
-      1
-    );
+    if (!debug) {
+      const expandedModel = makerjs.model.expandPaths(
+        {
+          models: {
+            pathModel
+          }
+        },
+        borderSize,
+        1
+      );
 
-    return makerjs.model.combineSubtraction(
-      makerjs.model.clone(boundaryModel),
-      expandedModel
-    );
+      return makerjs.model.combineSubtraction(
+        makerjs.model.clone(boundaryModel),
+        expandedModel
+      );
+    } else {
+      return pathModel;
+    }
   }
 
   get metaParameters() {
