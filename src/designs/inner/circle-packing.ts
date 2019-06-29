@@ -71,6 +71,7 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
       return MakerJsUtils.randomLineInRectangle(boundaryRect, this.rng);
     });
 
+    const pathMap = {}
     const triesPerRadius = 200;
     while (radius > minCircleSize) {
       for (let i = 0; i < triesPerRadius; i++) {
@@ -86,6 +87,7 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
           this.circleDoesntTouchLines(testCircle, lines)
         ) {
           circles.push(testCircle);
+          pathMap[circles.length.toString()] = testCircle;
         }
       }
       radius *= 0.99;
@@ -95,7 +97,7 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
       models: {
         // boundaryModel: boundaryModel
       },
-      paths: [...circles]
+      paths: pathMap
     };
   }
 

@@ -6,10 +6,11 @@ import { AbstractExpandAndSubtractInnerDesign } from "./abstract-expand-and-subt
 
 var makerjs = require("makerjs");
 
-export class InnerDesignCirclesXVera extends AbstractExpandAndSubtractInnerDesign {
+export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
   useFastRound = false;
+  allowOutline = true;
 
-  makePaths(params): MakerJs.IPath[] {
+  makeDesign(params): MakerJs.IModel {
     const {
       height = 2,
       width = 10,
@@ -32,7 +33,7 @@ export class InnerDesignCirclesXVera extends AbstractExpandAndSubtractInnerDesig
     const rowCellSize = width / cols;
     const widthCellSize = height / rows;
 
-    let paths = [];
+    let paths: MakerJs.IPath[] = [];
 
     const boundaryExtents = makerjs.measure.modelExtents(boundaryModel);
     for (var r = 0; r < rows; r++) {
@@ -40,23 +41,25 @@ export class InnerDesignCirclesXVera extends AbstractExpandAndSubtractInnerDesig
         const center = [
           (r % 2) * rowOffset * rowCellSize +
             c * rowCellSize +
-            patternNoiseInfluence*SimplexNoiseUtils.noise2DInRange(
-              this.simplex,
-              c / centerXNoiseDenom1,
-              c / centerXNoiseDenom2,
-              -rowCellSize * 2,
-              rowCellSize * 2
-            ),
-            yOffset +
+            patternNoiseInfluence *
+              SimplexNoiseUtils.noise2DInRange(
+                this.simplex,
+                c / centerXNoiseDenom1,
+                c / centerXNoiseDenom2,
+                -rowCellSize * 2,
+                rowCellSize * 2
+              ),
+          yOffset +
             (c % 2) * colOffset +
             (r * widthCellSize +
-              patternNoiseInfluence*SimplexNoiseUtils.noise2DInRange(
-                this.simplex,
-                r / centerYNoiseDenom1,
-                r / centerYNoiseDenom2,
-                -widthCellSize * 2,
-                widthCellSize * 2
-              ))
+              patternNoiseInfluence *
+                SimplexNoiseUtils.noise2DInRange(
+                  this.simplex,
+                  r / centerYNoiseDenom1,
+                  r / centerYNoiseDenom2,
+                  -widthCellSize * 2,
+                  widthCellSize * 2
+                ))
         ];
 
         const circleSize = SimplexNoiseUtils.noise2DInRange(
@@ -67,24 +70,42 @@ export class InnerDesignCirclesXVera extends AbstractExpandAndSubtractInnerDesig
           maxCircleSize
         );
 
-        
         const possibleCircle = new makerjs.paths.Circle(center, circleSize);
         const shouldUseCircle = makerjs.measure.isMeasurementOverlapping(
           boundaryExtents,
-          makerjs.measure.modelExtents({paths: [possibleCircle]})
+          makerjs.measure.modelExtents({ paths: [possibleCircle] })
         );
 
         if (shouldUseCircle) {
-          paths.push(possibleCircle)
+          paths.push(possibleCircle);
         }
       }
     }
 
-    return paths;
+    const expandedModel = makerjs.model.expandPaths(
+      MakerJsUtils.pathArrayToModel(paths),
+      borderSize,
+      1
+    );
+    console.log(expandedModel);
+    return {
+      models: {
+        expanded: expandedModel
+        // circles: MakerJsUtils.pathArrayToModel(paths)}}
+      }
+    };
   }
-  
+
   get designMetaParameters(): Array<MetaParameter> {
     return [
+      new RangeMetaParameter({
+        title: "Border Size",
+        min: 0.04,
+        max: 0.25,
+        value: 0.04,
+        step: 0.01,
+        name: "borderSize"
+      }),
       new RangeMetaParameter({
         title: "Cols",
         min: 1,

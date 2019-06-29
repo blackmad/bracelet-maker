@@ -18,7 +18,7 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
   allowOutline: boolean = false;
   requiresSafeConeClamp: boolean = false;
 
-  abstract makeDesign(params: any): any;
+  abstract makeDesign(params: any): MakerJs.IModel;
   abstract get designMetaParameters(): Array<MetaParameter>;
 
   get metaParameters(): Array<MetaParameter> {
@@ -56,7 +56,7 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
         new RangeMetaParameter({
           title: "Boundary Dilation (forceContainment=false only)",
           min: 0.05,
-          max: 0.5,
+          max: 2.5,
           value: 0.22,
           step: 0.01,
           name: "boundaryDilation"
@@ -76,6 +76,7 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
       this.simplex = new SimplexNoise(params.seed.toString());
     }
 
+    const originalBoundaryModel = params.boundaryModel;
     if (this.allowOutline && !params.forceContainment) {
       let scaledBoundaryModal = makerjs.model.outline(
         makerjs.model.clone(params.outerModel),
@@ -90,7 +91,6 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
       console.log(params.boundaryModel);
     }
 
-    console.log(JSON.stringify(params.boundaryModel));
     if (this.useFastRound) {
       FastRoundShim.useFastRound(function() {
         model = self.makeDesign(params);
@@ -140,21 +140,16 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
         console.log("outlining");
         let unioned = makerjs.model.combineUnion(
           makerjs.model.clone(model),
-          makerjs.model.clone(params.outerModel),
+          makerjs.model.clone(originalBoundaryModel) // params.boundaryModel),
         )
         unioned = makerjs.model.combineIntersection(
           makerjs.model.clone(params.safeCone),
           unioned
         );
 
-        // const chains = makerjs.model.findChains(unioned)
-        // const bigModel = makerjs.chain.toNewModel(chains[0])
 
-        // const newInnerDesign = makerjs.model.combineIntersection(
-        //   makerjs.model.clone(bigModel),
-        //   makerjs.model.clone(model),
-        // )
 
+        // let outline = makerjs.model.outline(makerjs.model.clone(model), params.outlineSize);
         let outline = makerjs.model.outline(unioned, params.outlineSize);
   
         // console.log(outline);

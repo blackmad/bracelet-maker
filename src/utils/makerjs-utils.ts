@@ -126,7 +126,7 @@ export namespace MakerJsUtils {
     makerjs.model.originate(m1);
     const m2 = makerjs.model.clone(model2);
     makerjs.model.originate(m2);
-    
+
     const paths = MakerJsUtils.collectPaths(m1);
     return _.some(paths, (p) => MakerJsUtils.checkPathIntersectsModel(p, m2))
   }
@@ -256,5 +256,11 @@ export namespace MakerJsUtils {
     }
   
     return Math.abs(det) / 2;
+  }
+
+  export function pathArrayToModel(paths: MakerJs.IPath[]): MakerJs.IModel {
+    const pathMap: MakerJs.IPathMap = {}
+    _.forEach(paths, (path, index) => pathMap[index.toString()] = path)
+    return {paths: pathMap};
   }
 }
