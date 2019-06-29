@@ -7,6 +7,8 @@ export namespace MakerJsUtils {
   export function arcLength(arc: MakerJs.paths.Arc): number {
     return (
       Angle.fromDegrees(arc.endAngle - arc.startAngle).radians * arc.radius
+            // Angle.fromDegrees((arc.endAngle %360) - (arc.startAngle%360)).radians * arc.radius
+
     );
   }
 
@@ -112,8 +114,7 @@ export namespace MakerJsUtils {
       }
     };
 
-    makerjs.model.walk(model, walkOptions);
-
+    makerjs.model.walk(makerjs.model.clone(model), walkOptions);
     return doesIntersect;
   }
 

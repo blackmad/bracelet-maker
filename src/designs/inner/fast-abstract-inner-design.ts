@@ -16,6 +16,7 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
   useFastRound: boolean = true;
   needSubtraction: boolean = true;
   allowOutline: boolean = false;
+  requiresSafeConeClamp: boolean = false;
 
   abstract makeDesign(params: any): any;
   abstract get designMetaParameters(): Array<MetaParameter>;
@@ -41,6 +42,16 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
           value: false
         })
       );
+      metaParams.push(
+        new RangeMetaParameter({
+          title: "Outline size (in)",
+          min: 0.05,
+          max: 0.4,
+          value: 0.1,
+          step: 0.01,
+          name: "outlineSize"
+        }),
+      );
     }
 
     return metaParams;
@@ -55,6 +66,7 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
       this.simplex = new SimplexNoise(params.seed.toString());
     }
 
+    console.log(JSON.stringify(params.boundaryModel));
     if (this.useFastRound) {
       FastRoundShim.useFastRound(function() {
         model = self.makeDesign(params);
@@ -72,6 +84,14 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
       return model;
     }
 
+    if (this.requiresSafeConeClamp) {
+      console.log('clamping');
+      model = makerjs.model.combineIntersection(
+        makerjs.model.clone(params.safeCone),
+        makerjs.model.clone(model)
+      );
+    }
+
     let requiresSubtraction =
       (this.allowOutline && params.forceContainment) ||
       (!this.allowOutline && this.needSubtraction);
@@ -83,19 +103,23 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
       );
 
       return {
-        models: containedDesign.models,
-        units: makerjs.unitType.Inch
+        models: {
+          contained: containedDesign,
+          // boundary: params.boundaryModel
+        },
+        units: makerjs.unitType.Inch,
       };
     } else {
       model.units = makerjs.unitType.Inch;
       if (this.allowOutline && !params.forceContainment && !model.models.outline) {
         console.log("outlining");
-        const outline = makerjs.model.outline(model, 0.1);
+        const outline = makerjs.model.outline(model, params.outlineSize);
         console.log(outline);
         return {
           models: {
             model: model,
-            outline: outline
+            outline: outline,
+            // boundary: params.boundaryModel
           }
         };
       } else {

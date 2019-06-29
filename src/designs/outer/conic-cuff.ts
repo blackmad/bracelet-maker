@@ -183,6 +183,7 @@ export class ConicCuffOuter implements ModelMaker {
     innerOptions.height = totalHeight;
     innerOptions.width = totalWidth;
     innerOptions.boundaryModel = cuffClone;
+    console.log(cuffClone);
     innerOptions.safeCone = safeCone;
     innerOptions.outerModel = {
       models: { c: makerjs.model.clone(completeCuffModel).models.cuffModel }

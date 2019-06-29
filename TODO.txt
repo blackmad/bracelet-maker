@@ -1,3 +1,7 @@
+- get collar outline working
+- add border size for outline size
+- get last of designs reimported
+
 - make circles a little more linear + better in general
 - experiment with veras being outline
 - experiment with veras-x-circle being outline

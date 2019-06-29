@@ -1,4 +1,4 @@
-import { MakerJsUtils } from '../src/makerjs-utils'
+import { MakerJsUtils } from '../src/utils/makerjs-utils'
 import { expect } from 'chai';
 import 'mocha';
 import * as _ from 'lodash';
@@ -33,6 +33,10 @@ describe('checkCircleCircleIntersection', () => {
     expect(result).to.equal(false);
   });
 });
+
+describe('checkCircleLineIntersection', () => {
+
+})
 
 describe('checkPathIntersectsModel', () => {
   it('should return true on intersection', () => {

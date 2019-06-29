@@ -5,7 +5,7 @@ import { ConicCuffOuter } from "../designs/outer/conic-cuff";
 import { StraightCollarOuter } from "../designs/outer/collar";
 
 // import { InnerDesignCircles } from "../designs/inner-design-circles";
-// import { InnerDesignCirclePacking } from "../designs/inner-design-circle-packing";
+import { InnerDesignCirclePacking } from "../designs/inner/circle-packing";
 import { InnerDesignVera } from "../designs/inner/vera";
 import { InnerDesignHashmarks } from "../designs/inner/hashmarks";
 // import { InnerDesignCirclesXVera } from "../designs/inner-design-circles-x-vera";
@@ -76,7 +76,7 @@ function attachHandlers() {
     // InnerDesignCircles,
     InnerDesignVera,
     // InnerDesignCirclesXVera,
-    // InnerDesignCirclePacking,
+    InnerDesignCirclePacking,
     InnerDesignHexes,
     InnerDesignLines,
     InnerDesignMondrian,
