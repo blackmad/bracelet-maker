@@ -3,14 +3,20 @@ import { ShapeMaker } from "../shape-maker";
 import { SimplexNoiseUtils } from "../../utils/simplex-noise-utils";
 import {
   MetaParameter,
+  OnOffMetaParameter,
   RangeMetaParameter,
   SelectMetaParameter
 } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
+import { MakerJsUtils } from "../../utils/makerjs-utils";
 
 var makerjs = require("makerjs");
 
 export class InnerDesignVera extends FastAbstractInnerDesign {
+  allowOutline = true;
+  requiresSafeConeClamp = false;
+  needSubtraction = true;
+
   makeDesign(params) {
     const {
       height,
@@ -24,7 +30,9 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
       yScaleNoiseCoefficient,
       minScale,
       maxScale,
-      shapeName
+      shapeName,
+      constrainShapes,
+      boundaryModel
     } = params;
 
     const models = {};
@@ -36,7 +44,7 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
 
     for (var r = -1; r <= rows; r++) {
       for (var c = -1; c <= cols; c++) {
-        models[r + "." + c] = makerjs
+        const model = makerjs
           .$(ShapeMaker.makeShape(shapeName, shapeSize1, shapeSize2))
           .rotate(
             SimplexNoiseUtils.noise2DInRange(
@@ -75,6 +83,9 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
                 bufferWidth / 2
               )
           ]).$result;
+        if (!constrainShapes || !MakerJsUtils.checkModelIntersectsModel(model, boundaryModel)) {
+          models[r + "." + c] = model;
+        }
       }
     }
 
@@ -163,6 +174,11 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
         options: ShapeMaker.modelNames,
         name: "shapeName",
         value: "Rectangle"
+      }),
+      new OnOffMetaParameter({
+        title: "constrainShapes",
+        name: "constrainShapes",
+        value: false
       })
     ];
   }

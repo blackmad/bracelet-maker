@@ -118,6 +118,19 @@ export namespace MakerJsUtils {
     return doesIntersect;
   }
 
+  export function checkModelIntersectsModel(
+    model1: MakerJs.IModel,
+    model2: MakerJs.IModel
+  ): boolean {
+    const m1 = makerjs.model.clone(model1);
+    makerjs.model.originate(m1);
+    const m2 = makerjs.model.clone(model2);
+    makerjs.model.originate(m2);
+    
+    const paths = MakerJsUtils.collectPaths(m1);
+    return _.some(paths, (p) => MakerJsUtils.checkPathIntersectsModel(p, m2))
+  }
+
   export function collectPaths(model: MakerJs.IModel): MakerJs.IPath[] {
     const paths: MakerJs.IPath[] = [];
     var walkOptions = {

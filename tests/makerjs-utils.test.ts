@@ -34,8 +34,20 @@ describe('checkCircleCircleIntersection', () => {
   });
 });
 
-describe('checkCircleLineIntersection', () => {
+describe('checkModelIntersectsModel', () => {
+  it('should return true on intersection', () => {
+    const r1 = new makerjs.models.Rectangle(1,1)
+    const r2 = makerjs.model.move(new makerjs.models.Rectangle(1,1), [0.5, 0.5])
+    const result = MakerJsUtils.checkModelIntersectsModel(r1, r2);
+    expect(result).to.equal(true);
+  });
 
+  it('should return false on not intersection', () => {
+    const r1 = new makerjs.models.Rectangle(1,1)
+    const r2 = makerjs.model.move(new makerjs.models.Rectangle(1,1), [2, 2])
+    const result = MakerJsUtils.checkModelIntersectsModel(r1, r2);
+    expect(result).to.equal(false);
+  });
 })
 
 describe('checkPathIntersectsModel', () => {

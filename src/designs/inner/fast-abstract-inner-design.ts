@@ -50,7 +50,17 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
           value: 0.1,
           step: 0.01,
           name: "outlineSize"
-        }),
+        })
+      );
+      metaParams.push(
+        new RangeMetaParameter({
+          title: "Boundary Dilation (forceContainment=false only)",
+          min: 0.05,
+          max: 0.5,
+          value: 0.22,
+          step: 0.01,
+          name: "boundaryDilation"
+        })
       );
     }
 
@@ -64,6 +74,20 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
     if (params.seed) {
       this.rng = seedrandom(params.seed.toString());
       this.simplex = new SimplexNoise(params.seed.toString());
+    }
+
+    if (!params.forceContainment) {
+      let scaledBoundaryModal = makerjs.model.outline(
+        makerjs.model.clone(params.outerModel),
+        params.boundaryDilation
+      );
+      scaledBoundaryModal = makerjs.model.combineIntersection(
+        scaledBoundaryModal,
+        makerjs.model.clone(params.safeCone)
+      );
+      params.boundaryModel = { models: { rect: scaledBoundaryModal } };
+      makerjs.model.originate(params.boundaryModel);
+      console.log(params.boundaryModel);
     }
 
     console.log(JSON.stringify(params.boundaryModel));
@@ -85,42 +109,66 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
     }
 
     if (this.requiresSafeConeClamp) {
-      console.log('clamping');
+      console.log('clamping cone');
       model = makerjs.model.combineIntersection(
         makerjs.model.clone(params.safeCone),
         makerjs.model.clone(model)
       );
     }
 
-    let requiresSubtraction =
-      (this.allowOutline && params.forceContainment) ||
-      (!this.allowOutline && this.needSubtraction);
-
-    if (requiresSubtraction) {
-      const containedDesign = makerjs.model.combineIntersection(
+    if (this.needSubtraction) {
+      console.log('clamping sub')
+      model = makerjs.model.combineIntersection(
         makerjs.model.clone(params.boundaryModel),
         model
       );
+    }
 
+    if ((this.allowOutline && params.forceContainment) ||
+      (!this.allowOutline)
+    ) {
       return {
         models: {
-          contained: containedDesign,
+          contained: model,
           // boundary: params.boundaryModel
         },
         units: makerjs.unitType.Inch,
       };
     } else {
       model.units = makerjs.unitType.Inch;
-      if (this.allowOutline && !params.forceContainment && !model.models.outline) {
+      if (!model.models.outline) {
         console.log("outlining");
-        const outline = makerjs.model.outline(model, params.outlineSize);
-        console.log(outline);
+        let unioned = makerjs.model.combineUnion(
+          makerjs.model.clone(model),
+          makerjs.model.clone(params.outerModel),
+        )
+        unioned = makerjs.model.combineIntersection(
+          makerjs.model.clone(params.safeCone),
+          unioned
+        );
+
+        // const chains = makerjs.model.findChains(unioned)
+        // const bigModel = makerjs.chain.toNewModel(chains[0])
+
+        // const newInnerDesign = makerjs.model.combineIntersection(
+        //   makerjs.model.clone(bigModel),
+        //   makerjs.model.clone(model),
+        // )
+
+        let outline = makerjs.model.outline(unioned, params.outlineSize);
+  
+        // console.log(outline);
         return {
           models: {
-            model: model,
+            // model: model,
+            contained: model,
             outline: outline,
+            // unioned: unioned,
+            // chain: bigModel,
+            // chains: {models: chainsM},
             // boundary: params.boundaryModel
-          }
+          },
+          units: makerjs.unitType.Inch,
         };
       } else {
         return model;

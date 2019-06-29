@@ -14,7 +14,7 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
   allowOutline = true;
   requiresSafeConeClamp = true;
   needSubtraction = true;
-  useFastRound = false;
+  useFastRound = true;
 
   circleDoesntTouchLines(
     testCircle: MakerJs.paths.Circle,
@@ -44,56 +44,19 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
   ): boolean {
     return !MakerJsUtils.checkPathIntersectsModel(testCircle, boundaryModel);
   }
-  fccircleInsideModel(
-    testCircle: MakerJs.paths.Circle,
-    boundaryModel: MakerJs.IModel
-  ): boolean {
-    console.log("fccircleInsideModel");
-    return !MakerJsUtils.checkPathIntersectsModel(testCircle, boundaryModel);
-  }
-
-  isCircleInsideEnough(
-    testCircle: MakerJs.paths.Circle,
-    boundaryModel: MakerJs.IModel
-  ): boolean {
-    if (MakerJsUtils.checkPathIntersectsModel(testCircle, boundaryModel)) {
-      const subtraction = makerjs.model.combineSubtraction(
-        { paths: [makerjs.path.clone(testCircle)] },
-        new makerjs.models.Rectangle(boundaryModel)
-      );
-      if (subtraction.models.a.paths) {
-        let newArcLength = 0;
-        subtraction.models.a.paths.forEach(
-          p => (newArcLength += MakerJsUtils.arcLength(p))
-        );
-        const circleCircumference = 2 * Math.PI * testCircle.radius;
-        // console.log(newArcLength, circleCircumference);
-        if (newArcLength < circleCircumference * 0.05) {
-          console.log(subtraction);
-          return true;
-        }
-      }
-      return false;
-    }
-
-    return false;
-  }
 
   makeDesign(params) {
     let {
-      outerModel,
       height = 2,
       width = 10,
       boundaryModel,
-      safeCone,
       minCircleSize,
       maxCircleSize,
       borderSize,
-      forceContainment,
-      constrainCircles,
       numLines,
-      boundaryDilation
     } = params;
+    const constrainCircles = params.constrainCircles || !params.forceContainment;
+
     console.log(JSON.stringify(boundaryModel));
     const boundaryMeasure = makerjs.measure.modelExtents(boundaryModel);
 
@@ -103,19 +66,6 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
     console.log(boundaryMeasure);
 
     const boundaryRect = new makerjs.models.Rectangle(boundaryModel);
-
-    if (!forceContainment) {
-      let scaledRect = makerjs.model.outline(
-        makerjs.model.clone(outerModel),
-        boundaryDilation
-      );
-      scaledRect = makerjs.model.combineIntersection(
-        scaledRect,
-        makerjs.model.clone(safeCone)
-      );
-      boundaryModel = { models: { rect: scaledRect } };
-      makerjs.model.originate(boundaryModel);
-    }
 
     const lines = _.times(numLines, () => {
       return MakerJsUtils.randomLineInRectangle(boundaryRect, this.rng);
@@ -187,15 +137,7 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
         title: "ConstrainCircles",
         value: false,
         name: "constrainCircles"
-      }),
-      new RangeMetaParameter({
-        title: "Boundary Dilation (forceContainment=false only)",
-        min: 0.05,
-        max: 0.5,
-        value: 0.1,
-        step: 0.01,
-        name: "boundaryDilation"
-      }),
+      })
     ];
   }
 }
