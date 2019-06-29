@@ -1,22 +1,17 @@
-import * as SimplexNoise from "simplex-noise";
-import { SimplexNoiseUtils } from "../simplex-noise-utils";
-import { ModelMaker } from "../model";
-import { MetaParameter, RangeMetaParameter } from "../meta-parameter";
+import { SimplexNoiseUtils } from "../../utils/simplex-noise-utils";
+import { MetaParameter, RangeMetaParameter } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 
 var makerjs = require("makerjs");
 
-export class InnerDesignCirclesXVeraImpl implements MakerJs.IModel {
-  public units = makerjs.unitType.Inch;
-  public paths: MakerJs.IPathMap = {};
-  public models: MakerJs.IModelMap = {};
+export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
+  useFastRound = false;
 
   makeDesign(params): MakerJs.IModel {
     const {
       height = 2,
       width = 10,
       boundaryModel,
-      safeCone,
       cols,
       rows,
       minCircleSize,
@@ -24,14 +19,11 @@ export class InnerDesignCirclesXVeraImpl implements MakerJs.IModel {
       borderSize,
       yOffset,
       rowOffset,
-      seed,
       centerXNoiseDenom1,
       centerXNoiseDenom2,
       centerYNoiseDenom1,
       centerYNoiseDenom2
     } = params;
-
-    var simplex = new SimplexNoise(seed.toString());
 
     const rowCellSize = width / cols;
     const widthCellSize = height / rows;
@@ -45,7 +37,7 @@ export class InnerDesignCirclesXVeraImpl implements MakerJs.IModel {
           (r % 2) * rowOffset * rowCellSize +
             c * rowCellSize +
             SimplexNoiseUtils.noise2DInRange(
-              simplex,
+              this.simplex,
               c / centerXNoiseDenom1,
               c / centerXNoiseDenom2,
               -rowCellSize * 2,
@@ -54,7 +46,7 @@ export class InnerDesignCirclesXVeraImpl implements MakerJs.IModel {
           yOffset +
             (r * widthCellSize +
               SimplexNoiseUtils.noise2DInRange(
-                simplex,
+                this.simplex,
                 r / centerYNoiseDenom1,
                 r / centerYNoiseDenom2,
                 -widthCellSize * 2,
@@ -63,13 +55,14 @@ export class InnerDesignCirclesXVeraImpl implements MakerJs.IModel {
         ];
 
         const circleSize = SimplexNoiseUtils.noise2DInRange(
-          simplex,
+          this.simplex,
           r / 10,
           c / 10,
           minCircleSize,
           maxCircleSize
         );
 
+        
         const possibleCircle = new makerjs.paths.Circle(center, circleSize);
         const shouldUseCircle = makerjs.measure.isMeasurementOverlapping(
           boundaryExtents,
@@ -87,36 +80,23 @@ export class InnerDesignCirclesXVeraImpl implements MakerJs.IModel {
       borderSize
     );
     if (true) {
-      this.models.design = makerjs.model.combineSubtraction(
+      return makerjs.model.combineSubtraction(
         makerjs.model.clone(boundaryModel),
         expandedModel
       );
     } else {
-      const intersectedModel = makerjs.model.combineIntersection(
-        makerjs.model.clone(safeCone),
-        expandedModel
-      );
-      this.models = {};
-      // this.models.intersectedModels = intersectedModels;
-      this.models.oo = makerjs.model.outline(expandedModel, 0.01);
+      // const intersectedModel = makerjs.model.combineIntersection(
+      //   makerjs.model.clone(safeCone),
+      //   expandedModel
+      // );
+      // this.models = {};
+      // // this.models.intersectedModels = intersectedModels;
+      // this.models.oo = makerjs.model.outline(expandedModel, 0.01);
     }
-    console.log(this.models);
-
-    return this;
   }
-}
-
-export class InnerDesignCirclesXVera implements ModelMaker {
-  get metaParameters(): Array<MetaParameter> {
+  
+  get designMetaParameters(): Array<MetaParameter> {
     return [
-      new RangeMetaParameter({
-        title: "Seed",
-        min: 1,
-        max: 10000,
-        value: 1,
-        step: 1,
-        name: "seed"
-      }),
       new RangeMetaParameter({
         title: "Cols",
         min: 1,
@@ -206,9 +186,5 @@ export class InnerDesignCirclesXVera implements ModelMaker {
         name: "rowOffset"
       })
     ];
-  }
-
-  public make(params: Map<string, any>): MakerJs.IModel {
-    return new InnerDesignCirclesXVeraImpl().makeDesign(params);
   }
 }

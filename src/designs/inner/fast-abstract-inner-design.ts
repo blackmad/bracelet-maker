@@ -76,7 +76,7 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
       this.simplex = new SimplexNoise(params.seed.toString());
     }
 
-    if (!params.forceContainment) {
+    if (this.allowOutline && !params.forceContainment) {
       let scaledBoundaryModal = makerjs.model.outline(
         makerjs.model.clone(params.outerModel),
         params.boundaryDilation

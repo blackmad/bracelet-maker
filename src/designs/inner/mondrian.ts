@@ -81,6 +81,7 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
     this.minCellSize = minCellSize;
 
     const boundaryMeasure = makerjs.measure.modelExtents(boundaryModel);
+    console.log(boundaryMeasure);
 
     this.splitRect(boundaryMeasure.low, boundaryMeasure.high, 0);
 

@@ -42,7 +42,7 @@ export class StraightCollarOuter implements ModelMaker {
 
   make(options): MakerJs.IModel {
     var { height, neckSize, safeBorderWidth, debug = false } = options[
-      "StraightCollar"
+      this.constructor.name
     ];
 
     // quarter inch, two bolts
@@ -169,6 +169,6 @@ export class StraightCollarOuter implements ModelMaker {
       // delete models.design.models.outline
     }
 
-    return { models: models };
+    return { models: models, units: makerjs.unitType.Inch };
   }
 }

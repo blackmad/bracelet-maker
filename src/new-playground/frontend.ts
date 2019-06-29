@@ -8,8 +8,9 @@ import { StraightCollarOuter } from "../designs/outer/collar";
 import { InnerDesignCirclePacking } from "../designs/inner/circle-packing";
 import { InnerDesignVera } from "../designs/inner/vera";
 import { InnerDesignHashmarks } from "../designs/inner/hashmarks";
-// import { InnerDesignCirclesXVera } from "../designs/inner-design-circles-x-vera";
+import { InnerDesignCirclesXVera } from "../designs/inner/circles-x-vera";
 import { InnerDesignVoronoi } from "../designs/inner/voronoi";
+import { InnerDesignLattice } from "../designs/inner/lattice";
 import { InnerDesignHexes } from "../designs/inner/hexes";
 import { InnerDesignLines } from "../designs/inner/lines";
 import { InnerDesignMondrian } from "../designs/inner/mondrian";
@@ -73,9 +74,10 @@ function attachHandlers() {
   const possibleDesigns = [
     InnerDesignVoronoi,
     InnerDesignHashmarks,
+    InnerDesignLattice,
     // InnerDesignCircles,
     InnerDesignVera,
-    // InnerDesignCirclesXVera,
+    InnerDesignCirclesXVera,
     InnerDesignCirclePacking,
     InnerDesignHexes,
     InnerDesignLines,
