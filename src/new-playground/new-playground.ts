@@ -49,9 +49,9 @@ export class DavidsPlayground {
 
     this.buildMetaParameterWidgets(document.getElementById("parameterDiv"));
 
-    $('.downloadSVG').off("click");
+    $(".downloadSVG").off("click");
     $(".downloadSVG").click(this.downloadSVG.bind(this));
-    $('.downloadPDF').off("click");
+    $(".downloadPDF").off("click");
     $(".downloadPDF").click(this.downloadPDF.bind(this));
   }
 
@@ -89,7 +89,9 @@ export class DavidsPlayground {
     const value =
       Number(this.params[metaParameter.name]) || metaParameter.value;
 
-    const {parentDiv, containingDiv} = this.makeMetaParameterContainer(metaParameter.title);
+    const { parentDiv, containingDiv } = this.makeMetaParameterContainer(
+      metaParameter.title
+    );
 
     const rangeInput = document.createElement("input");
     rangeInput.type = "range";
@@ -99,10 +101,10 @@ export class DavidsPlayground {
     rangeInput.step = metaParameter.step;
     rangeInput.id = metaParameter.name + "-range";
     rangeInput.value = value;
-    rangeInput.className = 'col-5'
+    rangeInput.className = "col-5";
 
     const inputWrapDiv = document.createElement("div");
-    inputWrapDiv.className = 'col-2'
+    inputWrapDiv.className = "col-2";
     const textInput = document.createElement("input");
     textInput.type = "number";
     textInput.min = metaParameter.min;
@@ -110,7 +112,7 @@ export class DavidsPlayground {
     textInput.step = metaParameter.step;
     textInput.id = metaParameter.name + "-num-input";
     textInput.value = value;
-    textInput.className = 'mx-1'
+    textInput.className = "mx-1";
 
     containingDiv.append(rangeInput);
     containingDiv.append(inputWrapDiv);
@@ -140,7 +142,8 @@ export class DavidsPlayground {
 
   makeMetaParameterContainer(title) {
     const sizingDiv = document.createElement("div");
-    sizingDiv.className="meta-parameter-container col-md-12 col-lg-6 small border-top border-bottom py-1";
+    sizingDiv.className =
+      "meta-parameter-container col-md-12 col-lg-6 small border-top border-bottom py-1";
 
     const containingDiv = document.createElement("div");
     containingDiv.className = "row";
@@ -155,14 +158,16 @@ export class DavidsPlayground {
     // const hr = $('<hr class="d-lg-none"/>');
     // sizingDiv.append(hr[0]);
 
-    return {parentDiv: sizingDiv, containingDiv};
+    return { parentDiv: sizingDiv, containingDiv };
   }
 
   makeMetaParameterSelect(metaParameter) {
     const selectedValue =
       this.params[metaParameter.name] || metaParameter.value;
 
-    const {parentDiv, containingDiv} = this.makeMetaParameterContainer(metaParameter.title);
+    const { parentDiv, containingDiv } = this.makeMetaParameterContainer(
+      metaParameter.title
+    );
 
     const selectInput = document.createElement("select");
     selectInput.name = metaParameter.name + "-select";
@@ -175,8 +180,7 @@ export class DavidsPlayground {
         option.setAttribute("selected", "selected");
       }
       selectInput.appendChild(option);
-    })
-    
+    });
 
     containingDiv.append(selectInput);
 
@@ -199,14 +203,15 @@ export class DavidsPlayground {
       selectedValue = metaParameter.value;
     }
 
-    const {parentDiv, containingDiv} = this.makeMetaParameterContainer(metaParameter.title);
+    const { parentDiv, containingDiv } = this.makeMetaParameterContainer(
+      metaParameter.title
+    );
     const selectInput = document.createElement("select");
     selectInput.name = metaParameter.name + "-select";
 
     const switchDiv = $(`<div class="col-2">
       <input type="checkbox" checked autocomplete="off">
-  </div>`)
-    
+  </div>`);
 
     // const switchDiv = $(`<div><input type="checkbox"></input></div>`);
     containingDiv.append(switchDiv[0]);
@@ -291,8 +296,8 @@ export class DavidsPlayground {
   downloadSVG() {
     let svgData: string = makerjs.exporter.toSVG(this.model, {
       useSvgPathOnly: false,
-      stroke: "red",
-    //   strokeWidth: '0.0001pt',
+      stroke: "red"
+      //   strokeWidth: '0.0001pt',
     });
     const preface = '<?xml version="1.0" standalone="no"?>\r\n';
     // I have NO IDEA why I need to add this closing </g> to make it work
@@ -309,7 +314,7 @@ export class DavidsPlayground {
     var downloadLink = document.createElement("a");
     downloadLink.href = dataUri;
 
-    const filename = this.makeFilename('svg');
+    const filename = this.makeFilename("svg");
 
     downloadLink.download = filename;
     document.body.appendChild(downloadLink);
@@ -341,13 +346,15 @@ export class DavidsPlayground {
         .map((f: ModelMaker) => f.constructor.name)
         .join("-");
     }
-    filename += `-${this.params['ConicCuffOuter.height']}x${this.params['ConicCuffOuter.wristCircumference']}x${this.params['ConicCuffOuter.forearmCircumference']}`;
+    filename += `-${this.params["ConicCuffOuter.height"]}x${
+      this.params["ConicCuffOuter.wristCircumference"]
+    }x${this.params["ConicCuffOuter.forearmCircumference"]}`;
     filename += "." + extension;
-    return filename
+    return filename;
   }
 
   downloadPDF() {
-    console.log('downloading pdf')
+    console.log("downloading pdf");
     var bbox = makerjs.measure.modelExtents(this.model);
     const widthInches = bbox.high[0] - bbox.low[0];
     const heightInches = bbox.high[1] - bbox.low[1];
@@ -380,7 +387,7 @@ export class DavidsPlayground {
         var downloadLink = document.createElement("a");
         downloadLink.href = pdfUrl;
 
-        const filename = this.makeFilename('pdf');
+        const filename = this.makeFilename("pdf");
         downloadLink.download = filename;
         document.body.appendChild(downloadLink);
         downloadLink.click();
@@ -396,7 +403,7 @@ export class DavidsPlayground {
 
     $("body").addClass("loading");
     $("body").removeClass("error");
-    $('.playArea').show();
+    $(".playArea").show();
 
     // rebuild params from X.a to {X: {a: }}
     let modelParams = new Map<string, any>();
@@ -415,13 +422,27 @@ export class DavidsPlayground {
     }
 
     this.model = this.modelMaker.make(modelParams);
-    console.log(this.model)
+    console.log(this.model);
 
-    var svg = makerjs.exporter.toSVG(this.model, { useSvgPathOnly: false });
+    var svg = makerjs.exporter.toSVG(this.model, {
+      useSvgPathOnly: true,
+      fill: 'grey',
+      layerOptions: {
+        inner: {
+          fill: 'white',
+          stroke: 'white'
+        },
+        outer: {
+          fill: 'grey'
+        }
+      }
+    });
     previewDiv.innerHTML = svg;
+
 
     this.svgEl = previewDiv.getElementsByTagName("svg")[0] as SVGElement;
     this.svgEl.setAttribute("width", "100%");
+
     // const panZoomInstance = svgPanZoom(this.svgEl, {
     //   zoomEnabled: this.allowPanAndZoom,
     //   panEnabled: this.allowPanAndZoom,
@@ -435,7 +456,7 @@ export class DavidsPlayground {
     // panZoomInstance.fit();
     // panZoomInstance.center();
     $("body").removeClass("loading");
-    $('#previewArea')[0].scrollIntoView();
+    $("#previewArea")[0].scrollIntoView();
 
     // } catch(err) {
     //     var message = err;

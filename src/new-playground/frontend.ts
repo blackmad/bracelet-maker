@@ -15,6 +15,10 @@ import { InnerDesignHexes } from "../designs/inner/hexes";
 import { InnerDesignLines } from "../designs/inner/lines";
 import { InnerDesignMondrian } from "../designs/inner/mondrian";
 import { InnerDesignExplode } from "../designs/inner/explode"
+import { InnerDesignGrid } from "../designs/inner/grid"
+import { InnerDesignEmpty } from "../designs/inner/empty"
+
+
 // import { InnerDesignHingedTesselation } from "../designs/inner-design-hinged-tesselation";
 
 import * as $ from "jquery";
@@ -83,6 +87,8 @@ function attachHandlers() {
     InnerDesignLines,
     InnerDesignMondrian,
     InnerDesignExplode,
+    InnerDesignGrid,
+    InnerDesignEmpty
     // InnerDesignHingedTesselation
   ];
   

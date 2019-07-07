@@ -11,3 +11,7 @@
 - implement tilings
 - implement hinged tessels
 - what about a chinese lattice generator
+
+perturbed grid: https://www.openprocessing.org/sketch/582222 or https://www.openprocessing.org/sketch/466828
+rosettas: https://www.openprocessing.org/sketch/519299
+

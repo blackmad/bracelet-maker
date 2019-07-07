@@ -22,6 +22,8 @@ export abstract class AbstractExpandAndSubtractInnerDesign
     this.simplex = new SimplexNoise(params.seed.toString())
 
     const pathModel = { paths: this.makePaths(params) };
+    makerjs.model.simplify(pathModel);
+
     console.log(pathModel);
     
     const debug = false;
@@ -36,6 +38,7 @@ export abstract class AbstractExpandAndSubtractInnerDesign
         borderSize,
         1
       );
+      console.log('epanded')
 
       return makerjs.model.combineSubtraction(
         makerjs.model.clone(boundaryModel),

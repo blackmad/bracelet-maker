@@ -191,6 +191,7 @@ export class ConicCuffOuter implements ModelMaker {
 
     const innerDesign = this.innerDesignClass.make(innerOptions);
 
+    innerDesign.layer = "inner"
     models.design = innerDesign;
 
     if (innerDesign.models && innerDesign.models.outline) {
@@ -198,6 +199,7 @@ export class ConicCuffOuter implements ModelMaker {
         innerDesign.models.outline,
         models.completeCuffModel.models.cuffModel
       );
+      models.completeCuffModel.layer = 'outer'
       innerDesign.models.outline = undefined;
       models.completeCuffModel.models.completeCuffModel = undefined;
       models.completeCuffModel.models.cuff = undefined;
