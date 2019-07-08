@@ -23,6 +23,12 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
 
   get metaParameters(): Array<MetaParameter> {
     const metaParams = [
+      new OnOffMetaParameter({
+        title: "Debug",
+        name: "debug",
+        value: false
+      }),
+      
       new RangeMetaParameter({
         title: "Seed",
         min: 1,
@@ -78,17 +84,17 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
 
     const originalBoundaryModel = params.boundaryModel;
     if (this.allowOutline && !params.forceContainment) {
-      let scaledBoundaryModal = makerjs.model.outline(
-        makerjs.model.clone(params.outerModel),
-        params.boundaryDilation
-      );
-      scaledBoundaryModal = makerjs.model.combineIntersection(
-        scaledBoundaryModal,
-        makerjs.model.clone(params.safeCone)
-      );
-      params.boundaryModel = { models: { rect: scaledBoundaryModal } };
-      makerjs.model.originate(params.boundaryModel);
-      console.log(params.boundaryModel);
+      // let scaledBoundaryModal = makerjs.model.outline(
+      //   makerjs.model.clone(params.outerModel),
+      //   params.boundaryDilation
+      // );
+      // scaledBoundaryModal = makerjs.model.combineIntersection(
+      //   scaledBoundaryModal,
+      //   makerjs.model.clone(params.safeCone)
+      // );
+      // params.boundaryModel = { models: { rect: scaledBoundaryModal } };
+      // makerjs.model.originate(params.boundaryModel);
+      // console.log(params.boundaryModel);
     }
 
     if (this.useFastRound) {
@@ -100,10 +106,9 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
       model = self.makeDesign(params);
     }
 
-    const debug = false;
     console.log(model);
 
-    if (debug) {
+    if (params.debug) {
       model.units = makerjs.unitType.Inch;
       return model;
     }

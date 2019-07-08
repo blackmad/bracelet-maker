@@ -26,22 +26,13 @@ export class ConicCuffOuter implements ModelMaker {
     const debug = false;
 
     /***** START OVERALL CUFF SHAPE + INNER *****/
-    // Actual outer cuff cut
     var cuffModel = makeConicSection({
-      topCircumference: wristCircumference + 1.0,
-      bottomCircumference: forearmCircumference + 1.0,
-      height: height,
-    //   filletRadius: 0.2
-    });
-
-    var filletedCuffModel = makeConicSection({
         topCircumference: wristCircumference + 1.0,
         bottomCircumference: forearmCircumference + 1.0,
         height: height,
         filletRadius: 0.2
       });
-    delete filletedCuffModel.models.cuff;
-    console.log(filletedCuffModel);
+    console.log(cuffModel);
 
     // Inner "safe" area for design. Not actually printed. Used to calculate intersection of inner design.
     var cuffModelInner = makeConicSection({
@@ -56,7 +47,6 @@ export class ConicCuffOuter implements ModelMaker {
       models: {
         cuffModel: cuffModel,
         cuffModelInner: cuffModelInner,
-        fillets: filletedCuffModel
       },
       paths: {}
     };

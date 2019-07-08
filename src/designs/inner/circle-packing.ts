@@ -63,6 +63,7 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
     const circles: MakerJs.paths.Circle[] = [];
 
     var radius = maxCircleSize;
+    console.log(boundaryModel);
     console.log(boundaryMeasure);
 
     const boundaryRect = new makerjs.models.Rectangle(boundaryModel);

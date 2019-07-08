@@ -4,7 +4,7 @@ import * as SimplexNoise from "simplex-noise";
 const makerjs = require("makerjs");
 const seedrandom = require("seedrandom");
 
-import { RangeMetaParameter, MetaParameter } from "../../meta-parameter";
+import { RangeMetaParameter, MetaParameter, OnOffMetaParameter } from "../../meta-parameter";
 import { ModelMaker } from "src/model-maker";
 
 export abstract class AbstractExpandAndSubtractInnerDesign
@@ -16,7 +16,7 @@ export abstract class AbstractExpandAndSubtractInnerDesign
   abstract get designMetaParameters(): Array<MetaParameter>;
   
   make(params) {
-    const { boundaryModel, borderSize, seed } = params;
+    const { boundaryModel, borderSize, seed, debug } = params;
 
     this.rng = seedrandom(seed.toString());
     this.simplex = new SimplexNoise(params.seed.toString())
@@ -26,8 +26,6 @@ export abstract class AbstractExpandAndSubtractInnerDesign
 
     console.log(pathModel);
     
-    const debug = false;
-
     if (!debug) {
       const expandedModel = makerjs.model.expandPaths(
         {
@@ -38,7 +36,8 @@ export abstract class AbstractExpandAndSubtractInnerDesign
         borderSize,
         1
       );
-      console.log('epanded')
+      console.log('expanded')
+      // return expandedModel;
 
       return makerjs.model.combineSubtraction(
         makerjs.model.clone(boundaryModel),
@@ -51,6 +50,11 @@ export abstract class AbstractExpandAndSubtractInnerDesign
 
   get metaParameters() {
     return [
+      new OnOffMetaParameter({
+        title: "Debug",
+        name: "debug",
+        value: false
+      }),
       new RangeMetaParameter({
         title: "Seed",
         min: 1,

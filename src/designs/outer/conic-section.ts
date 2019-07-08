@@ -46,8 +46,9 @@ export function makeConicSection({
     );
 
     // make the paths into a unified model
-    var cuffChain = makerjs.model.findSingleChain({paths: cuffPaths});
-    var cuffModel = makerjs.chain.toNewModel(cuffChain);
+    var cuffModel = {paths: cuffPaths} // makerjs.chain.toNewModel(cuffChain);
+    var cuffChain = makerjs.model.findSingleChain(cuffModel);
+    
     var fillet = null;
     if (filletRadius) {
         fillet = makerjs.chain.fillet(cuffChain, filletRadius);

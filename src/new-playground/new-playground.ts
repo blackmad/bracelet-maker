@@ -426,14 +426,15 @@ export class DavidsPlayground {
 
     var svg = makerjs.exporter.toSVG(this.model, {
       useSvgPathOnly: true,
-      fill: 'grey',
+      fill: 'rgba(25, 25, 25, 0.7)',
+      stroke: 'none',
       layerOptions: {
         inner: {
           fill: 'white',
           stroke: 'white'
         },
         outer: {
-          fill: 'grey'
+          fill: 'darkslategrey'
         }
       }
     });

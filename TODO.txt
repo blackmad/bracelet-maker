@@ -1,3 +1,10 @@
+- implement straight cuff
+- see if I can map straight cuff to conic cuff
+- notice how explode doesn't connect to the edges
+- make a box lattice generator
+- posture collar
+- why are voronois kinda broken right now https://127.0.0.1:4501/static/index.html#StraightCuffOuter.height=2&StraightCuffOuter.wristCircumference=7&StraightCuffOuter.safeBorderWidth=0.25&InnerDesignVoronoi.debug=false&InnerDesignVoronoi.seed=5108&InnerDesignVoronoi.borderSize=0.06&InnerDesignVoronoi.numPoints=27&InnerDesignVoronoi.minPathLength=0.05
+
 - why am I still getting TINY mondrians --> https://127.0.0.1:4501/static/#ConicCuffOuter.height=2&ConicCuffOuter.wristCircumference=7&ConicCuffOuter.forearmCircumference=7.4&ConicCuffOuter.safeBorderWidth=0.25&InnerDesignMondrian.seed=1&InnerDesignMondrian.borderSize=0.15&InnerDesignMondrian.maxDepth=4&InnerDesignMondrian.splitChance=0.91&InnerDesignMondrian.xyBias=0.63&InnerDesignMondrian.minCellSize=0.25
 
 - get collar outline working
@@ -5,7 +12,6 @@
 
 - make circles a little more linear + better in general
 - experiment with veras-x-circle being outline
-- posture collar
 - save variables when only changing outer design
 
 - implement tilings
