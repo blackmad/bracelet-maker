@@ -1,166 +1,150 @@
-import { makeConicSection } from "./conic-section";
-import { RangeMetaParameter, OnOffMetaParameter, MetaParameterType } from "../../meta-parameter";
-import { ModelMaker } from "../../model-maker";
-import Angle from "../../utils/angle";
-import {makeEvenlySpacedBolts} from '../design-utils';
+import {
+  RangeMetaParameter,
+  OnOffMetaParameter,
+  MetaParameterType
+} from "../../meta-parameter";
+import { PaperModelMaker } from "../../model-maker";
 
-var makerjs = require("makerjs");
+import * as paper from "paper";
 
-export class RectToConicSection {
-  static projectRectToCone({
-    topWidth,
-    bottomWidth,
-    height
-  }) {
-    const maxWidth = Math.max(topWidth, bottomWidth)
-    var conicModel = makeConicSection({
-      topCircumference: topWidth,
-      bottomCircumference: bottomWidth,
-      height: height
-    });
+function roundCorners(path,radius) {
+	var segments = path.segments.slice(0);
+	path.removeSegments();
 
-    const arcs = [];
-    const walkOptions = {
-      onPath: function(wp) {
-        if (wp.pathContext.type === "arc") {
-          arcs.push(wp.pathContext);
-        }
-      }
-    };
+	for(var i = 0, l = segments.length; i < l; i++) {
+		var curPoint = segments[i].point;
+		var nextPoint = segments[i + 1 == l ? 0 : i + 1].point;
+		var prevPoint = segments[i - 1 < 0 ? segments.length - 1 : i - 1].point;
+		var nextDelta = curPoint.subtract(nextPoint);
+		var prevDelta = curPoint.subtract(prevPoint);
 
-    makerjs.model.walk(conicModel, walkOptions);
+		nextDelta.length = radius;
+		prevDelta.length = radius;
 
-    const startArc = arcs[0];
-    const endArc = arcs[1];
+		path.add(
+			new paper.Segment(
+				curPoint.subtract(prevDelta),
+				null,
+				prevDelta.divide(2)
+			)
+		);
 
-    console.log(startArc);
-    console.log(endArc);
-
-    function translatePoint(x, y) {
-      const unitY = y / height;
-      const radius =
-        startArc.radius +
-        Math.abs(startArc.radius - endArc.radius) * unitY;
-
-      const tmpConicModel = makeConicSection({
-        topCircumference: radius,
-        bottomCircumference: bottomWidth,
-        height: y
-      });
-
-      const unitX = x / maxWidth;
-      const alpha = tmpConicModel['alpha'].radians * unitX;
-      const newY = radius * Math.sin(alpha)
-      const newX = radius * Math.cos(alpha);
-      return [newX, newY];
-    }
-  }
+		path.add(
+			new paper.Segment(
+				curPoint.subtract(nextDelta),
+				nextDelta.divide(2),
+				null
+			)
+		);
+	}
+	path.closed = true;
+	return path;
 }
 
-export class StraightCuffOuter implements ModelMaker {
-  make(options): MakerJs.IModel {
-    var {
-      height,
-      wristCircumference,
-      safeBorderWidth,
-      debug
-    } = options["StraightCuffOuter"];
+
+export class StraightCuffOuter implements PaperModelMaker {
+  make(scope, options): void {
+    var { height, wristCircumference, safeBorderWidth, debug } = options[
+      "StraightCuffOuter"
+    ];
 
     const bottomPadding = 1.0;
     const topPadding = 0.8;
     const totalWidth = wristCircumference + bottomPadding * 2;
-
-    const cuffOuter = new makerjs.models.ConnectTheDots(true, [
-      [0, 0],
-      [bottomPadding - topPadding, height],
-      [bottomPadding + wristCircumference + topPadding, height],
-      [totalWidth, 0]
-    ]);
-
-    const cuffChain = makerjs.model.findSingleChain(cuffOuter);
-    const fillet = makerjs.chain.fillet(cuffChain, 0.3);
+    console.log(scope);
+    var cuffOuter = new paper.Path();
+    cuffOuter.strokeColor = "black";
+    cuffOuter.add(new paper.Point(0, 0));
+    cuffOuter.add(new paper.Point(bottomPadding - topPadding, height));
+    cuffOuter.add(
+      new paper.Point(bottomPadding + wristCircumference + topPadding, height)
+    );
+    cuffOuter.add(new paper.Point(totalWidth, 0));
+    roundCorners(cuffOuter, '0.2');
+    cuffOuter.closed = true;
 
     const safeAreaPadding = 0.5;
     const safeAreaLength = wristCircumference;
-    const safeArea = makerjs.model.move(
-      new makerjs.models.Rectangle(
-        safeAreaLength,
-        height - safeBorderWidth * 2
-      ),
-      [bottomPadding, safeBorderWidth]
-    );
+    const safeArea =
+      new paper.Rectangle(
+        new paper.Point(bottomPadding, safeBorderWidth),
+        new paper.Size(
+          safeAreaLength,
+          height - safeBorderWidth * 2
+        )
+      )
 
-    const safeCone = makerjs.model.move(
-      new makerjs.models.Rectangle(safeAreaLength, height * 4),
-      [bottomPadding, -height * 2]
-    );
-    console.log(safeArea);
+    // const safeCone = makerjs.model.move(
+    //   new makerjs.models.Rectangle(safeAreaLength, height * 4),
+    //   [bottomPadding, -height * 2]
+    // );
+    // console.log(safeArea);
 
-    // cuffOuter.layer = 'outer';
-    const models = {
-      cuff: cuffOuter,
-      fillet: fillet
-    }
+    // // cuffOuter.layer = 'outer';
+    // const models = {
+    //   cuff: cuffOuter,
+    //   fillet: fillet
+    // }
 
     const innerOptions = options[this.innerDesignClass.constructor.name] || {};
     innerOptions.height = height;
     innerOptions.width = totalWidth;
-    innerOptions.boundaryModel = makerjs.model.clone(safeArea);
-    innerOptions.safeCone = safeCone;
-    innerOptions.outerModel = makerjs.model.clone(cuffOuter);
+    innerOptions.boundaryModel = safeArea;
+    // innerOptions.safeCone = safeCone;
+    // innerOptions.outerModel = makerjs.model.clone(cuffOuter);
 
-    const innerDesign = this.innerDesignClass.make(innerOptions);
+    const innerDesign = this.innerDesignClass.make(scope, innerOptions);
 
-    innerDesign.layer = "inner"
-    models['design'] = innerDesign;
+    // innerDesign.layer = "inner"
+    // models['design'] = innerDesign;
 
-    if (debug) {
-      // console.log(safeCone);
-      // safeCone.layer = 'brightpink';
-      // models['safeCone'] = safeCone;
+    // if (debug) {
+    //   // console.log(safeCone);
+    //   // safeCone.layer = 'brightpink';
+    //   // models['safeCone'] = safeCone;
 
-      // console.log(safeArea);
-      // safeArea.layer = 'orange';
-      // models['safeArea'] = safeArea;
-    }
+    //   // console.log(safeArea);
+    //   // safeArea.layer = 'orange';
+    //   // models['safeArea'] = safeArea;
+    // }
 
-    if (innerDesign.models && innerDesign.models.outline) {
-      // console.log(innerDesign.models.outline);
-      // if (debug) {
-      //   innerDesign.models.outline.layer = 'red';
-      //   models['outline'] = innerDesign.models.outline;
-      // } else {
-      //  // delete innerDesign.models.outline;
-      // }
-      
-      // models.cuff = makerjs.model.combineUnion(
-      //   innerDesign.models.outline,
-      //   models.cuff
-      // );
+    // if (innerDesign.models && innerDesign.models.outline) {
+    //   // console.log(innerDesign.models.outline);
+    //   // if (debug) {
+    //   //   innerDesign.models.outline.layer = 'red';
+    //   //   models['outline'] = innerDesign.models.outline;
+    //   // } else {
+    //   //  // delete innerDesign.models.outline;
+    //   // }
 
-      // console.log(models.cuff)
+    //   // models.cuff = makerjs.model.combineUnion(
+    //   //   innerDesign.models.outline,
+    //   //   models.cuff
+    //   // );
 
-      // const cuffChain = makerjs.model.findChains({models: {
-      //   cuff: models.cuff,
-      //   outline: innerDesign.models.outline
-      // }})[0];
-      // models.cuff = makerjs.chain.toNewModel(cuffChain)
-      // console.log(models.cuff)
+    //   // console.log(models.cuff)
 
-      // models.cuff.layer = 'outer'
-      // console.log(models.cuff)
+    //   // const cuffChain = makerjs.model.findChains({models: {
+    //   //   cuff: models.cuff,
+    //   //   outline: innerDesign.models.outline
+    //   // }})[0];
+    //   // models.cuff = makerjs.chain.toNewModel(cuffChain)
+    //   // console.log(models.cuff)
 
-      delete innerDesign.models.outline
-    }
+    //   // models.cuff.layer = 'outer'
+    //   // console.log(models.cuff)
 
-    /***** END DESIGN *****/
+    //   delete innerDesign.models.outline
+    // }
 
-    console.log(models);
+    // /***** END DESIGN *****/
 
-    return {
-      models: models,
-      units: makerjs.unitType.Inch
-    }
+    // console.log(models);
+
+    // return {
+    //   models: models,
+    //   units: makerjs.unitType.Inch
+    // }
   }
 
   get metaParameters() {
@@ -201,10 +185,9 @@ export class StraightCuffOuter implements ModelMaker {
         value: 7.4,
         step: 0.1,
         name: "forearmCircumference"
-      }),
+      })
     ];
   }
 
-  constructor(public innerDesignClass: ModelMaker) {
-  }
+  constructor(public innerDesignClass: any) {}
 }

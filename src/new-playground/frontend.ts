@@ -11,12 +11,12 @@ import { InnerDesignCirclePacking } from "../designs/inner/circle-packing";
 import { InnerDesignVera } from "../designs/inner/vera";
 import { InnerDesignHashmarks } from "../designs/inner/hashmarks";
 import { InnerDesignCirclesXVera } from "../designs/inner/circles-x-vera";
-import { InnerDesignVoronoi } from "../designs/inner/voronoi";
+// import { InnerDesignVoronoi } from "../designs/inner/voronoi";
 // import { InnerDesignLattice } from "../designs/inner/lattice";
 import { InnerDesignHexes } from "../designs/inner/hexes";
 import { InnerDesignLines } from "../designs/inner/lines";
 import { InnerDesignMondrian } from "../designs/inner/mondrian";
-import { InnerDesignExplode } from "../designs/inner/explode"
+// import { InnerDesignExplode } from "../designs/inner/explode"
 import { InnerDesignGrid } from "../designs/inner/grid"
 import { InnerDesignEmpty } from "../designs/inner/empty"
 
@@ -79,7 +79,7 @@ function attachHandlers() {
   });
 
   const possibleDesigns = [
-    InnerDesignVoronoi,
+    // InnerDesignVoronoi,
     InnerDesignHashmarks,
     // InnerDesignLattice,
     // InnerDesignCircles,
@@ -89,7 +89,7 @@ function attachHandlers() {
     InnerDesignHexes,
     InnerDesignLines,
     InnerDesignMondrian,
-    InnerDesignExplode,
+    // InnerDesignExplode,
     // InnerDesignGrid,
     InnerDesignEmpty
     // InnerDesignHingedTesselation

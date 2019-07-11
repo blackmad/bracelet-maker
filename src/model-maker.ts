@@ -5,3 +5,9 @@ export interface ModelMaker {
     readonly metaParameters: Array<MetaParameter>;
     make(params: any): MakerJs.IModel;
 }
+
+export interface PaperModelMaker {
+  subModels?: Array<PaperModelMaker>;
+  readonly metaParameters: Array<MetaParameter>;
+  make(scope: any, params: any): void;
+}

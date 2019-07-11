@@ -1,15 +1,19 @@
-const makerjs = require("makerjs");
+//const makerjs = require("makerjs");
+
+import * as paper from "paper";
+import ExtendPaperJs from 'paperjs-offset'
 
 // @ts-ignore - this works fine, wtf typescript?
 // import * as PDFDocument from "../external/pdfkit.standalone";
 import * as blobStream from "blob-stream";
 import * as $ from "jquery";
 import * as _ from "lodash";
-import 'rangeslider.js';
+import "rangeslider.js";
 
 import "core-js/library";
 
-import { ModelMaker } from "../model-maker";
+
+import { PaperModelMaker } from "../model-maker";
 import { MetaParameter, MetaParameterType } from "../meta-parameter";
 
 import * as fs from "fs";
@@ -31,12 +35,29 @@ export class DavidsPlayground {
   private params: Map<string, any>;
   private svgEl: SVGElement;
   private model: MakerJs.IModel;
+  private scope: any;
 
   constructor(
-    public modelMaker: ModelMaker,
-    public subModels: Array<ModelMaker> = null,
+    public modelMaker: PaperModelMaker,
+    public subModels: Array<PaperModelMaker> = null,
     public allowPanAndZoom?: boolean
   ) {
+    // const canvas: HTMLCanvasElement = document.getElementById(
+    //   "myCanvas"
+    // ) as HTMLCanvasElement;
+    // var scope = new paper.PaperScope();
+    // this.scope = scope;
+    // scope.setup(canvas)
+    // scope.activate();
+
+    // when view is resized...
+    // scope.view.onResize = function() {
+    //   // ...log new view width
+    //   console.log("view.width is now: " + scope.view.bounds.width);
+    //   scope.project.activeLayer.fitBounds(scope.view.bounds);
+    // };
+    //  paper.view.draw();
+
     if (this.modelMaker.subModels && !subModels) {
       this.subModels = subModels;
     }
@@ -52,7 +73,7 @@ export class DavidsPlayground {
     $(".downloadSVG").off("click");
     $(".downloadSVG").click(this.downloadSVG.bind(this));
     $(".downloadPDF").off("click");
-    $(".downloadPDF").click(this.downloadPDF.bind(this));
+    // $(".downloadPDF").click(this.downloadPDF.bind(this));
   }
 
   rerender() {
@@ -294,11 +315,9 @@ export class DavidsPlayground {
   }
 
   downloadSVG() {
-    let svgData: string = makerjs.exporter.toSVG(this.model, {
-      useSvgPathOnly: false,
-      stroke: "red"
-      //   strokeWidth: '0.0001pt',
-    });
+    let svgData: string = (paper.project.exportSVG({
+      asString: true
+    }) as unknown) as string;
     const preface = '<?xml version="1.0" standalone="no"?>\r\n';
     // I have NO IDEA why I need to add this closing </g> to make it work
     svgData =
@@ -343,7 +362,7 @@ export class DavidsPlayground {
     let filename = this.modelMaker.name;
     if (this.subModels) {
       filename = this.subModels
-        .map((f: ModelMaker) => f.constructor.name)
+        .map((f: PaperModelMaker) => f.constructor.name)
         .join("-");
     }
     filename += `-${this.params["ConicCuffOuter.height"]}x${
@@ -353,50 +372,50 @@ export class DavidsPlayground {
     return filename;
   }
 
-  downloadPDF() {
-    console.log("downloading pdf");
-    var bbox = makerjs.measure.modelExtents(this.model);
-    const widthInches = bbox.high[0] - bbox.low[0];
-    const heightInches = bbox.high[1] - bbox.low[1];
-    var pdfOptions = {
-      compress: false,
-      info: {
-        Producer: "MakerJs",
-        Author: "MakerJs"
-      },
-      size: [widthInches * 72, heightInches * 72]
-    };
-    // @ts-ignore - loading this from external js so our upload bundle is smaller
-    var doc = new PDFDocument(pdfOptions);
-    const stream = doc.pipe(blobStream());
+  // downloadPDF() {
+  //   console.log("downloading pdf");
+  //   var bbox = makerjs.measure.modelExtents(this.model);
+  //   const widthInches = bbox.high[0] - bbox.low[0];
+  //   const heightInches = bbox.high[1] - bbox.low[1];
+  //   var pdfOptions = {
+  //     compress: false,
+  //     info: {
+  //       Producer: "MakerJs",
+  //       Author: "MakerJs"
+  //     },
+  //     size: [widthInches * 72, heightInches * 72]
+  //   };
+  //   // @ts-ignore - loading this from external js so our upload bundle is smaller
+  //   var doc = new PDFDocument(pdfOptions);
+  //   const stream = doc.pipe(blobStream());
 
-    this.cleanModel(this.model);
+  //   this.cleanModel(this.model);
 
-    const exportOptions = {
-      stroke: "#FF0000"
-    };
-    doc.lineWidth(0.0001);
-    makerjs.exporter.toPDF(doc, this.model, exportOptions);
-    doc.end();
+  //   const exportOptions = {
+  //     stroke: "#FF0000"
+  //   };
+  //   doc.lineWidth(0.0001);
+  //   makerjs.exporter.toPDF(doc, this.model, exportOptions);
+  //   doc.end();
 
-    stream.on(
-      "finish",
-      _.bind(function() {
-        const pdfBlob = stream.toBlob("application/pdf");
-        var pdfUrl = URL.createObjectURL(pdfBlob);
-        var downloadLink = document.createElement("a");
-        downloadLink.href = pdfUrl;
+  //   stream.on(
+  //     "finish",
+  //     _.bind(function() {
+  //       const pdfBlob = stream.toBlob("application/pdf");
+  //       var pdfUrl = URL.createObjectURL(pdfBlob);
+  //       var downloadLink = document.createElement("a");
+  //       downloadLink.href = pdfUrl;
 
-        const filename = this.makeFilename("pdf");
-        downloadLink.download = filename;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-      }, this)
-    );
+  //       const filename = this.makeFilename("pdf");
+  //       downloadLink.download = filename;
+  //       document.body.appendChild(downloadLink);
+  //       downloadLink.click();
+  //       document.body.removeChild(downloadLink);
+  //     }, this)
+  //   );
 
-    return false;
-  }
+  //   return false;
+  // }
 
   doRender() {
     const previewDiv = document.getElementById("previewArea");
@@ -421,52 +440,28 @@ export class DavidsPlayground {
       modelParams = new Map(this.params);
     }
 
-    this.model = this.modelMaker.make(modelParams);
+    const canvas: HTMLCanvasElement = document.getElementById(
+      "myCanvas"
+    ) as HTMLCanvasElement;
+    var scope = new paper.PaperScope();
+    this.scope = scope;
+    scope.setup(canvas)
+    scope.activate();
+
+       scope.view.onResize = function() {
+      // ...log new view width
+      console.log("view.width is now: " + scope.view.bounds.width);
+      scope.project.activeLayer.fitBounds(scope.view.bounds);
+    };
+
+    if (paper != null && paper.project != null) {
+      paper.project.activeLayer.removeChildren();
+    }
+
+    this.modelMaker.make(this.scope, modelParams);
     console.log(this.model);
+    this.scope.view.onResize();
 
-    var svg = makerjs.exporter.toSVG(this.model, {
-      useSvgPathOnly: true,
-      fill: 'rgba(25, 25, 25, 0.7)',
-      stroke: 'none',
-      layerOptions: {
-        inner: {
-          fill: 'white',
-          stroke: 'white'
-        },
-        outer: {
-          fill: 'darkslategrey'
-        }
-      }
-    });
-    previewDiv.innerHTML = svg;
-
-
-    this.svgEl = previewDiv.getElementsByTagName("svg")[0] as SVGElement;
-    this.svgEl.setAttribute("width", "100%");
-
-    // const panZoomInstance = svgPanZoom(this.svgEl, {
-    //   zoomEnabled: this.allowPanAndZoom,
-    //   panEnabled: this.allowPanAndZoom,
-    //   controlIconsEnabled: this.allowPanAndZoom,
-    //   fit: true,
-    //   center: true,
-    //   minZoom: 0.1
-    // });
-    // panZoomInstance.resize();
-    // panZoomInstance.updateBBox();
-    // panZoomInstance.fit();
-    // panZoomInstance.center();
-    $("body").removeClass("loading");
-    $("#previewArea")[0].scrollIntoView();
-
-    // } catch(err) {
-    //     var message = err;
-    //     if (err.message) {
-    //         message = err.message;
-    //     }
-    //     this.showError(message);
-    //     console.log(err);
-    //     throw err;
-    // }
+    // paper.view.scaling = new paper.Point(96, 96);
   }
 }

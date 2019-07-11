@@ -1,50 +1,54 @@
 import * as _ from "lodash";
 import * as SimplexNoise from "simplex-noise";
+import * as paper from 'paper';
+import ExtendPaperJs from 'paperjs-offset'
 
-const makerjs = require("makerjs");
+
+
 const seedrandom = require("seedrandom");
 
 import { RangeMetaParameter, MetaParameter, OnOffMetaParameter } from "../../meta-parameter";
-import { ModelMaker } from "src/model-maker";
+import { PaperModelMaker } from "src/model-maker";
+import * as offset from 'paperjs-offset'
+import { PassThrough } from "stream";
 
 export abstract class AbstractExpandAndSubtractInnerDesign
-  implements ModelMaker {
+  implements PaperModelMaker {
   rng: () => number;
   simplex: SimplexNoise;
 
-  abstract makePaths(params): MakerJs.IPath[];
+  abstract makePaths(scope: paper.PaperScope, params): paper.Path[];
   abstract get designMetaParameters(): Array<MetaParameter>;
   
-  make(params) {
+  make(scope: paper.PaperScope, params) {
     const { boundaryModel, borderSize, seed, debug } = params;
 
     this.rng = seedrandom(seed.toString());
     this.simplex = new SimplexNoise(params.seed.toString())
 
-    const pathModel = { paths: this.makePaths(params) };
-    makerjs.model.simplify(pathModel);
+    const paths = this.makePaths(paper, params);
+    // makerjs.model.simplify(pathModel);
 
-    console.log(pathModel);
+    // console.log(compoundPath);
     
     if (!debug) {
-      const expandedModel = makerjs.model.expandPaths(
-        {
-          models: {
-            pathModel
-          }
-        },
-        borderSize,
-        1
-      );
-      console.log('expanded')
-      // return expandedModel;
+      // compoundPath.strokeColor = 'purple';
+      ExtendPaperJs(paper);
+      // console.log(   paper.Path.prototype.offset);
+      paths.forEach((p) => {
+        const expanded= paper.Path.prototype.offset.call(p, borderSize, {cap: 'miter'})
+        // expanded.closed = true;
+        console.log(expanded)
+      })
+      // // paper.add
+      // console.log(expanded);
+      // scope.
 
-      return makerjs.model.combineSubtraction(
-        makerjs.model.clone(boundaryModel),
-        expandedModel
-      );
+      // return makerjs.model.combineSubtraction(
+      //   makerjs.model.clone(boundaryModel),
+      //   expandedModel
     } else {
-      return pathModel;
+      // return pathModel;
     }
   }
 
