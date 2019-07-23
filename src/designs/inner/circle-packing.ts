@@ -6,13 +6,12 @@ import {
 import * as _ from "lodash";
 import * as paper from 'paper';
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
-import { randomLineOnRectangle } from '../../utils/paperjs-utils'
+import { SimpleCircle, randomLineOnRectangle, checkCircleCircleIntersection } from '../../utils/paperjs-utils'
 
 export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
   allowOutline = true;
   requiresSafeConeClamp = true;
   needSubtraction = true;
-  useFastRound = true;
 
   circleDoesntTouchLines(
     testCircle: paper.Path.Circle,
@@ -25,28 +24,22 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
   }
 
   circleDoesntTouchCircles(
-    testCircle: paper.Path.Circle,
-    circles: paper.Path.Circle[],
+    testCircle: SimpleCircle,
+    circles: SimpleCircle[],
     borderSize: number
   ): boolean {
-    const newTestCircle = new paper.Path.Circle(
-      testCircle.bounds.center,
-      testCircle.bounds.width / 2 + borderSize
-    )
-    newTestCircle.remove();
-
     return _.every(
       circles,
       c =>
-        !newTestCircle.intersects(c)
+        !checkCircleCircleIntersection(c, testCircle, borderSize)
     );
   }
 
   circleInsideModel(
     testCircle: paper.Path.Circle,
-    boundaryModel: paper.PathItem
+    boundaryRect: paper.Rectangle
   ): boolean {
-    return !testCircle.isInside(boundaryModel.bounds);
+    return testCircle.isInside(boundaryRect);
   }
 
   makeDesign(scope, params) {
@@ -61,29 +54,34 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
     } = params;
     const constrainCircles = params.constrainCircles || !params.forceContainment;
 
+    const boundaryRect = boundaryModel.bounds;
+
     const circles: paper.Path.Circle[] = [];
+    const simpleCircles: SimpleCircle[] = [];
 
     var radius = maxCircleSize;
 
     const lines = _.times(numLines, () => {
-      return randomLineOnRectangle(boundaryModel.bounds, this.rng);
+      return randomLineOnRectangle(boundaryRect, this.rng);
     });
 
-    const triesPerRadius = 200;
+    const triesPerRadius = 50;
     while (radius > minCircleSize) {
       for (let i = 0; i < triesPerRadius; i++) {
         const center = new paper.Point(this.rng() * width, this.rng() * height);
         const testCircle = new paper.Path.Circle(center, radius);
+        const simpleTestCircle = new SimpleCircle(center.x, center.y, radius)
         if (
           // this checks that we're at least inside the bounding box around the boundary
-          testCircle.bounds.intersects(boundaryModel.bounds) && 
+          // testCircle.bounds.intersects(boundaryRect) && 
           // if we are constraining circles, make sure everything is inside
-          (!constrainCircles ||
-            this.circleInsideModel(testCircle, boundaryModel)) &&
-          this.circleDoesntTouchCircles(testCircle, circles, borderSize) &&
+          (!params.constrainCircles ||
+            this.circleInsideModel(testCircle, boundaryRect)) &&
+          this.circleDoesntTouchCircles(simpleTestCircle, simpleCircles, borderSize) &&
           this.circleDoesntTouchLines(testCircle, lines)
         ) {
           circles.push(testCircle);
+          simpleCircles.push(simpleTestCircle);
         }
       }
       radius *= 0.99;

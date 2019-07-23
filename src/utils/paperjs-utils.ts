@@ -17,7 +17,6 @@ export function randomPointInPolygon(
   }
 }
 
-
 export function bufferShape(buffer: number, points: paper.Point[]): paper.PathItem {
   const scaleFactor = 100;
   const scaledPoints = points.map((p) => { return {X: (p.x*scaleFactor) + 0.0001 , Y: (p.y*scaleFactor) + 0.0001}});
@@ -75,9 +74,27 @@ export function pickPointOnRectEdge(box: paper.Rectangle, rng: () => number){
 export function randomLineOnRectangle(model: paper.Rectangle, rng?: () => number) {
   const p1 = pickPointOnRectEdge(model, rng);
   let p2 = pickPointOnRectEdge(model, rng);
-  while (p2[0] == p1[0] || p2[1] == p1[1]) {
+  while (p2.x == p1.x || p2.y == p1.y) {
     p2 = pickPointOnRectEdge(model, rng);
   }
   const line = new paper.Path.Line(p1, p2);
   return line;
+}
+
+export class SimpleCircle {
+  constructor(public x: number, public y: number, public radius: number) {}
+}
+
+export function checkCircleCircleIntersection(
+  c1: SimpleCircle,
+  c2: SimpleCircle,
+  border?: number
+): boolean {
+  const xDistance = c1.x - c2.x;
+  const yDistance = c1.y - c2.y;
+
+  const sumOfRadii = c1.radius + c2.radius + (border || 0);
+  const distanceSquared = xDistance * xDistance + yDistance * yDistance;
+
+  return distanceSquared < sumOfRadii * sumOfRadii;
 }

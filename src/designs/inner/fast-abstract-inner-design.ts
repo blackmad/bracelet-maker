@@ -99,7 +99,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       paths.forEach((p) => p.remove());
     }
 
-    if (this.requiresSafeConeClamp || (this.allowOutline && !params.forceContainment)) {
+    if ((!this.allowOutline && this.requiresSafeConeClamp) || (this.allowOutline && !params.forceContainment)) {
       console.log('clamping cone');
       paths = paths.map(m => m.intersect(params.safeCone));
     }
