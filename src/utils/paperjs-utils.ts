@@ -43,3 +43,41 @@ export function bufferShape(buffer: number, points: paper.Point[]): paper.PathIt
 
   return roundedPolygon;
 }
+
+export function pickPointOnRectEdge(box: paper.Rectangle, rng: () => number){
+  var randomPoint = rng() * (box.width * 2 + box.height * 2);
+  if (randomPoint > 0 && randomPoint < box.height){
+      return new paper.Point(
+          0 + box.x,
+          box.height - randomPoint + box.y
+      )
+  }
+  else if (randomPoint > box.height && randomPoint < (box.height + box.width)){
+      return new paper.Point(
+          randomPoint - box.height  + box.x,
+          0 + box.y
+      )
+  }
+  else if (randomPoint > (box.height + box.width) && randomPoint < (box.height * 2 + box.width)){
+      return new paper.Point(
+          box.width  + box.x,
+          randomPoint - (box.width + box.height) + box.y
+      )
+  }
+  else {
+      return new paper.Point(
+          box.width - (randomPoint - (box.height * 2 + box.width))  + box.x,
+          box.height + box.y
+      )
+  }
+}
+
+export function randomLineOnRectangle(model: paper.Rectangle, rng?: () => number) {
+  const p1 = pickPointOnRectEdge(model, rng);
+  let p2 = pickPointOnRectEdge(model, rng);
+  while (p2[0] == p1[0] || p2[1] == p1[1]) {
+    p2 = pickPointOnRectEdge(model, rng);
+  }
+  const line = new paper.Path.Line(p1, p2);
+  return line;
+}

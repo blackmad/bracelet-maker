@@ -1,14 +1,12 @@
-import { MakerJsUtils } from "../../utils/makerjs-utils";
-
-const makerjs = require("makerjs");
-
 import {
   RangeMetaParameter,
   OnOffMetaParameter,
   MetaParameter
 } from "../../meta-parameter";
 import * as _ from "lodash";
+import * as paper from 'paper';
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
+import { randomLineOnRectangle } from '../../utils/paperjs-utils'
 
 export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
   allowOutline = true;
@@ -17,35 +15,41 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
   useFastRound = true;
 
   circleDoesntTouchLines(
-    testCircle: MakerJs.paths.Circle,
-    lines: MakerJs.paths.Line[]
+    testCircle: paper.Path.Circle,
+    lines: paper.Path.Line[]
   ): boolean {
     return _.every(
       lines,
-      l => !MakerJsUtils.checkCircleLineIntersection(testCircle, l)
+      l => !testCircle.intersects(l)
     );
   }
 
   circleDoesntTouchCircles(
-    testCircle: MakerJs.paths.Circle,
-    circles: MakerJs.paths.Circle[],
+    testCircle: paper.Path.Circle,
+    circles: paper.Path.Circle[],
     borderSize: number
   ): boolean {
+    const newTestCircle = new paper.Path.Circle(
+      testCircle.bounds.center,
+      testCircle.bounds.width / 2 + borderSize
+    )
+    newTestCircle.remove();
+
     return _.every(
       circles,
       c =>
-        !MakerJsUtils.checkCircleCircleIntersection(c, testCircle, borderSize)
+        !newTestCircle.intersects(c)
     );
   }
 
   circleInsideModel(
-    testCircle: MakerJs.paths.Circle,
-    boundaryModel: MakerJs.IModel
+    testCircle: paper.Path.Circle,
+    boundaryModel: paper.PathItem
   ): boolean {
-    return !MakerJsUtils.checkPathIntersectsModel(testCircle, boundaryModel);
+    return !testCircle.isInside(boundaryModel.bounds);
   }
 
-  makeDesign(params) {
+  makeDesign(scope, params) {
     let {
       height = 2,
       width = 10,
@@ -57,30 +61,22 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
     } = params;
     const constrainCircles = params.constrainCircles || !params.forceContainment;
 
-    console.log(JSON.stringify(boundaryModel));
-    const boundaryMeasure = makerjs.measure.modelExtents(boundaryModel);
-
-    const circles: MakerJs.paths.Circle[] = [];
+    const circles: paper.Path.Circle[] = [];
 
     var radius = maxCircleSize;
-    console.log(boundaryModel);
-    console.log(boundaryMeasure);
-
-    const boundaryRect = new makerjs.models.Rectangle(boundaryModel);
 
     const lines = _.times(numLines, () => {
-      return MakerJsUtils.randomLineInRectangle(boundaryRect, this.rng);
+      return randomLineOnRectangle(boundaryModel.bounds, this.rng);
     });
 
-    const pathMap = {}
     const triesPerRadius = 200;
     while (radius > minCircleSize) {
       for (let i = 0; i < triesPerRadius; i++) {
-        const center = [this.rng() * width, this.rng() * height];
-        const testCircle = new makerjs.paths.Circle(center, radius);
+        const center = new paper.Point(this.rng() * width, this.rng() * height);
+        const testCircle = new paper.Path.Circle(center, radius);
         if (
           // this checks that we're at least inside the bounding box around the boundary
-          MakerJsUtils.checkPathMeasureOverlap(testCircle, boundaryMeasure) &&
+          testCircle.bounds.intersects(boundaryModel.bounds) && 
           // if we are constraining circles, make sure everything is inside
           (!constrainCircles ||
             this.circleInsideModel(testCircle, boundaryModel)) &&
@@ -88,18 +84,12 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
           this.circleDoesntTouchLines(testCircle, lines)
         ) {
           circles.push(testCircle);
-          pathMap[circles.length.toString()] = testCircle;
         }
       }
       radius *= 0.99;
     }
 
-    return {
-      models: {
-        // boundaryModel: boundaryModel
-      },
-      paths: pathMap
-    };
+    return circles;
   }
 
   get designMetaParameters(): Array<MetaParameter> {
