@@ -3,6 +3,7 @@ add rivet holes to straight cuff
 bring back collar outline
 make SVG export correct with inches/scale
 bring back PDF export
+why aren't all settings being saved in UI?
 
 fixes:
 hexes is ugly now
@@ -12,6 +13,7 @@ implement boundaryDilation in fast-abstract-inner-design
 fix gap on this one https://127.0.0.1:4501/static/#StraightCuffOuter.debug=false&StraightCuffOuter.height=2&StraightCuffOuter.wristCircumference=7&StraightCuffOuter.safeBorderWidth=0.25&StraightCuffOuter.forearmCircumference=7.4&InnerDesignCirclePacking.debug=false&InnerDesignCirclePacking.seed=1&InnerDesignCirclePacking.borderSize=0.13&InnerDesignCirclePacking.minCircleSize=0.02&InnerDesignCirclePacking.maxCircleSize=0.33&InnerDesignCirclePacking.numLines=9&InnerDesignCirclePacking.constrainCircles=false&InnerDesignCirclePacking.forceContainment=false&InnerDesignCirclePacking.outlineSize=0.1&InnerDesignCirclePacking.boundaryDilation=0.22&InnerDesignCirclePacking.smoothOutline=false
 hexes: should technically take into account unused space and center it
 hexes: should technically not break out of box
+vera-x-circles - simplify it, kill the parts that are ugly
 
 future:
 - see if I can map straight cuff to conic cuff

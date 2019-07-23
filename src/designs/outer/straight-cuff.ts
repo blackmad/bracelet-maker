@@ -98,16 +98,19 @@ export class StraightCuffOuter implements PaperModelMaker {
       // innerDesign.paths.forEach(p => p.remove());
     }
 
-
-    const path = new paper.CompoundPath({
-      // children: [cuffOuter],
-      children: [cuffOuter, ...innerDesign.paths],
-      strokeColor: 'red',
-      strokeWidth: '0.1',
-      fillColor: 'lightgrey',
-      fillRule: 'evenodd'
-    });
+    if (debug) {
+      return [innerDesign.paths];
+    } else {
+      const path = new paper.CompoundPath({
+        // children: [cuffOuter],
+        children: [cuffOuter, ...innerDesign.paths],
+        strokeColor: 'red',
+        strokeWidth: '0.1',
+        fillColor: 'lightgrey',
+        fillRule: 'evenodd'
+      });
       return [path];
+    }
 
     // innerDesign.layer = "inner"
     // models['design'] = innerDesign;

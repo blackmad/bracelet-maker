@@ -107,6 +107,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       paths = paths.map(m => m.intersect(params.safeCone));
     }
 
+    console.log(this.needSubtraction)
     if (this.needSubtraction && (!this.allowOutline || params.forceContainment)) {
       console.log('clamping sub');
       console.log(params.boundaryModel);

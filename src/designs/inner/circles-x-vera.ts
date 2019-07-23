@@ -1,19 +1,14 @@
 import { SimplexNoiseUtils } from "../../utils/simplex-noise-utils";
-import { MetaParameter, RangeMetaParameter } from "../../meta-parameter";
+import { OnOffMetaParameter, MetaParameter, RangeMetaParameter } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
-import { MakerJsUtils } from "../../utils/makerjs-utils";
-// import { AbstractExpandAndSubtractInnerDesign } from "./abstract-expand-and-subtract-inner-design";
-
-var makerjs = require("makerjs");
+import * as paper from 'paper';
 
 export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
-  useFastRound = false;
-  allowOutline = true;
+  allowOutline = false;
+  needSubtraction = true;
 
-  makeDesign(params): MakerJs.IModel {
+  makeDesign(scope, params): paper.PathItem[] {
     const {
-      height = 2,
-      width = 10,
       boundaryModel,
       cols,
       rows,
@@ -30,16 +25,18 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
       patternNoiseInfluence
     } = params;
 
-    const rowCellSize = width / cols;
-    const widthCellSize = height / rows;
+    console.log('hi');
 
-    let paths: MakerJs.IPath[] = [];
+    const rowCellSize = boundaryModel.bounds.width / cols;
+    const widthCellSize = boundaryModel.bounds.height / rows;
 
-    const boundaryExtents = makerjs.measure.modelExtents(boundaryModel);
+    let paths: paper.PathItem[] = [];
+    let totalPath = null;
+
     for (var r = 0; r < rows; r++) {
-      for (var c = 0; c < cols; c++) {
-        const center = [
-          (r % 2) * rowOffset * rowCellSize +
+      for (var c = 0; c <= cols; c++) {
+        const center = new paper.Point(
+          (r % 2) * rowOffset * rowCellSize + boundaryModel.bounds.x +
             c * rowCellSize +
             patternNoiseInfluence *
               SimplexNoiseUtils.noise2DInRange(
@@ -49,7 +46,7 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
                 -rowCellSize * 2,
                 rowCellSize * 2
               ),
-          yOffset +
+          yOffset + boundaryModel.bounds.y +
             (c % 2) * colOffset +
             (r * widthCellSize +
               patternNoiseInfluence *
@@ -60,7 +57,7 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
                   -widthCellSize * 2,
                   widthCellSize * 2
                 ))
-        ];
+        );
 
         const circleSize = SimplexNoiseUtils.noise2DInRange(
           this.simplex,
@@ -70,30 +67,38 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
           maxCircleSize
         );
 
-        const possibleCircle = new makerjs.paths.Circle(center, circleSize);
-        const shouldUseCircle = makerjs.measure.isMeasurementOverlapping(
-          boundaryExtents,
-          makerjs.measure.modelExtents({ paths: [possibleCircle] })
-        );
-
+        const possibleCircle = new paper.Path.Circle(center, circleSize);
+        const shouldUseCircle = 
+          possibleCircle.isInside(boundaryModel.bounds) || 
+          possibleCircle.intersects(boundaryModel);
+        console.log(shouldUseCircle);
         if (shouldUseCircle) {
-          paths.push(possibleCircle);
+          // this makes a nice layered look
+          // if (totalPath == null) {
+          //   totalPath = possibleCircle;
+          // } else {
+          //   totalPath = totalPath.unite(possibleCircle);
+          // }
+          // totalPath = totalPath.subtract(new paper.Path.Circle(center, circleSize - borderSize))
+
+          possibleCircle.remove();
+          const innerCircle = new paper.Path.Circle(center, circleSize - borderSize);
+          innerCircle.remove();
+          const finalCircle = possibleCircle.subtract(innerCircle, {insert: false});
+          if (totalPath == null) {
+            totalPath = finalCircle
+          } else {
+            totalPath = totalPath.unite(finalCircle, {insert: false});
+          }          
         }
       }
     }
 
-    const expandedModel = makerjs.model.expandPaths(
-      MakerJsUtils.pathArrayToModel(paths),
-      borderSize,
-      1
-    );
-    console.log(expandedModel);
-    return {
-      models: {
-        expanded: expandedModel
-        // circles: MakerJsUtils.pathArrayToModel(paths)}}
-      }
-    };
+    if (params.invert) {
+      return [totalPath]
+    } else {
+      return [boundaryModel.subtract(totalPath, {insert: false})];
+    }
   }
 
   get designMetaParameters(): Array<MetaParameter> {
@@ -201,7 +206,12 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
         value: 0.2,
         step: 0.01,
         name: "colOffset"
-      })
+      }),
+      new OnOffMetaParameter({
+        title: "Invert",
+        value: false,
+        name: "invert"
+      }),
     ];
   }
 }
