@@ -171,7 +171,10 @@
     </div>
 
       <div class="playArea sticky-top">
-        <canvas id="myCanvas" resize></canvas>
+        <div id="canvasBlock" style="background-color: white">
+          <canvas id="gridCanvas" resize style="position: absolute; x: 0; y:0"></canvas>
+          <canvas id="myCanvas" resize style="position: absolute; x: 0; y:0"></canvas>
+        </div>
         <div id="loading">Rendering ...</div>
         <div id="error">
           Error rendering design. Sorry :-/ <br />

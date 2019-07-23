@@ -42,22 +42,6 @@ export class DavidsPlayground {
     public subModels: Array<PaperModelMaker> = null,
     public allowPanAndZoom?: boolean
   ) {
-    // const canvas: HTMLCanvasElement = document.getElementById(
-    //   "myCanvas"
-    // ) as HTMLCanvasElement;
-    // var scope = new paper.PaperScope();
-    // this.scope = scope;
-    // scope.setup(canvas)
-    // scope.activate();
-
-    // when view is resized...
-    // scope.view.onResize = function() {
-    //   // ...log new view width
-    //   console.log("view.width is now: " + scope.view.bounds.width);
-    //   scope.project.activeLayer.fitBounds(scope.view.bounds);
-    // };
-    //  paper.view.draw();
-
     if (this.modelMaker.subModels && !subModels) {
       this.subModels = subModels;
     }
@@ -315,16 +299,10 @@ export class DavidsPlayground {
   }
 
   downloadSVG() {
-    let svgData: string = (paper.project.exportSVG({
+    let svgData: string = (this.scope.project.exportSVG({
       asString: true
     }) as unknown) as string;
-    const preface = '<?xml version="1.0" standalone="no"?>\r\n';
-    // I have NO IDEA why I need to add this closing </g> to make it work
-    svgData =
-      preface +
-      svgData
-        .replace("</svg>", "</g></svg>")
-        .replace("<svg", '<svg  xmlns="http://www.w3.org/2000/svg" ');
+    console.log(svgData)
 
     var encoded = encodeURIComponent(svgData);
     var uriPrefix = "data:" + "image/svg+xml" + ",";
@@ -448,20 +426,57 @@ export class DavidsPlayground {
     scope.setup(canvas)
     scope.activate();
 
+    let originalWidth = null;
+    let originalHeight = null;
     scope.view.onResize = function() {
-      // ...log new view width
-      console.log("view.width is now: " + scope.view.bounds.width);
+      if (!originalHeight) {
+        originalHeight = scope.project.activeLayer.bounds.height;
+        originalWidth = scope.project.activeLayer.bounds.width;
+      }
+
+
+      const xPixelsPerInch = scope.view.bounds.width / originalWidth;
+      const yPixelsPerInch = scope.view.bounds.height / originalHeight;
       scope.project.activeLayer.fitBounds(scope.view.bounds);
+
+       var data = `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+          <pattern id="smallGrid" width="${xPixelsPerInch/10}" height="${yPixelsPerInch/10}" patternUnits="userSpaceOnUse">
+              <path d="M ${xPixelsPerInch/10} 0 L 0 0 0 ${yPixelsPerInch/10}" fill="none" stroke="gray" stroke-width="0.5" />
+          </pattern>
+          <pattern id="grid" width="${xPixelsPerInch}" height="${yPixelsPerInch}" patternUnits="userSpaceOnUse">
+              <rect width="${xPixelsPerInch}" height="${yPixelsPerInch}" fill="url(#smallGrid)" />
+              <path d="M ${xPixelsPerInch} 0 L 0 0 0 ${yPixelsPerInch}" fill="none" stroke="gray" stroke-width="1" />
+          </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid)" />
+  </svg>`;
+  
+  var img = new Image();
+  var svg = new Blob([data], {type: 'image/svg+xml;charset=utf-8'});
+  var url = URL.createObjectURL(svg);
+  
+  img.onload = function () {
+    const gridCanvas: HTMLCanvasElement = document.getElementById(
+      "gridCanvas"
+    ) as HTMLCanvasElement;
+    var ctx = gridCanvas.getContext('2d');
+    $('#canvasBlock')[0].style.height = canvas.height/2;
+    gridCanvas.width = canvas.width;
+    gridCanvas.height = canvas.height;
+    ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(url);
+  }
+  img.src = url;
     };
 
     if (paper != null && paper.project != null) {
       paper.project.activeLayer.removeChildren();
     }
+    console.log(paper.project)
 
     this.modelMaker.make(this.scope, modelParams);
-    // console.log(this.model);
     this.scope.view.onResize();
 
-    // paper.view.scaling = new paper.Point(96, 96);
   }
 }

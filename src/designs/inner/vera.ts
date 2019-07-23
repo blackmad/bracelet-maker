@@ -1,3 +1,6 @@
+
+// why so broken: https://127.0.0.1:4501/static/#StraightCuffOuter.debug=false&StraightCuffOuter.height=2&StraightCuffOuter.wristCircumference=7&StraightCuffOuter.safeBorderWidth=0.22&StraightCuffOuter.forearmCircumference=7.4&InnerDesignVera.debug=false&InnerDesignVera.seed=8148&InnerDesignVera.shapeSize1=0.26&InnerDesignVera.shapeSize2=0.26&InnerDesignVera.bufferWidth=0.1&InnerDesignVera.xNoiseCoefficient=0.01&InnerDesignVera.yNoiseCoefficient=0.01&InnerDesignVera.xScaleNoiseCoefficient=0.01&InnerDesignVera.yScaleNoiseCoefficient=0.01&InnerDesignVera.minScale=0.5&InnerDesignVera.maxScale=1.25&InnerDesignVera.shapeName=Rectangle&InnerDesignVera.constrainShapes=false&InnerDesignVera.forceContainment=false&InnerDesignVera.outlineSize=0.1&InnerDesignVera.boundaryDilation=0.22
+
 import { ShapeMaker } from '../shape-maker';
 
 import { SimplexNoiseUtils } from '../../utils/simplex-noise-utils';

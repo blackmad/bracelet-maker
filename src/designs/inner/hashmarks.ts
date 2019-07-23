@@ -1,10 +1,10 @@
 import { MetaParameter, RangeMetaParameter } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 
-var makerjs = require("makerjs");
+import * as paper from 'paper';
 
 export class InnerDesignHashmarks extends FastAbstractInnerDesign {
-  makeDesign(params) {
+  makeDesign(scope: any, params: any) {
     const {
       height,
       width,
@@ -19,7 +19,7 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
 
     var lastNoise1 = this.simplex.noise2D(100, 10) * initialNoiseRange1;
     var lastNoise2 = this.simplex.noise2D(100.5, 10.5) * initialNoiseRange2;
-    var models = {};
+    var paths = [];
     var pos = -width;
     var i = 0;
     while (pos <= width) {
@@ -29,19 +29,19 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         (this.simplex.noise2D(i / 20, i / 30) + noiseOffset2) * noiseInfluence;
       //   console.log(newNoise1);
       i += 1;
-      const points = [
-        [pos + lastNoise1 + newNoise1, 0],
-        [pos + lastNoise2 + newNoise2, height],
-        [pos + lastNoise2 + newNoise2 + hashWidth, height],
-        [pos + lastNoise1 + newNoise1 + hashWidth, 0]
-      ];
-      const m = new makerjs.models.ConnectTheDots(true, points);
-      models[i.toString()] = m;
+      const path = new paper.Path([
+        new paper.Point(pos + lastNoise1 + newNoise1, 0),
+        new paper.Point(pos + lastNoise2 + newNoise2, height),
+        new paper.Point(pos + lastNoise2 + newNoise2 + hashWidth, height),
+        new paper.Point(pos + lastNoise1 + newNoise1 + hashWidth, 0)
+      ]);
+
+      paths.push(path);
       lastNoise1 = lastNoise1 + newNoise1;
       lastNoise2 = lastNoise2 + newNoise2;
       pos += hashWidth + bufferWidth;
     }
-    return { models: models };
+    return paths;
   }
 
   get designMetaParameters(): Array<MetaParameter> {

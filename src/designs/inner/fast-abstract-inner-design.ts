@@ -68,6 +68,13 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           name: 'boundaryDilation'
         })
       );
+      metaParams.push(
+        new OnOffMetaParameter({
+          title: 'Smooth Outline',
+          name: 'smoothOutline',
+          value: false
+        })
+      );
     }
 
     return metaParams;
@@ -88,14 +95,16 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
     if (params.debug) {
       return {paths};
+    } else {
+      paths.forEach((p) => p.remove());
     }
 
-    if (this.requiresSafeConeClamp || !params.forceContainment) {
+    if (this.requiresSafeConeClamp || (this.allowOutline && !params.forceContainment)) {
       console.log('clamping cone');
       paths = paths.map(m => m.intersect(params.safeCone));
     }
 
-    if (this.needSubtraction && params.forceContainment) {
+    if (this.needSubtraction && (!this.allowOutline || params.forceContainment)) {
       console.log('clamping sub');
       console.log(params.boundaryModel);
       paths = paths.map(m => m.intersect(params.boundaryModel));
@@ -116,7 +125,15 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       });
 
       // @ts-ignore
-      outline = paper.Path.prototype.offset.call(compoundPath, 0.2, { cap: 'miter' });
+      
+      outline = paper.Path.prototype.offset.call(compoundPath, params.outlineSize, { cap: 'miter' });
+      outline.remove();
+      outline = outline.unite(outline)
+      outline.remove();
+      if (params.smoothOutline) {
+        outline.smooth({ type: 'geometric', factor: 0.3 });
+      }
+      console.log(outline);
     }
 
     return {
