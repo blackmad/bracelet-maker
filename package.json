@@ -33,6 +33,8 @@
     "webpack-cli": "^3.3.2"
   },
   "dependencies": {
+    "@doodle3d/clipper-js": "^1.0.10",
+    "@doodle3d/clipper-lib": "^6.4.2-b",
     "@types/blob-stream": "^0.1.29",
     "@types/d3-delaunay": "^4.1.0",
     "@types/lodash": "^4.14.133",

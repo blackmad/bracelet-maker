@@ -1,80 +1,75 @@
-var makerjs = require("makerjs");
-import * as _ from "lodash";
-import { Delaunay } from "d3-delaunay";
+var makerjs = require('makerjs');
+import * as _ from 'lodash';
+import { Delaunay } from 'd3-delaunay';
+import * as paper from 'paper';
 
-import { RangeMetaParameter, MetaParameter } from "../../meta-parameter";
-import { CanvasShim } from "../canvas-shim";
-import { AbstractExpandAndSubtractInnerDesign } from "./abstract-expand-and-subtract-inner-design";
-import { MakerJsUtils } from "../../utils/makerjs-utils";
+import { RangeMetaParameter, MetaParameter } from '../../meta-parameter';
+import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
+import { randomPointInPolygon } from '../../utils/paperjs-utils';
+import ExtendPaperJs from 'paperjs-offset';
 
-export class InnerDesignVoronoi extends AbstractExpandAndSubtractInnerDesign {
-  makePaths(params): MakerJs.IPath[] {
-    const {
-      height,
-      width,
-      numPoints = 100,
-      minPathLength = 1,
-      boundaryModel
-    } = params;
-    const maxX = width;
-    const maxY = height;
+export class InnerDesignVoronoi extends FastAbstractInnerDesign {
+  needSubtraction = false;
+  makeDesign(scope, params) {
+    ExtendPaperJs(paper);
 
-    let seedPoints = [];
-    for (let i = 0; i < numPoints * 10; i++) {
-      if (seedPoints.length == numPoints) {
-        break;
-      }
-      const testPoint = [this.rng() * maxX, this.rng() * maxY];
-      if (makerjs.measure.isPointInsideModel(testPoint, boundaryModel)) {
-        seedPoints.push(testPoint);
-      }
+    const seedPoints = [];
+    const { numPoints = 100, minPathLength = 1 } = params;
+    const boundaryModel: paper.PathItem = params.boundaryModel;
+    for (let i = 0; i < numPoints; i++) {
+      const testPoint = randomPointInPolygon(boundaryModel, this.rng);
+      seedPoints.push([testPoint.x, testPoint.y]);
     }
 
     var delaunay = Delaunay.from(seedPoints);
-    var voronoi = delaunay.voronoi([0, 0, maxX, maxY]);
+    var voronoi = delaunay.voronoi([
+      boundaryModel.bounds.x,
+      boundaryModel.bounds.y,
+      boundaryModel.bounds.x + boundaryModel.bounds.width,
+      boundaryModel.bounds.y + boundaryModel.bounds.height
+    ]);
 
-    // We do the triangulation and then run through it once (should probably be iterative)
-    // deleting seed points that result in polygons that are too small
-    const newSeedPoints = [];
-
-    let index = 0;
-    for (let cell of voronoi.cellPolygons()) {
-      const seed = seedPoints[index];
-      const pathLength = MakerJsUtils.polygonArea(cell);
-      if (pathLength > minPathLength) {
-        newSeedPoints.push(seed);
-      }
-      index += 1;
+    const polys = [];
+    for (const cellPolygon of voronoi.cellPolygons()) {
+      console.log('cellpolygon', cellPolygon);
+      const points = cellPolygon.map(p => new paper.Point(p[0], p[1]));
+      points.pop();
+      const outerPolygon = new paper.Path(points);
+      const bufferedShape = paper.Path.prototype.offset.call(
+        outerPolygon,
+        -params.borderSize,
+        { cap: 'miter' }
+      );
+      polys.push(bufferedShape);
     }
-
-    console.log(newSeedPoints);
-    seedPoints = newSeedPoints;
-    delaunay = Delaunay.from(seedPoints);
-    voronoi = delaunay.voronoi([0, 0, maxX, maxY]);
-
-    const voronoiPaths = {};
-    voronoi.render(new CanvasShim(voronoiPaths));
-
-    return _.map(voronoiPaths, (v) => v);
+    return polys;
   }
 
   get designMetaParameters(): Array<MetaParameter> {
     return [
       new RangeMetaParameter({
-        title: "Num Points",
+        title: 'Num Points',
         min: 3,
         max: 100,
         value: 20,
         step: 1,
-        name: "numPoints"
+        name: 'numPoints'
       }),
       new RangeMetaParameter({
-        title: "Min Cell Size",
+        title: 'Min Cell Size',
         min: 0.05,
         max: 1,
         value: 0.55,
         step: 0.01,
-        name: "minPathLength"
+        name: 'minPathLength'
+      }),
+      new RangeMetaParameter({
+        title: 'Border Size',
+        min: 0.01,
+        max: 0.5,
+        value: 0.1,
+        step: 0.01,
+        name: 'borderSize'
       })
     ];
   }
