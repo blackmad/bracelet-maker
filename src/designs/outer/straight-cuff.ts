@@ -105,7 +105,7 @@ export class StraightCuffOuter implements PaperModelMaker {
         // children: [cuffOuter],
         children: [cuffOuter, ...innerDesign.paths],
         strokeColor: 'red',
-        strokeWidth: '0.1',
+        strokeWidth: '0.005',
         fillColor: 'lightgrey',
         fillRule: 'evenodd'
       });
