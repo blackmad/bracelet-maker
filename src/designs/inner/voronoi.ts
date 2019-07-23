@@ -5,7 +5,7 @@ import * as paper from 'paper';
 
 import { RangeMetaParameter, MetaParameter } from '../../meta-parameter';
 import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
-import { randomPointInPolygon } from '../../utils/paperjs-utils';
+import { randomPointInPolygon, bufferShape } from '../../utils/paperjs-utils';
 import ExtendPaperJs from 'paperjs-offset';
 
 export class InnerDesignVoronoi extends FastAbstractInnerDesign {
@@ -34,13 +34,10 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       console.log('cellpolygon', cellPolygon);
       const points = cellPolygon.map(p => new paper.Point(p[0], p[1]));
       points.pop();
-      const outerPolygon = new paper.Path(points);
-      const bufferedShape = paper.Path.prototype.offset.call(
-        outerPolygon,
-        -params.borderSize,
-        { cap: 'miter' }
-      );
-      polys.push(bufferedShape);
+      const bufferedShape = bufferShape(-params.borderSize, points)
+      if (bufferedShape) {
+        polys.push(bufferedShape);
+      }
     }
     return polys;
   }

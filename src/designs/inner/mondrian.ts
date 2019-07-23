@@ -1,4 +1,4 @@
-const makerjs = require("makerjs");
+import * as paper from 'paper';
 
 import {
   RangeMetaParameter,
@@ -16,20 +16,27 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
   minCellSize: number;
   borderSize: number;
 
+  needSubtraction = false;
+
   splitRect(lo, hi, depth = 0) {
     const self = this;
     function makeThisRect() {
-      const rect = makerjs.model.move(
-        new makerjs.models.Rectangle(
-          hi[0] - lo[0] - self.borderSize,
-          hi[1] - lo[1] - self.borderSize
-        ),
-        [lo[0] + self.borderSize / 2, lo[1] + self.borderSize / 2]
-      );
+      const rect = 
+        new paper.Path.Rectangle(
+            new paper.Rectangle(
+              lo[0] + self.borderSize / 2, 
+              lo[1] + self.borderSize / 2,
+              hi[0] - lo[0] - self.borderSize,
+              hi[1] - lo[1] - self.borderSize
+          )
+        )
+        
       self.rects.push(rect);
     }
 
-    if (depth > this.maxDepth || this.rng() > this.splitChance) {
+    const randNum = this.rng()
+    if (depth > this.maxDepth || randNum > this.splitChance) {
+      console.log('bailing on', randNum, this.splitChance, depth, this.maxDepth)
       makeThisRect();
       return;
     }
@@ -38,10 +45,18 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
     const splitPercent = this.rng() * 0.6 + 0.2;
 
     if (splitX) {
-      const splitSize = splitPercent * (hi[0] - lo[0]);
+      const splitSize = (hi[0] - lo[0]) * splitPercent
 
-      console.log(splitSize, this.minCellSize)
-      if ((splitSize - this.borderSize*2) < this.minCellSize) {
+      let smallX = (hi[0] - lo[0]) * splitPercent
+      console.log(smallX)
+
+      if (splitPercent > 0.5) {
+        smallX = (hi[0] - lo[0]) * (1.0 - splitPercent)
+      }
+     
+      console.log(smallX)
+
+      if ((smallX - this.borderSize*2) < this.minCellSize) {
         makeThisRect();
         return;
       }
@@ -51,8 +66,13 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
     } else {
       const splitSize = splitPercent * (hi[1] - lo[1]);
 
-      console.log(splitSize, this.minCellSize)
-      if ((splitSize - this.borderSize*2) < this.minCellSize) {
+      let smallY = (hi[1] - lo[1]) * splitPercent
+      console.log(smallY)
+      if (splitPercent > 0.5) {
+        smallY = (hi[1] - lo[1]) * (1.0 - splitPercent)
+      }
+      console.log(smallY)
+      if ((smallY - this.borderSize*2) < this.minCellSize) {
         makeThisRect();
         return;
       }
@@ -62,7 +82,7 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
     }
   }
 
-  makeDesign(params) {
+  makeDesign(scope, params) {
     const {
       boundaryModel,
       borderSize,
@@ -80,15 +100,13 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
     this.xyBias = xyBias;
     this.minCellSize = minCellSize;
 
-    const boundaryMeasure = makerjs.measure.modelExtents(boundaryModel);
-    console.log(boundaryMeasure);
+    this.splitRect(
+      [boundaryModel.bounds.topLeft.x - borderSize/2, boundaryModel.bounds.topLeft.y  - borderSize/2],
+      [boundaryModel.bounds.bottomRight.x  + borderSize/2, boundaryModel.bounds.bottomRight.y + borderSize/2],
+      0
+    )
 
-    this.splitRect(boundaryMeasure.low, boundaryMeasure.high, 0);
-
-    const gridModel = { models: {} };
-    _(this.rects).each((rect, i) => (gridModel.models[i.toString()] = rect));
-
-    return gridModel;
+    return this.rects;
   }
 
   get designMetaParameters(): Array<MetaParameter> {
@@ -113,7 +131,7 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
         title: "Split Chance",
         min: 0.1,
         max: 1.0,
-        value: 0.7,
+        value: 0.99,
         step: 0.01,
         name: "splitChance"
       }),
@@ -129,7 +147,7 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
         title: "Min Cell Size",
         min: 0.1,
         max: 1,
-        value: 0.25,
+        value: 0.1,
         step: 0.01,
         name: "minCellSize"
       })
