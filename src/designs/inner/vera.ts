@@ -12,7 +12,6 @@ import {
 } from '../../meta-parameter';
 import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
 import * as paper from 'paper';
-import { PaperModelMaker } from '../../model-maker';
 import * as _ from 'lodash';
 
 export class InnerDesignVera extends FastAbstractInnerDesign {

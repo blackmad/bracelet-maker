@@ -435,7 +435,7 @@ export class DavidsPlayground {
       }
 
 
-      const xPixelsPerInch = scope.view.bounds.width / originalWidth;
+      const xPixelsPerInch = 2 * scope.view.bounds.width / originalWidth;
       const yPixelsPerInch = scope.view.bounds.height / originalHeight;
       scope.project.activeLayer.fitBounds(scope.view.bounds);
 

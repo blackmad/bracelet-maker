@@ -71,14 +71,13 @@ export function pickPointOnRectEdge(box: paper.Rectangle, rng: () => number){
   }
 }
 
-export function randomLineOnRectangle(model: paper.Rectangle, rng?: () => number) {
+export function randomLineOnRectangle(model: paper.Rectangle, rng?: () => number): paper.Point[] {
   const p1 = pickPointOnRectEdge(model, rng);
   let p2 = pickPointOnRectEdge(model, rng);
   while (p2.x == p1.x || p2.y == p1.y) {
     p2 = pickPointOnRectEdge(model, rng);
   }
-  const line = new paper.Path.Line(p1, p2);
-  return line;
+  return [p1, p2];
 }
 
 export class SimpleCircle {

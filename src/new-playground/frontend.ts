@@ -5,7 +5,6 @@ import { ConicCuffOuter } from "../designs/outer/conic-cuff";
 import { StraightCollarOuter } from "../designs/outer/collar";
 import { StraightCuffOuter } from "../designs/outer/straight-cuff";
 
-
 // import { InnerDesignCircles } from "../designs/inner-design-circles";
 import { InnerDesignCirclePacking } from "../designs/inner/circle-packing";
 import { InnerDesignVera } from "../designs/inner/vera";
@@ -16,7 +15,7 @@ import { InnerDesignVoronoi } from "../designs/inner/voronoi";
 import { InnerDesignHexes } from "../designs/inner/hexes";
 import { InnerDesignLines } from "../designs/inner/lines";
 import { InnerDesignMondrian } from "../designs/inner/mondrian";
-// import { InnerDesignExplode } from "../designs/inner/explode"
+import { InnerDesignExplode } from "../designs/inner/explode"
 import { InnerDesignGrid } from "../designs/inner/grid"
 import { InnerDesignEmpty } from "../designs/inner/empty"
 
@@ -89,7 +88,7 @@ function attachHandlers() {
     InnerDesignHexes,
     InnerDesignLines,
     InnerDesignMondrian,
-    // InnerDesignExplode,
+    InnerDesignExplode,
     // InnerDesignGrid,
     InnerDesignEmpty
     // InnerDesignHingedTesselation

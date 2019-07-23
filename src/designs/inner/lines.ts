@@ -1,53 +1,29 @@
-const makerjs = require("makerjs");
 import * as paper from "paper";
 
-import { RangeMetaParameter, MetaParameter } from "../../meta-parameter";
-import { MakerJsUtils } from "../../utils/makerjs-utils";
+import {RangeMetaParameter, MetaParameter } from "../../meta-parameter";
+import { pickPointOnRectEdge, randomLineOnRectangle } from "../../utils/paperjs-utils"
 
-import { AbstractExpandAndSubtractInnerDesign } from "./abstract-expand-and-subtract-inner-design";
+import { AbstractExpandInnerDesign } from "./abstract-expand-and-subtract-inner-design";
+import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
 
-export class InnerDesignLines extends AbstractExpandAndSubtractInnerDesign {
-  makeRandomPointOnRectangle(rectangle: paper.Rectangle) {
-    const randomPoint = new paper.Point(
-      Math.random() * rectangle.width,
-      Math.random() * rectangle.height
-    );
-    if (Math.random() <= 0.5) {
-      if (randomPoint.x / rectangle.width <= 0.5) {
-        randomPoint.x = 0;
-      } else {
-        randomPoint.x = rectangle.width;
-      }
-    } else {
-      if (randomPoint.y / rectangle.height <= 0.5) {
-        randomPoint.y = 0;
-      } else {
-        randomPoint.y = rectangle.height;
-      }
+export class InnerDesignLines extends AbstractExpandInnerDesign {
+  makePaths(scope: paper.PaperScope, params: any): paper.Point[][] {
+    const {
+      boundaryModel,
+      numLines
+    } = params;
+
+    const lines: paper.Point[][] = [];
+
+    for (let c = 0; c < numLines; c++) {
+      const line = randomLineOnRectangle(boundaryModel.bounds, this.rng);
+      lines.push(line);
     }
-    return randomPoint;
+
+    return lines;
   }
 
-  makePaths(scope, params): paper.CompoundPath {
-    const { boundaryModel, numLines } = params;
-
-    const paths = [];
-
-    for (let c = 0; c <= numLines; c++) {
-      const line = new paper.Path();
-      line.add(this.makeRandomPointOnRectangle(boundaryModel));
-      line.add(this.makeRandomPointOnRectangle(boundaryModel));
-      line.strokeColor = "red";
-      console.log(line);
-
-      paths.push(line);
-    }
-    console.log(paths);
-
-    return paths;
-  }
-
-  get designMetaParameters(): Array<MetaParameter> {
+  get pathDesignMetaParameters(): Array<MetaParameter> {
     return [
       new RangeMetaParameter({
         title: "Num Lines",

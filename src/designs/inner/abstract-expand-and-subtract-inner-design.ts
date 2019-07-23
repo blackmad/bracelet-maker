@@ -1,81 +1,95 @@
 import * as _ from "lodash";
-import * as SimplexNoise from "simplex-noise";
 import * as paper from 'paper';
-import ExtendPaperJs from 'paperjs-offset'
-
-
-
-const seedrandom = require("seedrandom");
 
 import { RangeMetaParameter, MetaParameter, OnOffMetaParameter } from "../../meta-parameter";
-import { PaperModelMaker } from "src/model-maker";
-import * as offset from 'paperjs-offset'
-import { PassThrough } from "stream";
+import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 
-export abstract class AbstractExpandAndSubtractInnerDesign
-  implements PaperModelMaker {
-  rng: () => number;
-  simplex: SimplexNoise;
-
-  abstract makePaths(scope: paper.PaperScope, params): paper.Path[];
-  abstract get designMetaParameters(): Array<MetaParameter>;
-  
-  make(scope: paper.PaperScope, params): paper.PathItem[] {
-    const { boundaryModel, borderSize, seed, debug } = params;
-
-    this.rng = seedrandom(seed.toString());
-    this.simplex = new SimplexNoise(params.seed.toString())
-
-    const paths = this.makePaths(paper, params);
-    // makerjs.model.simplify(pathModel);
-
-    // console.log(compoundPath);
-    
-    if (!debug) {
-      // compoundPath.strokeColor = 'purple';
-      ExtendPaperJs(paper);
-      // console.log(   paper.Path.prototype.offset);
-      paths.forEach((p) => {
-        const expanded= paper.Path.prototype.offset.call(p, borderSize, {cap: 'miter'})
-        // expanded.closed = true;
-        console.log(expanded)
-      })
-      // // paper.add
-      // console.log(expanded);
-      // scope.
-
-      // return makerjs.model.combineSubtraction(
-      //   makerjs.model.clone(boundaryModel),
-      //   expandedModel
-    } else {
-      // return pathModel;
-    }
+function slope(a, b) {
+  if (a.x == b.x) {
+      return null;
   }
 
-  get metaParameters() {
+  return (b.y - a.y) / (b.x - a.x);
+}
+
+function yIntercept(point, slope) {
+  if (slope === null) {
+      // vertical line
+      return point.x;
+  }
+
+  return point.y - slope * point.x;
+}
+
+export abstract class AbstractExpandInnerDesign
+  extends FastAbstractInnerDesign {
+
+  abstract makePaths(scope: paper.PaperScope, params): paper.Point[][];
+  abstract pathDesignMetaParameters: MetaParameter[]
+  
+  makeDesign(scope: paper.PaperScope, params): paper.PathItem[] {
+    const { boundaryModel, borderSize, seed, debug } = params;
+
+    const lines = this.makePaths(scope, params);
+
+    let totalPath = boundaryModel.clone();
+
+    lines.map((line: paper.Point[]) => {
+      console.log(line)
+      console.log(line[0])
+      console.log(line[0].x)
+    
+
+      const p1 = line[0];
+      const p2 = line[1]
+      const m = slope(p1, p2);
+      const y = yIntercept(p1, m);
+      console.log(m);
+      console.log(y);
+      
+      const bufferDistance = 0.2
+      var angleRadians = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+      console.log(angleRadians)
+      const h = params.lineWidth*0.5 / Math.cos(angleRadians);
+      console.log(h);
+
+      const path = new paper.Path([
+        new paper.Point(p1.x, p1.y + h),
+        new paper.Point(p2.x, y + h + p2.x*m),
+        new paper.Point(p2.x, y - h + p2.x*m),
+        new paper.Point(p1.x, p1.y-h),
+        new paper.Point(p1.x, p1.y + h)
+      ])
+
+      console.log(path);
+
+      path.closePath();
+      console.log(path.bounds)
+      path.strokeColor = "red";
+      if (!params.debug) {
+        path.remove();
+      }
+ 
+      totalPath = totalPath.subtract(path, {insert: false});
+
+    })
+    // console.log(paths);
+
+    // return paths;
+    return [totalPath]
+  }
+
+  get designMetaParameters(): MetaParameter[] {
     return [
-      new OnOffMetaParameter({
-        title: "Debug",
-        name: "debug",
-        value: false
-      }),
       new RangeMetaParameter({
-        title: "Seed",
-        min: 1,
-        max: 10000,
-        value: 1,
-        step: 1,
-        name: "seed"
+        title: "Line Width",
+        min: 0.02,
+        max: 0.5,
+        value: 0.1,
+        step: 0.001,
+        name: "lineWidth"
       }),
-      new RangeMetaParameter({
-        title: "Border Size",
-        min: 0.04,
-        max: 0.25,
-        value: 0.04,
-        step: 0.01,
-        name: "borderSize"
-      }),
-      ...this.designMetaParameters
+      ...this.pathDesignMetaParameters
     ];
   }
 }

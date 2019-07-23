@@ -1,16 +1,23 @@
-MONDRIAN: if you're at the top or bottom ...
+features:
+add rivet holes to straight cuff
+bring back collar outline
+make SVG export correct with inches/scale
+bring back PDF export
 
+fixes:
+hexes is ugly now
+lines is ugly now
+explode is ugly now
+implement boundaryDilation in fast-abstract-inner-design
+fix gap on this one https://127.0.0.1:4501/static/#StraightCuffOuter.debug=false&StraightCuffOuter.height=2&StraightCuffOuter.wristCircumference=7&StraightCuffOuter.safeBorderWidth=0.25&StraightCuffOuter.forearmCircumference=7.4&InnerDesignCirclePacking.debug=false&InnerDesignCirclePacking.seed=1&InnerDesignCirclePacking.borderSize=0.13&InnerDesignCirclePacking.minCircleSize=0.02&InnerDesignCirclePacking.maxCircleSize=0.33&InnerDesignCirclePacking.numLines=9&InnerDesignCirclePacking.constrainCircles=false&InnerDesignCirclePacking.forceContainment=false&InnerDesignCirclePacking.outlineSize=0.1&InnerDesignCirclePacking.boundaryDilation=0.22&InnerDesignCirclePacking.smoothOutline=false
+hexes: should technically take into account unused space and center it
+hexes: should technically not break out of box
 
-
-- implement straight cuff
+future:
 - see if I can map straight cuff to conic cuff
 - notice how explode doesn't connect to the edges
 - make a box lattice generator
 - posture collar
-
-
-- get collar outline working
-- get last of designs reimported
 
 - make circles a little more linear + better in general
 - experiment with veras-x-circle being outline

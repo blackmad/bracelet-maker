@@ -58,6 +58,7 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
 
     const circles: paper.Path.Circle[] = [];
     const simpleCircles: SimpleCircle[] = [];
+    const outline: paper.Path.Circle[] = [];
 
     var radius = maxCircleSize;
 
@@ -82,12 +83,20 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
         ) {
           circles.push(testCircle);
           simpleCircles.push(simpleTestCircle);
+          if (!params.forceContainment) {
+            outline.push(
+              new paper.Path.Circle(center, radius + params.outlineSize)
+            )
+          }
         }
       }
       radius *= 0.99;
     }
 
-    return circles;
+    return {
+      paths: circles,
+      outlinePaths: outline
+    }
   }
 
   get designMetaParameters(): Array<MetaParameter> {

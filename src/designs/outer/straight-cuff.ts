@@ -88,6 +88,7 @@ export class StraightCuffOuter implements PaperModelMaker {
       const oldCuffOuter = cuffOuter;
 
       cuffOuter = cuffOuter.unite(innerDesign.outline);
+      cuffOuter.remove();
       // cheap hack to fill in inner holes for some reason
       cuffOuter = cuffOuter.unite(safeArea);
       
@@ -97,6 +98,7 @@ export class StraightCuffOuter implements PaperModelMaker {
       // innerDesign.paths.forEach(p => p.remove());
     }
 
+
     const path = new paper.CompoundPath({
       // children: [cuffOuter],
       children: [cuffOuter, ...innerDesign.paths],
@@ -105,7 +107,7 @@ export class StraightCuffOuter implements PaperModelMaker {
       fillColor: 'lightgrey',
       fillRule: 'evenodd'
     });
-    return [path];
+      return [path];
 
     // innerDesign.layer = "inner"
     // models['design'] = innerDesign;

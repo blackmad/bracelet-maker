@@ -18,7 +18,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   allowOutline: boolean = false;
   requiresSafeConeClamp: boolean = false;
 
-  abstract makeDesign(scope: any, params: any): any[];
+  abstract makeDesign(scope: any, params: any): any;
   abstract get designMetaParameters(): Array<MetaParameter>;
 
   get metaParameters(): Array<MetaParameter> {
@@ -82,14 +82,17 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
   make(scope: any, params: any): any {
     const self = this;
-    let paths = null;
 
     if (params.seed) {
       this.rng = seedrandom(params.seed.toString());
       this.simplex = new SimplexNoise(params.seed.toString());
     }
 
-    paths = self.makeDesign(scope, params);
+    const design = self.makeDesign(scope, params);
+    let paths = design;
+    if (design['paths']) {
+      paths = design['paths'];
+    }
 
     console.log(paths);
 
@@ -124,10 +127,16 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         children: paths
       });
 
-      // @ts-ignore
-      
-      outline = paper.Path.prototype.offset.call(compoundPath, params.outlineSize, { cap: 'miter' });
-      outline.remove();
+      if (design['outlinePaths']) {
+        console.log('using outlinePaths')
+        outline = new paper.CompoundPath(design['outlinePaths'])
+        outline = outline.intersect(params.safeCone);
+      } else {
+        // @ts-ignore
+        outline = paper.Path.prototype.offset.call(compoundPath, params.outlineSize, { cap: 'miter' });
+        outline.remove();
+      }
+
       outline = outline.unite(outline)
       outline.remove();
       if (params.smoothOutline) {
@@ -135,6 +144,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       }
       console.log(outline);
     }
+    console.log(paths);
 
     return {
       paths,
