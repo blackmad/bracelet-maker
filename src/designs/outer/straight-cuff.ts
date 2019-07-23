@@ -64,6 +64,8 @@ export class StraightCuffOuter implements PaperModelMaker {
     if (debug) {
       console.log('green');
       safeArea.strokeColor = 'green';
+    } else {
+      safeArea.remove();
     }
 
     const safeCone = new paper.Path.Rectangle(
@@ -98,8 +100,9 @@ export class StraightCuffOuter implements PaperModelMaker {
     const path = new paper.CompoundPath({
       // children: [cuffOuter],
       children: [cuffOuter, ...innerDesign.paths],
-      // strokeColor: 'black',
-      fillColor: 'purple',
+      strokeColor: 'red',
+      strokeWidth: '0.1',
+      fillColor: 'lightgrey',
       fillRule: 'evenodd'
     });
     return [path];

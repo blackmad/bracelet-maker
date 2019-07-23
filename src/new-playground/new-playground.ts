@@ -343,9 +343,9 @@ export class DavidsPlayground {
         .map((f: PaperModelMaker) => f.constructor.name)
         .join("-");
     }
-    filename += `-${this.params["ConicCuffOuter.height"]}x${
-      this.params["ConicCuffOuter.wristCircumference"]
-    }x${this.params["ConicCuffOuter.forearmCircumference"]}`;
+    filename += `-${this.params[ this.modelMaker.name + ".height"]}x${
+      this.params[ this.modelMaker.name + ".wristCircumference"]
+    }x${this.params[ this.modelMaker.name + ".forearmCircumference"]}`;
     filename += "." + extension;
     return filename;
   }
@@ -477,6 +477,7 @@ export class DavidsPlayground {
 
     this.modelMaker.make(this.scope, modelParams);
     this.scope.view.onResize();
+    $("body").removeClass("loading");
 
   }
 }
