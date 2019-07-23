@@ -1,5 +1,5 @@
 import { DavidsPlayground } from "./new-playground";
-import { ModelMaker } from "../model-maker";
+import { ModelMaker, PaperModelMaker } from "../model-maker";
 
 import { ConicCuffOuter } from "../designs/outer/conic-cuff";
 import { StraightCollarOuter } from "../designs/outer/collar";
@@ -37,7 +37,7 @@ function attachHandlers() {
       $('.algoPattern').show();
       if (innerDesignClass) {
         const innerDesign = new innerDesignClass();
-        const modelMaker: ModelMaker = new outerDesignClass(innerDesign);
+        const modelMaker: PaperModelMaker = new outerDesignClass(innerDesign);
         $('.clear-on-reinit').empty();
         new DavidsPlayground(modelMaker, [modelMaker, innerDesign]).rerender();
       }

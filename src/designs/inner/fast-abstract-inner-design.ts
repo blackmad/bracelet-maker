@@ -1,41 +1,41 @@
-import * as SimplexNoise from "simplex-noise";
-const makerjs = require("makerjs");
-const seedrandom = require("seedrandom");
+import * as SimplexNoise from 'simplex-noise';
+const makerjs = require('makerjs');
+const seedrandom = require('seedrandom');
+import * as paper from 'paper';
+import ExtendPaperJs from 'paperjs-offset';
 
 import {
   MetaParameter,
   RangeMetaParameter,
   OnOffMetaParameter
-} from "../../meta-parameter";
-import { ModelMaker } from "../../model-maker";
-import { FastRoundShim } from "./fast-round-shim";
+} from '../../meta-parameter';
+import { PaperModelMaker } from '../../model-maker';
 
-export abstract class FastAbstractInnerDesign implements ModelMaker {
+export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   rng: () => number;
   simplex: SimplexNoise;
-  useFastRound: boolean = true;
   needSubtraction: boolean = true;
   allowOutline: boolean = false;
   requiresSafeConeClamp: boolean = false;
 
-  abstract makeDesign(params: any): MakerJs.IModel;
+  abstract makeDesign(scope: any, params: any): any[];
   abstract get designMetaParameters(): Array<MetaParameter>;
 
   get metaParameters(): Array<MetaParameter> {
     const metaParams = [
       new OnOffMetaParameter({
-        title: "Debug",
-        name: "debug",
+        title: 'Debug',
+        name: 'debug',
         value: false
       }),
-      
+
       new RangeMetaParameter({
-        title: "Seed",
+        title: 'Seed',
         min: 1,
         max: 10000,
         value: 1,
         step: 1,
-        name: "seed"
+        name: 'seed'
       }),
       ...this.designMetaParameters
     ];
@@ -43,29 +43,29 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
     if (this.allowOutline) {
       metaParams.push(
         new OnOffMetaParameter({
-          title: "Force Containment",
-          name: "forceContainment",
+          title: 'Force Containment',
+          name: 'forceContainment',
           value: false
         })
       );
       metaParams.push(
         new RangeMetaParameter({
-          title: "Outline size (in)",
+          title: 'Outline size (in)',
           min: 0.05,
           max: 0.4,
           value: 0.1,
           step: 0.01,
-          name: "outlineSize"
+          name: 'outlineSize'
         })
       );
       metaParams.push(
         new RangeMetaParameter({
-          title: "Boundary Dilation (forceContainment=false only)",
+          title: 'Boundary Dilation (forceContainment=false only)',
           min: 0.05,
           max: 2.5,
           value: 0.22,
           step: 0.01,
-          name: "boundaryDilation"
+          name: 'boundaryDilation'
         })
       );
     }
@@ -73,106 +73,55 @@ export abstract class FastAbstractInnerDesign implements ModelMaker {
     return metaParams;
   }
 
-  make(params: any): MakerJs.IModel {
+  make(scope: any, params: any): any {
     const self = this;
-    let model = null;
+    let paths = null;
 
     if (params.seed) {
       this.rng = seedrandom(params.seed.toString());
       this.simplex = new SimplexNoise(params.seed.toString());
     }
 
-    const originalBoundaryModel = params.boundaryModel;
-    if (this.allowOutline && !params.forceContainment) {
-      // let scaledBoundaryModal = makerjs.model.outline(
-      //   makerjs.model.clone(params.outerModel),
-      //   params.boundaryDilation
-      // );
-      // scaledBoundaryModal = makerjs.model.combineIntersection(
-      //   scaledBoundaryModal,
-      //   makerjs.model.clone(params.safeCone)
-      // );
-      // params.boundaryModel = { models: { rect: scaledBoundaryModal } };
-      // makerjs.model.originate(params.boundaryModel);
-      // console.log(params.boundaryModel);
-    }
+    paths = self.makeDesign(scope, params);
 
-    if (this.useFastRound) {
-      FastRoundShim.useFastRound(function() {
-        model = self.makeDesign(params);
-      });
-    } else {
-      console.log("not fast");
-      model = self.makeDesign(params);
-    }
-
-    console.log(model);
+    console.log(paths);
 
     if (params.debug) {
-      model.units = makerjs.unitType.Inch;
-      return model;
+      return {paths};
     }
 
-    if (this.requiresSafeConeClamp) {
+    if (this.requiresSafeConeClamp || !params.forceContainment) {
       console.log('clamping cone');
-      model = makerjs.model.combineIntersection(
-        makerjs.model.clone(params.safeCone),
-        makerjs.model.clone(model)
-      );
+      paths = paths.map(m => m.intersect(params.safeCone));
     }
 
-    if (this.needSubtraction) {
-      console.log('clamping sub')
-      model = makerjs.model.combineIntersection(
-        makerjs.model.clone(params.boundaryModel),
-        model
+    if (this.needSubtraction && params.forceContainment) {
+      console.log('clamping sub');
+      console.log(params.boundaryModel);
+      paths = paths.map(m => m.intersect(params.boundaryModel));
+    }
+    ExtendPaperJs(paper);
+
+    let outline = null;
+    if (this.allowOutline && !params.forceContainment) {
+      paths = paths.filter(
+        m =>
+          params.outerModel.contains(m.bounds) ||
+          m.intersects(params.outerModel)
       );
+
+      const compoundPath = new paper.CompoundPath({
+        strokeColor: 'pink',
+        children: paths
+      });
+
+      // @ts-ignore
+      outline = paper.Path.prototype.offset.call(compoundPath, 0.2, { cap: 'miter' });
     }
 
-    if ((this.allowOutline && params.forceContainment) ||
-      (!this.allowOutline)
-    ) {
-      return {
-        models: {
-          contained: model,
-          // boundary: params.boundaryModel
-        },
-        units: makerjs.unitType.Inch,
-      };
-    } else {
-      model.units = makerjs.unitType.Inch;
-      if (!model.models.outline) {
-        console.log("outlining");
-        let unioned = makerjs.model.combineUnion(
-          makerjs.model.clone(model),
-          makerjs.model.clone(originalBoundaryModel) // params.boundaryModel),
-        )
-        unioned = makerjs.model.combineIntersection(
-          makerjs.model.clone(params.safeCone),
-          unioned
-        );
-
-
-
-        // let outline = makerjs.model.outline(makerjs.model.clone(model), params.outlineSize);
-        let outline = makerjs.model.outline(unioned, params.outlineSize);
-  
-        // console.log(outline);
-        return {
-          models: {
-            // model: model,
-            contained: model,
-            outline: outline,
-            // unioned: unioned,
-            // chain: bigModel,
-            // chains: {models: chainsM},
-            // boundary: params.boundaryModel
-          },
-          units: makerjs.unitType.Inch,
-        };
-      } else {
-        return model;
-      }
+    return {
+      paths,
+      outline
     }
   }
 }

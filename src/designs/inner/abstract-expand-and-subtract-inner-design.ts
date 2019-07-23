@@ -20,7 +20,7 @@ export abstract class AbstractExpandAndSubtractInnerDesign
   abstract makePaths(scope: paper.PaperScope, params): paper.Path[];
   abstract get designMetaParameters(): Array<MetaParameter>;
   
-  make(scope: paper.PaperScope, params) {
+  make(scope: paper.PaperScope, params): paper.PathItem[] {
     const { boundaryModel, borderSize, seed, debug } = params;
 
     this.rng = seedrandom(seed.toString());

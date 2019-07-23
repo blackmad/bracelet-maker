@@ -448,7 +448,7 @@ export class DavidsPlayground {
     scope.setup(canvas)
     scope.activate();
 
-       scope.view.onResize = function() {
+    scope.view.onResize = function() {
       // ...log new view width
       console.log("view.width is now: " + scope.view.bounds.width);
       scope.project.activeLayer.fitBounds(scope.view.bounds);
@@ -459,7 +459,7 @@ export class DavidsPlayground {
     }
 
     this.modelMaker.make(this.scope, modelParams);
-    console.log(this.model);
+    // console.log(this.model);
     this.scope.view.onResize();
 
     // paper.view.scaling = new paper.Point(96, 96);

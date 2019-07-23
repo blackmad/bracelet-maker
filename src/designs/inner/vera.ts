@@ -1,23 +1,23 @@
-import { ShapeMaker } from "../shape-maker";
+import { ShapeMaker } from '../shape-maker';
 
-import { SimplexNoiseUtils } from "../../utils/simplex-noise-utils";
+import { SimplexNoiseUtils } from '../../utils/simplex-noise-utils';
 import {
   MetaParameter,
   OnOffMetaParameter,
   RangeMetaParameter,
   SelectMetaParameter
-} from "../../meta-parameter";
-import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
-import { MakerJsUtils } from "../../utils/makerjs-utils";
-
-var makerjs = require("makerjs");
+} from '../../meta-parameter';
+import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
+import * as paper from 'paper';
+import { PaperModelMaker } from '../../model-maker';
+import * as _ from 'lodash';
 
 export class InnerDesignVera extends FastAbstractInnerDesign {
   allowOutline = true;
   requiresSafeConeClamp = false;
   needSubtraction = true;
 
-  makeDesign(params) {
+  makeDesign(scope, params) {
     const {
       height,
       width,
@@ -35,37 +35,45 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
       boundaryModel
     } = params;
 
-    const models = {};
+    let models = [];
 
     const gridCellSizeX = shapeSize1 + bufferWidth * 2;
     const gridCellSizeY = shapeSize2 + bufferWidth * 2;
     const rows = width / gridCellSizeX;
     const cols = height / gridCellSizeY;
 
-    for (var r = -1; r <= rows; r++) {
-      for (var c = -1; c <= cols; c++) {
-        const model = makerjs
-          .$(ShapeMaker.makeShape(shapeName, shapeSize1, shapeSize2))
-          .rotate(
-            SimplexNoiseUtils.noise2DInRange(
-              this.simplex,
-              r * xNoiseCoefficient,
-              c * yNoiseCoefficient,
-              0,
-              180
-            )
+    function makeRow(c) {
+      const rowModels = [];
+      for (var r = -1; r <= rows; r++) {
+        // .$(ShapeMaker.makeShape(shapeName, shapeSize1, shapeSize2))
+  
+        var point = new paper.Point(0, 0);
+        var size = new paper.Size(shapeSize1, shapeSize2);
+        var path = new paper.Path.Rectangle(point, size);
+  
+        path.rotate(
+          SimplexNoiseUtils.noise2DInRange(
+            this.simplex,
+            r * xNoiseCoefficient,
+            c * yNoiseCoefficient,
+            0,
+            180
+          ),
+          new paper.Point(shapeSize1 / 2, shapeSize2 / 2)
+        );
+  
+        path.scale(
+          SimplexNoiseUtils.noise2DInRange(
+            this.simplex,
+            r * xScaleNoiseCoefficient,
+            c * yScaleNoiseCoefficient,
+            minScale,
+            maxScale
           )
-          .scale(
-            SimplexNoiseUtils.noise2DInRange(
-              this.simplex,
-              r * xScaleNoiseCoefficient,
-              c * yScaleNoiseCoefficient,
-              minScale,
-              maxScale
-            )
-          )
-          //.move([r*gridCellSize, c*gridCellSize])
-          .move([
+        );
+  
+        path.translate(
+          new paper.Point(
             r * gridCellSizeX +
               SimplexNoiseUtils.noise2DInRange(
                 this.simplex,
@@ -82,102 +90,107 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
                 -bufferWidth / 2,
                 bufferWidth / 2
               )
-          ]).$result;
-        if (!constrainShapes || !MakerJsUtils.checkModelIntersectsModel(model, boundaryModel)) {
-          models[r + "." + c] = model;
-        }
+          )
+        );
+        rowModels.push(path);
       }
+      return rowModels
     }
 
-    return { models: models };
+    for (var c = -1; c <= cols; c++) {
+      const rowModels = _.bind(makeRow, this)(c);
+      models = models.concat(rowModels);
+    }
+
+    return models;
   }
 
   get designMetaParameters(): Array<MetaParameter> {
     return [
       new RangeMetaParameter({
-        title: "Shape Size 1 (Width?)",
+        title: 'Shape Size 1 (Width?)',
         min: 0.02,
         max: 2.0,
         value: 0.2,
         step: 0.01,
-        name: "shapeSize1"
+        name: 'shapeSize1'
       }),
       new RangeMetaParameter({
-        title: "Shape Size 2 (Height?)",
+        title: 'Shape Size 2 (Height?)',
         min: 0.02,
         max: 2.0,
         value: 0.2,
         step: 0.01,
-        name: "shapeSize2"
+        name: 'shapeSize2'
       }),
 
       new RangeMetaParameter({
-        title: "Border Size (in)",
+        title: 'Border Size (in)',
         min: 0.1,
         max: 0.75,
         value: 0.1,
         step: 0.01,
-        name: "bufferWidth"
+        name: 'bufferWidth'
       }),
       new RangeMetaParameter({
-        title: "xNoiseCoefficient",
+        title: 'xNoiseCoefficient',
         min: 0.0,
         max: 0.2,
         step: 0.001,
         value: 0.01,
-        name: "xNoiseCoefficient"
+        name: 'xNoiseCoefficient'
       }),
       new RangeMetaParameter({
-        title: "yNoiseCoefficient",
+        title: 'yNoiseCoefficient',
         min: 0.0,
         max: 0.2,
         step: 0.001,
         value: 0.01,
-        name: "yNoiseCoefficient"
+        name: 'yNoiseCoefficient'
       }),
       new RangeMetaParameter({
-        title: "xScaleNoiseCoefficient",
+        title: 'xScaleNoiseCoefficient',
         min: 0.0,
         max: 0.2,
         step: 0.001,
         value: 0.01,
-        name: "xScaleNoiseCoefficient"
+        name: 'xScaleNoiseCoefficient'
       }),
       new RangeMetaParameter({
-        title: "yScaleNoiseCoefficient",
+        title: 'yScaleNoiseCoefficient',
         min: 0.0,
         max: 0.2,
         step: 0.001,
         value: 0.01,
-        name: "yScaleNoiseCoefficient"
+        name: 'yScaleNoiseCoefficient'
       }),
 
       new RangeMetaParameter({
-        title: "Min scaling",
+        title: 'Min scaling',
         min: 0.1,
         max: 1.0,
         value: 0.5,
         step: 0.01,
-        name: "minScale"
+        name: 'minScale'
       }),
       new RangeMetaParameter({
-        title: "Max scaling",
+        title: 'Max scaling',
         min: 1.0,
         max: 1.5,
         value: 1.25,
         step: 0.01,
-        name: "maxScale"
+        name: 'maxScale'
       }),
 
       new SelectMetaParameter({
-        title: "Shape",
+        title: 'Shape',
         options: ShapeMaker.modelNames,
-        name: "shapeName",
-        value: "Rectangle"
+        name: 'shapeName',
+        value: 'Rectangle'
       }),
       new OnOffMetaParameter({
-        title: "constrainShapes",
-        name: "constrainShapes",
+        title: 'constrainShapes',
+        name: 'constrainShapes',
         value: false
       })
     ];

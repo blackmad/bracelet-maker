@@ -1,3 +1,5 @@
+import * as paper from "paper";
+
 import { MetaParameter } from "./meta-parameter";
 
 export interface ModelMaker {
@@ -9,5 +11,5 @@ export interface ModelMaker {
 export interface PaperModelMaker {
   subModels?: Array<PaperModelMaker>;
   readonly metaParameters: Array<MetaParameter>;
-  make(scope: any, params: any): void;
+  make(scope: any, params: any): paper.PathItem[];
 }

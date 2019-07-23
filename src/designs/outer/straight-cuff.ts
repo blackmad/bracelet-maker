@@ -43,7 +43,7 @@ function roundCorners(path,radius) {
 
 
 export class StraightCuffOuter implements PaperModelMaker {
-  make(scope, options): void {
+  make(scope, options): paper.PathItem[] {
     var { height, wristCircumference, safeBorderWidth, debug } = options[
       "StraightCuffOuter"
     ];
@@ -52,7 +52,7 @@ export class StraightCuffOuter implements PaperModelMaker {
     const topPadding = 0.8;
     const totalWidth = wristCircumference + bottomPadding * 2;
     console.log(scope);
-    var cuffOuter = new paper.Path();
+    let cuffOuter = new paper.Path();
     cuffOuter.strokeColor = "black";
     cuffOuter.add(new paper.Point(0, 0));
     cuffOuter.add(new paper.Point(bottomPadding - topPadding, height));
@@ -66,13 +66,28 @@ export class StraightCuffOuter implements PaperModelMaker {
     const safeAreaPadding = 0.5;
     const safeAreaLength = wristCircumference;
     const safeArea =
-      new paper.Rectangle(
+      new paper.Path.Rectangle(
         new paper.Point(bottomPadding, safeBorderWidth),
         new paper.Size(
           safeAreaLength,
           height - safeBorderWidth * 2
         )
       )
+    
+    if (debug) {
+      console.log('green')
+      safeArea.strokeColor = "green";
+    }
+
+    const safeCone =
+      new paper.Path.Rectangle(
+        new paper.Point(bottomPadding, -10),
+        new paper.Size(
+          safeAreaLength,
+          20
+        )
+      )
+    safeCone.remove();
 
     // const safeCone = makerjs.model.move(
     //   new makerjs.models.Rectangle(safeAreaLength, height * 4),
@@ -90,10 +105,26 @@ export class StraightCuffOuter implements PaperModelMaker {
     innerOptions.height = height;
     innerOptions.width = totalWidth;
     innerOptions.boundaryModel = safeArea;
-    // innerOptions.safeCone = safeCone;
-    // innerOptions.outerModel = makerjs.model.clone(cuffOuter);
+    innerOptions.safeCone = safeCone;
+    innerOptions.outerModel = cuffOuter;
+    console.log(options);
+    console.log(innerOptions)
 
     const innerDesign = this.innerDesignClass.make(scope, innerOptions);
+    if (innerDesign.outline) {
+      cuffOuter = cuffOuter.unite(innerDesign.outline)
+      innerDesign.outline.remove();
+    }
+
+    const path = new paper.CompoundPath(
+      {
+        children: [cuffOuter, ...innerDesign.paths],
+        // strokeColor: 'black',
+        fillColor: 'purple',
+        fillRule: 'evenodd'
+      }
+    )
+    return [path];
 
     // innerDesign.layer = "inner"
     // models['design'] = innerDesign;
