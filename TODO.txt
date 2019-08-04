@@ -1,7 +1,6 @@
 features:
 add rivet holes to straight cuff
 bring back collar outline
-make SVG export correct with inches/scale
 bring back PDF export
 why aren't all settings being saved in UI?
 

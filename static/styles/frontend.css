@@ -2,15 +2,23 @@ body {
   font-family: Source Code Pro, Consolas, Menlo, monospace !important;
 }
 
-#topArea {
+.playArea {
   background: white;
 }
 
-svg {
+#canvasBlock {
   width: 100%;
-  padding: 2.5%;
   max-height: 33vh;
-  
+}
+
+#gridArea {
+  width: 100%;
+  position: absolute; 
+  x: 0; 
+  y:0;
+  max-height: 33vh;
+  z-index: -1;
+
 }
 
 .error #previewArea {
@@ -36,6 +44,8 @@ svg {
 
 .playArea {
   display: none;
+  margin-right: -15px;
+  margin-left: -15px;
 }
 
 .crosshatch {
@@ -52,4 +62,8 @@ canvas[resize] {
   width: 100%;
   padding: 2.5%;
   height: 30vh;
+}
+
+.algoPattern {
+  display: none;
 }

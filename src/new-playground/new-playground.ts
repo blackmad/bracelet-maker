@@ -297,8 +297,7 @@ export class DavidsPlayground {
     document.getElementById('errorMessage').innerHTML = errorMessage;
   }
 
-  reprocessSVG(svg) {
-    
+  cleanSVGforDownload(svg) {
     function recurse(el) {
       for(let x of Array.from(el.children)) {
         el.removeAttribute('transform')
@@ -308,26 +307,26 @@ export class DavidsPlayground {
           el.setAttribute('stroke', '#ff0000')
           el.setAttribute('stroke-width', '0.001pt')
         }
-        console.log(el);
         recurse(x);
       }
     }
+    recurse(svg);
+  }
+
+  reprocessSVG(svg) {
     svg.setAttribute('viewBox', `0 0 ${paper.project.activeLayer.bounds.width} ${paper.project.activeLayer.bounds.height}`);
     svg.setAttribute('height', paper.project.activeLayer.bounds.height + 'in');
     svg.setAttribute('width', paper.project.activeLayer.bounds.width + 'in');
-    console.log('reprocess')
-    recurse(svg);
   }
 
   downloadSVG() {
     let svgData: string = (paper.project.exportSVG({
       asString: true
     }) as unknown) as string;
-    console.log(svgData);
 
     const svg = $(svgData);
-    this.reprocessSVG(svg[0]);
-    console.log(svg[0].outerHTML)
+    this.cleanSVGforDownload(svg[0]);
+    this.reprocessSVG(svg[0])
 
     var encoded = encodeURIComponent(svg[0].outerHTML);
     var uriPrefix = 'data:' + 'image/svg+xml' + ',';
@@ -346,20 +345,6 @@ export class DavidsPlayground {
     return false;
   }
 
-  cleanModel(model) {
-    if (!model || !model) {
-      return;
-    }
-
-    _(model.models).each((value: any, key: string) => {
-      if (value == null) {
-        delete model.models[key];
-      } else {
-        this.cleanModel(value);
-      }
-    });
-  }
-
   makeFilename(extension: string): string {
     // @ts-ignore
     let filename = this.modelMaker.name;
@@ -367,10 +352,12 @@ export class DavidsPlayground {
       filename = this.subModels
         .map((f: PaperModelMaker) => f.constructor.name)
         .join('-');
-    }
-    filename += `-${this.params[this.modelMaker.name + '.height']}x${
-      this.params[this.modelMaker.name + '.wristCircumference']
-    }x${this.params[this.modelMaker.name + '.forearmCircumference']}`;
+		}
+		const modelName = this.modelMaker.constructor.name;
+		console.log('modelName', modelName);
+    filename += `-${this.params[modelName + '.height']}x${
+      this.params[modelName + '.wristCircumference']
+    }x${this.params[modelName + '.forearmCircumference']}`;
     filename += '.' + extension;
     return filename;
   }
@@ -421,10 +408,6 @@ export class DavidsPlayground {
   // }
 
   makeGrid(canvas, xPixelsPerInch, yPixelsPerInch) {
-    console.log(xPixelsPerInch);
-    console.log(yPixelsPerInch);
-    xPixelsPerInch *= 20;
-    yPixelsPerInch *= 20;
     var data = `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
     <defs>
         <pattern id="smallGrid" width="${xPixelsPerInch/10}" height="${yPixelsPerInch/10}" patternUnits="userSpaceOnUse">
@@ -437,23 +420,7 @@ export class DavidsPlayground {
     </defs>
     <rect width="100%" height="100%" fill="url(#grid)" />
     </svg>`;
-
-    var img = new Image();
-    var svg = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
-    var url = URL.createObjectURL(svg);
-
-    img.onload = function() {
-      const gridCanvas: HTMLCanvasElement = document.getElementById(
-        'gridCanvas'
-      ) as HTMLCanvasElement;
-      var ctx = gridCanvas.getContext('2d');
-      $('#canvasBlock')[0].style.height = canvas.height / 2;
-      gridCanvas.width = canvas.width;
-      gridCanvas.height = canvas.height;
-      ctx.drawImage(img, 0, 0);
-      URL.revokeObjectURL(url);
-    };
-    img.src = url;
+    $('#gridArea')[0].innerHTML = data;
   }
 
   doRender() {
@@ -488,30 +455,37 @@ export class DavidsPlayground {
     if (paper != null && paper.project != null) {
       paper.project.activeLayer.removeChildren();
     }
-    console.log(paper.project);
 
     this.modelMaker.make(paper, modelParams);
-    paper.view.scale(10, new paper.Point(0, 0));
-    paper.view.draw();
-    const self = this;
-    paper.view.onResize = function() {
+
+    const svgData =  (paper.project.exportSVG({
+      asString: true
+    }) as unknown) as string;
+    document.getElementById('svgArea').innerHTML = svgData;
+
+    const svg = $('#svgArea svg');
+    this.reprocessSVG(svg[0])
+    svg[0].setAttribute('width','100%');
+    svg[0].setAttribute('height','100%');
+
+		const self = this;
+		const onResizeCallback = function() {
       const originalHeight = paper.project.activeLayer.bounds.height;
       const originalWidth = paper.project.activeLayer.bounds.width;
 
-      const xPixelsPerInch = paper.view.bounds.width / originalWidth;
-      const yPixelsPerInch = paper.view.bounds.height / originalHeight;
+      const xPixelsPerInch = document.getElementById('gridArea').clientWidth / originalWidth;
+      const yPixelsPerInch = xPixelsPerInch // paper.view.bounds.height / originalHeight;
 
       paper.view.scale(xPixelsPerInch, new paper.Point(0, 0));
       paper.view.translate(new paper.Point(0, (paper.view.bounds.height - originalHeight)/2));
-      console.log(paper.view.bounds.height)
-      console.log(originalHeight)
-      console.log(originalHeight*xPixelsPerInch)
 
       self.makeGrid(canvas, xPixelsPerInch, yPixelsPerInch);
-    };
-    paper.view.onResize();
+		};
+		
+		paper.view.onResize = onResizeCallback;
+		onResizeCallback();
+    
 
-    // paper.view.onResize();
     $('body').removeClass('loading');
   }
 }

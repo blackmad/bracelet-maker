@@ -1,12 +1,7 @@
-import { SimplexNoiseUtils } from "../../utils/simplex-noise-utils";
 import {
-  MetaParameter,
-  OnOffMetaParameter,
-  RangeMetaParameter,
-  SelectMetaParameter
+  MetaParameter
 } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
-import { AbstractExpandAndSubtractInnerDesign } from './abstract-expand-and-subtract-inner-design'
 import { MakerJsUtils } from "../../utils/makerjs-utils";
 
 var makerjs = require("makerjs");

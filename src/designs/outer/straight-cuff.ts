@@ -1,9 +1,6 @@
-import {
-  RangeMetaParameter,
-  OnOffMetaParameter,
-  MetaParameterType
-} from '../../meta-parameter';
+import { RangeMetaParameter, OnOffMetaParameter } from '../../meta-parameter';
 import { PaperModelMaker } from '../../model-maker';
+import { makeEvenlySpacedBolts, RivetRadius } from '../design-utils';
 
 import * as paper from 'paper';
 
@@ -34,42 +31,87 @@ function roundCorners(path, radius) {
 }
 
 export class StraightCuffOuter implements PaperModelMaker {
+  bottomPadding = 1.0;
+  topPadding = 0.8;
+
+  makeHoles({ path, height, width }): paper.Path.Circle[] {
+    const paddingDiff = Math.abs(this.topPadding - this.bottomPadding);
+    const guideLineLeftP1 = new paper.Point(
+      this.topPadding / 2 + RivetRadius / 2,
+      0
+    );
+    const guideLineLeftP2 = new paper.Point(
+      this.topPadding / 2 + paddingDiff + RivetRadius / 2,
+      height
+    );
+
+    const holes1 = makeEvenlySpacedBolts(
+      Math.floor(height),
+      guideLineLeftP1,
+      guideLineLeftP2
+    );
+
+    const guideLineRightP1 = new paper.Point(
+      width - this.topPadding / 2 - RivetRadius / 2,
+      0
+    );
+    const guideLineRightP2 = new paper.Point(
+      width - this.topPadding / 2 - paddingDiff - RivetRadius / 2,
+      height
+    );
+
+    const holes2 = makeEvenlySpacedBolts(
+      Math.floor(height),
+      guideLineRightP1,
+      guideLineRightP2
+    );
+
+    return [...holes1, ...holes2];
+  }
+
   make(scope, options): paper.PathItem[] {
     var { height, wristCircumference, safeBorderWidth, debug } = options[
       'StraightCuffOuter'
     ];
 
-    const bottomPadding = 1.0;
-    const topPadding = 0.8;
-    const totalWidth = wristCircumference + bottomPadding * 2;
-    console.log(scope);
-    let cuffOuter = new paper.Path();
-    cuffOuter.strokeColor = 'black';
-    cuffOuter.add(new paper.Point(0, 0));
-    cuffOuter.add(new paper.Point(bottomPadding - topPadding, height));
-    cuffOuter.add(
-      new paper.Point(bottomPadding + wristCircumference + topPadding, height)
+    const totalWidth = wristCircumference + this.bottomPadding * 2;
+    const cuffOuterPath: paper.Path = new paper.Path();
+    cuffOuterPath.strokeColor = 'black';
+    cuffOuterPath.add(new paper.Point(0, 0));
+    cuffOuterPath.add(
+      new paper.Point(this.bottomPadding - this.topPadding, height)
     );
-    cuffOuter.add(new paper.Point(totalWidth, 0));
-    roundCorners(cuffOuter, '0.2');
-    cuffOuter.closed = true;
+    cuffOuterPath.add(
+      new paper.Point(
+        this.bottomPadding + wristCircumference + this.topPadding,
+        height
+      )
+    );
+    cuffOuterPath.add(new paper.Point(totalWidth, 0));
+    roundCorners(cuffOuterPath, '0.2');
+    const holes = this.makeHoles({
+      path: cuffOuterPath,
+      height,
+      width: totalWidth
+    });
+
+    let cuffOuter: paper.PathItem = cuffOuterPath;
 
     const safeAreaPadding = 0.5;
     const safeAreaLength = wristCircumference;
     const safeArea = new paper.Path.Rectangle(
-      new paper.Point(bottomPadding, safeBorderWidth),
+      new paper.Point(this.bottomPadding, safeBorderWidth),
       new paper.Size(safeAreaLength, height - safeBorderWidth * 2)
     );
 
     if (debug) {
-      console.log('green');
       safeArea.strokeColor = 'green';
     } else {
       safeArea.remove();
     }
 
     const safeCone = new paper.Path.Rectangle(
-      new paper.Point(bottomPadding, -10),
+      new paper.Point(this.bottomPadding, -10),
       new paper.Size(safeAreaLength, 20)
     );
     safeCone.remove();
@@ -80,8 +122,6 @@ export class StraightCuffOuter implements PaperModelMaker {
     innerOptions.boundaryModel = safeArea;
     innerOptions.safeCone = safeCone;
     innerOptions.outerModel = cuffOuter;
-    console.log(options);
-    console.log(innerOptions);
 
     const innerDesign = this.innerDesignClass.make(scope, innerOptions);
     if (innerDesign.outline) {
@@ -91,7 +131,7 @@ export class StraightCuffOuter implements PaperModelMaker {
       cuffOuter.remove();
       // cheap hack to fill in inner holes for some reason
       cuffOuter = cuffOuter.unite(safeArea);
-      
+
       oldCuffOuter.remove();
       // innerDesign.outline.removeChildren();
       // innerDesign.outline.remove();
@@ -103,7 +143,7 @@ export class StraightCuffOuter implements PaperModelMaker {
     } else {
       const path = new paper.CompoundPath({
         // children: [cuffOuter],
-        children: [cuffOuter, ...innerDesign.paths],
+        children: [cuffOuter, ...holes, ...innerDesign.paths],
         strokeColor: 'red',
         strokeWidth: '0.005',
         fillColor: 'lightgrey',

@@ -1,10 +1,9 @@
 import * as paper from "paper";
 
 import {RangeMetaParameter, MetaParameter } from "../../meta-parameter";
-import { pickPointOnRectEdge, randomLineOnRectangle } from "../../utils/paperjs-utils"
+import { randomLineEndpointsOnRectangle } from "../../utils/paperjs-utils"
 
 import { AbstractExpandInnerDesign } from "./abstract-expand-and-subtract-inner-design";
-import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
 
 export class InnerDesignLines extends AbstractExpandInnerDesign {
   makePaths(scope: paper.PaperScope, params: any): paper.Point[][] {
@@ -16,7 +15,7 @@ export class InnerDesignLines extends AbstractExpandInnerDesign {
     const lines: paper.Point[][] = [];
 
     for (let c = 0; c < numLines; c++) {
-      const line = randomLineOnRectangle(boundaryModel.bounds, this.rng);
+      const line = randomLineEndpointsOnRectangle(boundaryModel.bounds, this.rng);
       lines.push(line);
     }
 

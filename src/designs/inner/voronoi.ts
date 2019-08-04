@@ -31,7 +31,6 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
 
     const polys = [];
     for (const cellPolygon of voronoi.cellPolygons()) {
-      console.log('cellpolygon', cellPolygon);
       const points = cellPolygon.map(p => new paper.Point(p[0], p[1]));
       points.pop();
       const bufferedShape = bufferShape(-params.borderSize, points)
