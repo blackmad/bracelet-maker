@@ -135,7 +135,7 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
         name: 'bufferWidth'
       }),
       new RangeMetaParameter({
-        title: 'xNoiseCoefficient',
+        title: 'X Noise Coefficient',
         min: 0.0,
         max: 0.2,
         step: 0.001,
@@ -143,7 +143,7 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
         name: 'xNoiseCoefficient'
       }),
       new RangeMetaParameter({
-        title: 'yNoiseCoefficient',
+        title: 'Y Noise Coefficient',
         min: 0.0,
         max: 0.2,
         step: 0.001,
@@ -151,7 +151,7 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
         name: 'yNoiseCoefficient'
       }),
       new RangeMetaParameter({
-        title: 'xScaleNoiseCoefficient',
+        title: 'X Scale Noise Coefficient',
         min: 0.0,
         max: 0.2,
         step: 0.001,
@@ -159,7 +159,7 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
         name: 'xScaleNoiseCoefficient'
       }),
       new RangeMetaParameter({
-        title: 'yScaleNoiseCoefficient',
+        title: 'Y Scale Noise Coefficient',
         min: 0.0,
         max: 0.2,
         step: 0.001,

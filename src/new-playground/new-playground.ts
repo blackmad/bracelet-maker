@@ -173,7 +173,7 @@ export class DavidsPlayground {
       metaParameter.title
     );
 
-    const colDiv = $('<div class="col-7 leftInputContainer"></div>'));
+    const colDiv = $('<div class="col-7 leftInputContainer"></div>');
     containingDiv.append(colDiv[0]);
 
     const selectInput = document.createElement('select');

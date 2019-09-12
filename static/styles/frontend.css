@@ -4,6 +4,7 @@ body {
 
 .playArea {
   background: white;
+  height: 3000px;
 }
 
 #canvasBlock {
@@ -70,6 +71,7 @@ canvas[resize] {
 #svgArea svg {
   margin-top: -60%;
   overflow: visible;
+  height: 100%;
 }
 
 #topArea {

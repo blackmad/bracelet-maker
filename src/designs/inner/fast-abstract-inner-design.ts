@@ -60,7 +60,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       );
       metaParams.push(
         new RangeMetaParameter({
-          title: 'Boundary Dilation (forceContainment=false only)',
+          title: 'Boundary Dilation (forceContainment false only)',
           min: 0.05,
           max: 2.5,
           value: 0.22,
