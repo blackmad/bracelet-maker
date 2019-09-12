@@ -23,7 +23,7 @@
     <!-- <script src="./pdfkit.standalone.js" charset="utf-8"></script> -->
     <script src="./dist/main.js" type="module" charset="utf-8"></script>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/> <!--320-->
   </head>
   <body>
 
@@ -171,11 +171,9 @@
     </div>
 
       <div class="playArea sticky-top">
-        <div id="canvasBlock">
-          <div id="gridArea"></div>
-          <!-- <canvas id="myCanvas" resize style="position: absolute; x: 0; y:0"></canvas> -->
-          <div id="svgArea"></div>
-        </div>
+        <div id="gridArea"></div>
+        <div id="svgArea"></div>
+
         <div id="loading">Rendering ...</div>
         <div id="error">
           Error rendering design. Sorry :-/ <br />

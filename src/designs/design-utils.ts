@@ -1,6 +1,5 @@
 import * as paper from 'paper';
 import * as _ from 'lodash';
-import { listenerCount } from 'cluster';
 
 export const MillimeterToInches = 0.0393701;
 export const RivetRadius = 2.5 * MillimeterToInches;

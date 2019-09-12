@@ -105,10 +105,10 @@ export class DavidsPlayground {
     rangeInput.step = metaParameter.step;
     rangeInput.id = metaParameter.name + '-range';
     rangeInput.value = value;
-    rangeInput.className = 'col-5';
+    rangeInput.className = 'col-4';
 
     const inputWrapDiv = document.createElement('div');
-    inputWrapDiv.className = 'col-2';
+    inputWrapDiv.className = 'col-3';
     const textInput = document.createElement('input');
     textInput.type = 'number';
     textInput.min = metaParameter.min;
@@ -173,6 +173,9 @@ export class DavidsPlayground {
       metaParameter.title
     );
 
+    const colDiv = $('<div class="col-7 leftInputContainer"></div>'));
+    containingDiv.append(colDiv[0]);
+
     const selectInput = document.createElement('select');
     selectInput.name = metaParameter.name + '-select';
 
@@ -186,7 +189,7 @@ export class DavidsPlayground {
       selectInput.appendChild(option);
     });
 
-    containingDiv.append(selectInput);
+    colDiv.append(selectInput);
 
     this.params[metaParameter.name] = selectedValue;
 
@@ -213,7 +216,7 @@ export class DavidsPlayground {
     const selectInput = document.createElement('select');
     selectInput.name = metaParameter.name + '-select';
 
-    const switchDiv = $(`<div class="col-2">
+    const switchDiv = $(`<div class="col-7 leftInputContainer">
       <input type="checkbox" checked autocomplete="off">
   </div>`);
 
@@ -466,7 +469,7 @@ export class DavidsPlayground {
     const svg = $('#svgArea svg');
     this.reprocessSVG(svg[0])
     svg[0].setAttribute('width','100%');
-    svg[0].setAttribute('height','100%');
+    svg[0].setAttribute('height','auto');
 
 		const self = this;
 		const onResizeCallback = function() {

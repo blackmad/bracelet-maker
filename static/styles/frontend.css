@@ -12,13 +12,11 @@ body {
 }
 
 #gridArea {
-  width: 100%;
-  position: absolute; 
-  x: 0; 
-  y:0;
+  width: 101%;
   max-height: 33vh;
   z-index: -1;
-
+  overflow-y: hidden;
+  overflow-x: visible;
 }
 
 .error #previewArea {
@@ -46,6 +44,7 @@ body {
   display: none;
   margin-right: -15px;
   margin-left: -15px;
+  height: 33vh;
 }
 
 .crosshatch {
@@ -66,4 +65,28 @@ canvas[resize] {
 
 .algoPattern {
   display: none;
+}
+
+#svgArea svg {
+  margin-top: -60%;
+  overflow: visible;
+}
+
+#topArea {
+  background: white;
+}
+
+input[type="number"] {
+  border: lightslategray 1px solid;
+  padding: 3px;
+  width: 100%
+}
+
+.leftInputContainer {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.leftInputContainer input {
+  margin-right: 10px;
 }
