@@ -316,7 +316,7 @@ export class DavidsPlayground {
   reprocessSVG(svg) {
     svg.setAttribute(
       'viewBox',
-      `0 0 ${paper.project.activeLayer.bounds.width} ${paper.project.activeLayer.bounds.height}`
+      `0 0 ${paper.project.activeLayer.bounds.width + 0.05} ${paper.project.activeLayer.bounds.height + 0.05}`
     );
     svg.setAttribute('height', paper.project.activeLayer.bounds.height + 'in');
     svg.setAttribute('width', paper.project.activeLayer.bounds.width + 'in');
@@ -458,50 +458,7 @@ export class DavidsPlayground {
     }
 
     this.modelMaker.make(paper, modelParams);
-
-    const self = this;
-    const onResizeCallback = function() {
-      const xScale =
-        paper.project.view.bounds.width /
-        paper.project.activeLayer.bounds.width;
-      const yScale =
-        paper.project.view.bounds.height /
-        paper.project.activeLayer.bounds.height;
-
-     let scaleToUse = xScale > yScale ? yScale : xScale;
-     scaleToUse *= 0.97;
-    //  scaleToUse *= paper.project.view.getPixelRatio()
-
-      const ySizeInPixels = paper.project.activeLayer.bounds.height * scaleToUse;
-      const xSizeInPixels = paper.project.activeLayer.bounds.width * scaleToUse;
-
-      console.log(ySizeInPixels)
-
-        paper.project.activeLayer.view.translate(new paper.Point(
-          (paper.project.view.bounds.width - xSizeInPixels) /2,
-          (paper.project.view.bounds.height - ySizeInPixels) /2
-        ));
-
-      console.log(paper.project.activeLayer.view.scaling);
-      paper.project.activeLayer.view.scale(
-        scaleToUse,
-        paper.project.activeLayer.bounds.topLeft
-      );
-      console.log(paper.project.activeLayer.view.scaling);
-      paper.project.activeLayer.applyMatrix = false;
-
-      // @ts-ignore
-      // const yOffset = paper.project.view.getSize().height * xScale;
-      // $('#gridArea').css('margin-top', '-' + yOffset + 'px');
-
-      // const ySize = paper.project.activeLayer.bounds.height * xScale;
-      // $('#gridArea').css('height', ySize + 'px');
-
-      // self.makeGrid(canvas, xScale, xScale);
-    };
-
-    paper.view.onResize = onResizeCallback;
-    onResizeCallback();
+    $('#svgArea')[0].innerHTML = this.makeSVGData();
 
     $('body').removeClass('loading');
   }
