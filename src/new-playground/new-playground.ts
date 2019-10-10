@@ -466,13 +466,16 @@ export class DavidsPlayground {
 
 		const self = this;
 		const onResizeCallback = function() {
+      
       const xScale = 
         paper.project.view.bounds.width /
         paper.project.activeLayer.bounds.width;
+      
 
+      console.log(paper.project.activeLayer.view.scaling);
       paper.project.activeLayer.view.scale(xScale, paper.project.activeLayer.bounds.topLeft);
+      console.log(paper.project.activeLayer.view.scaling);
       paper.project.activeLayer.applyMatrix = false;
-
 
       // @ts-ignore
       const yOffset =  paper.project.view.getSize().height * xScale;   
@@ -481,11 +484,10 @@ export class DavidsPlayground {
        const ySize =  paper.project.activeLayer.bounds.height * xScale;       
        $('#gridArea').css('height', ySize + 'px')
 
-
       self.makeGrid(canvas, xScale, xScale);
 		};
 		
-		paper.view.onResize = onResizeCallback;
+    paper.view.onResize = onResizeCallback;
     onResizeCallback();
 
     let originalPlayAreaTop = null; 
@@ -498,6 +500,7 @@ export class DavidsPlayground {
          originalPlayAreaTop = toCheck;
       }
       if (distanceFromTop >= toCheck) {
+          $('.jssticky').css('width', $('.playArea').width());
           $('.jssticky').addClass('fixed');
           $('body').css('padding-top', $('.jssticky').height() + 'px')
       } else {

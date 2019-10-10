@@ -63,18 +63,15 @@ body {
 }
 
 
-#myCanvas {
+canvas[resize] {
   width: 100%;
-}
-
-#svgArea svg {
-  margin-top: -60%;
-  overflow: visible;
   height: 100%;
+  z-index: 1;
 }
 
 #topArea {
   background: white;
+  position: relative;
 }
 
 input[type="number"] {
@@ -98,4 +95,8 @@ input[type="number"] {
   top: 0;
   background: white;
   z-index: 1000;
+}
+
+.downloadSVG {
+  z-index: 10000;
 }
