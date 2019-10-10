@@ -55,6 +55,8 @@
     "seedrandom": "^3.0.1",
     "serve": "^11.0.2",
     "simplex-noise": "^2.4.0",
+    "sticky-js": "^1.2.0",
+    "stickybits": "^3.6.7",
     "string-reader": "^0.9.0",
     "svg-pan-zoom": "github:ariutta/svg-pan-zoom"
   }

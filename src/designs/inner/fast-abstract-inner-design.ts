@@ -17,35 +17,42 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   needSubtraction: boolean = true;
   allowOutline: boolean = false;
   requiresSafeConeClamp: boolean = false;
+  forceContainmentDefault: boolean = true;
+  needSeed: boolean = true;
 
   abstract makeDesign(scope: any, params: any): any;
   abstract get designMetaParameters(): Array<MetaParameter>;
 
   get metaParameters(): Array<MetaParameter> {
-    const metaParams = [
+    let metaParams: Array<MetaParameter> = [
       new OnOffMetaParameter({
         title: 'Debug',
         name: 'debug',
         value: false
-      }),
-
-      new RangeMetaParameter({
-        title: 'Seed',
-        min: 1,
-        max: 10000,
-        value: 1,
-        step: 1,
-        name: 'seed'
-      }),
-      ...this.designMetaParameters
+      })
     ];
+
+    if (this.needSeed) {
+      metaParams.push(
+        new RangeMetaParameter({
+          title: 'Seed',
+          min: 1,
+          max: 10000,
+          value: 1,
+          step: 1,
+          name: 'seed'
+        })
+      );
+    }
+
+    metaParams = metaParams.concat(this.designMetaParameters);
 
     if (this.allowOutline) {
       metaParams.push(
         new OnOffMetaParameter({
           title: 'Force Containment',
           name: 'forceContainment',
-          value: false
+          value: true
         })
       );
       metaParams.push(
@@ -58,16 +65,16 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           name: 'outlineSize'
         })
       );
-      metaParams.push(
-        new RangeMetaParameter({
-          title: 'Boundary Dilation (forceContainment false only)',
-          min: 0.05,
-          max: 2.5,
-          value: 0.22,
-          step: 0.01,
-          name: 'boundaryDilation'
-        })
-      );
+      // metaParams.push(
+      //   new RangeMetaParameter({
+      //     title: 'Boundary Dilation (forceContainment false only)',
+      //     min: 0.05,
+      //     max: 2.5,
+      //     value: 0.22,
+      //     step: 0.01,
+      //     name: 'boundaryDilation'
+      //   })
+      // );
       metaParams.push(
         new OnOffMetaParameter({
           title: 'Smooth Outline',
@@ -113,35 +120,35 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     ExtendPaperJs(paper);
 
     let outline = null;
-    // if (this.allowOutline && !params.forceContainment) {
-    //   paths = paths.filter(
-    //     m =>
-    //       params.outerModel.contains(m.bounds) ||
-    //       m.intersects(params.outerModel)
-    //   );
+    if (this.allowOutline && !params.forceContainment) {
+      paths = paths.filter(
+        m =>
+          params.outerModel.contains(m.bounds) ||
+          m.intersects(params.outerModel)
+      );
 
-    //   const compoundPath = new paper.CompoundPath({
-    //     strokeColor: 'pink',
-    //     children: paths
-    //   });
+      const compoundPath = new paper.CompoundPath({
+        strokeColor: 'pink',
+        children: paths
+      });
 
-    //   if (design['outlinePaths']) {
-    //     console.log('using outlinePaths')
-    //     outline = new paper.CompoundPath(design['outlinePaths'])
-    //     outline = outline.intersect(params.safeCone);
-    //   } else {
-    //     // @ts-ignore
-    //     outline = paper.Path.prototype.offset.call(compoundPath, params.outlineSize, { cap: 'miter' });
-    //     outline.remove();
-    //   }
+      if (design['outlinePaths']) {
+        console.log('using outlinePaths')
+        outline = new paper.CompoundPath(design['outlinePaths'])
+        outline = outline.intersect(params.safeCone);
+      } else {
+        // @ts-ignore
+        outline = paper.Path.prototype.offset.call(compoundPath, params.outlineSize, { cap: 'miter' });
+        outline.remove();
+      }
 
-    //   outline = outline.unite(outline)
-    //   outline.remove();
-    //   if (params.smoothOutline) {
-    //     outline.smooth({ type: 'geometric', factor: 0.3 });
-    //   }
-    //   console.log(outline);
-    // }
+      outline = outline.unite(outline)
+      outline.remove();
+      if (params.smoothOutline) {
+        outline.smooth({ type: 'geometric', factor: 0.3 });
+      }
+      console.log(outline);
+    }
 
     return {
       paths,
