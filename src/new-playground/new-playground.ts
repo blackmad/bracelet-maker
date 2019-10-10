@@ -1,11 +1,5 @@
-//const makerjs = require("makerjs");
-
 import * as paper from 'paper';
-import ExtendPaperJs from 'paperjs-offset';
 
-// @ts-ignore - this works fine, wtf typescript?
-// import * as PDFDocument from "../external/pdfkit.standalone";
-import * as blobStream from 'blob-stream';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
 import 'rangeslider.js';
@@ -15,7 +9,10 @@ import 'core-js/library';
 import { PaperModelMaker } from '../model-maker';
 import { MetaParameter, MetaParameterType } from '../meta-parameter';
 
-import * as fs from 'fs';
+// @ts-ignore - this works fine, wtf typescript?
+import * as PDFDocument from '../external/pdfkit.standalone';
+import * as SVGtoPDF from 'svg-to-pdfkit';
+import blobStream from 'blob-stream';
 
 function clone(src) {
   return Object.assign({}, src);
@@ -56,7 +53,7 @@ export class DavidsPlayground {
     $('.downloadSVG').off('click');
     $('.downloadSVG').click(this.downloadSVG.bind(this));
     $('.downloadPDF').off('click');
-    // $(".downloadPDF").click(this.downloadPDF.bind(this));
+    $('.downloadPDF').click(this.downloadPDF.bind(this));
   }
 
   rerender() {
@@ -302,13 +299,13 @@ export class DavidsPlayground {
 
   cleanSVGforDownload(svg) {
     function recurse(el) {
-      for(let x of Array.from(el.children)) {
-        el.removeAttribute('transform')
+      for (let x of Array.from(el.children)) {
+        el.removeAttribute('transform');
         el.setAttribute('fill', 'none');
-        el.removeAttribute('fill-rule')
+        el.removeAttribute('fill-rule');
         if (el.tagName == 'g') {
-          el.setAttribute('stroke', '#ff0000')
-          el.setAttribute('stroke-width', '0.001pt')
+          el.setAttribute('stroke', '#ff0000');
+          el.setAttribute('stroke-width', '0.001pt');
         }
         recurse(x);
       }
@@ -317,12 +314,44 @@ export class DavidsPlayground {
   }
 
   reprocessSVG(svg) {
-    svg.setAttribute('viewBox', `0 0 ${paper.project.activeLayer.bounds.width} ${paper.project.activeLayer.bounds.height}`);
+    svg.setAttribute(
+      'viewBox',
+      `0 0 ${paper.project.activeLayer.bounds.width} ${paper.project.activeLayer.bounds.height}`
+    );
     svg.setAttribute('height', paper.project.activeLayer.bounds.height + 'in');
     svg.setAttribute('width', paper.project.activeLayer.bounds.width + 'in');
   }
 
-  downloadSVG() {
+  downloadPDF() {
+    const widthInches = paper.project.activeLayer.bounds.width;
+    const heightInches = paper.project.activeLayer.bounds.height;
+
+    let doc = new PDFDocument({
+      compress: false,
+      size: [widthInches * 72, heightInches * 72]
+    });
+    SVGtoPDF(doc, this.makeSVGData(), 0, 0);
+    
+    function blobToDataURL(blob, callback) {
+      var a = new FileReader();
+      
+      a.onload = function(e) {
+        // @ts-ignore
+        callback(e.target.result);
+      };
+      a.readAsDataURL(blob);
+    }
+
+    let stream = doc.pipe(blobStream());
+    const self = this;
+    stream.on('finish', function() {
+      let blob = stream.toBlob('application/pdf');
+      blobToDataURL(blob, s => self.sendFileToUser(s, 'pdf'));
+    });
+    doc.end();
+  }
+
+  makeSVGData() {
     let svgData: string = (paper.project.exportSVG({
       asString: true,
       // @ts-ignore
@@ -332,16 +361,25 @@ export class DavidsPlayground {
 
     const svg = $(svgData);
     this.cleanSVGforDownload(svg[0]);
-    this.reprocessSVG(svg[0])
+    this.reprocessSVG(svg[0]);
+    return svg[0].outerHTML;
+  }
 
-    var encoded = encodeURIComponent(svg[0].outerHTML);
-    var uriPrefix = 'data:' + 'image/svg+xml' + ',';
+  downloadSVG() {
+    const data = this.makeSVGData();
+    const mimeType = 'image/svg+xml';
+    var encoded = encodeURIComponent(data);
+    var uriPrefix = 'data:' + mimeType + ',';
     var dataUri = uriPrefix + encoded;
 
+    this.sendFileToUser(dataUri, 'svg');
+  }
+
+  sendFileToUser(dataUri, extension) {
     var downloadLink = document.createElement('a');
     downloadLink.href = dataUri;
 
-    const filename = this.makeFilename('svg');
+    const filename = this.makeFilename(extension);
 
     downloadLink.download = filename;
     document.body.appendChild(downloadLink);
@@ -358,9 +396,9 @@ export class DavidsPlayground {
       filename = this.subModels
         .map((f: PaperModelMaker) => f.constructor.name)
         .join('-');
-		}
-		const modelName = this.modelMaker.constructor.name;
-		console.log('modelName', modelName);
+    }
+    const modelName = this.modelMaker.constructor.name;
+    console.log('modelName', modelName);
     filename += `-${this.params[modelName + '.height']}x${
       this.params[modelName + '.wristCircumference']
     }x${this.params[modelName + '.forearmCircumference']}`;
@@ -368,56 +406,13 @@ export class DavidsPlayground {
     return filename;
   }
 
-  // downloadPDF() {
-  //   console.log("downloading pdf");
-  //   var bbox = makerjs.measure.modelExtents(this.model);
-  //   const widthInches = bbox.high[0] - bbox.low[0];
-  //   const heightInches = bbox.high[1] - bbox.low[1];
-  //   var pdfOptions = {
-  //     compress: false,
-  //     info: {
-  //       Producer: "MakerJs",
-  //       Author: "MakerJs"
-  //     },
-  //     size: [widthInches * 72, heightInches * 72]
-  //   };
-  //   // @ts-ignore - loading this from external js so our upload bundle is smaller
-  //   var doc = new PDFDocument(pdfOptions);
-  //   const stream = doc.pipe(blobStream());
-
-  //   this.cleanModel(this.model);
-
-  //   const exportOptions = {
-  //     stroke: "#FF0000"
-  //   };
-  //   doc.lineWidth(0.0001);
-  //   makerjs.exporter.toPDF(doc, this.model, exportOptions);
-  //   doc.end();
-
-  //   stream.on(
-  //     "finish",
-  //     _.bind(function() {
-  //       const pdfBlob = stream.toBlob("application/pdf");
-  //       var pdfUrl = URL.createObjectURL(pdfBlob);
-  //       var downloadLink = document.createElement("a");
-  //       downloadLink.href = pdfUrl;
-
-  //       const filename = this.makeFilename("pdf");
-  //       downloadLink.download = filename;
-  //       document.body.appendChild(downloadLink);
-  //       downloadLink.click();
-  //       document.body.removeChild(downloadLink);
-  //     }, this)
-  //   );
-
-  //   return false;
-  // }
-
   makeGrid(canvas, xPixelsPerInch, yPixelsPerInch) {
     var data = `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
     <defs>
-        <pattern id="smallGrid" width="${xPixelsPerInch/10}" height="${yPixelsPerInch/10}" patternUnits="userSpaceOnUse">
-            <path d="M ${xPixelsPerInch/10} 0 L 0 0 0 ${yPixelsPerInch/10}" fill="none" stroke="gray" stroke-width="0.5" />
+        <pattern id="smallGrid" width="${xPixelsPerInch /
+          10}" height="${yPixelsPerInch / 10}" patternUnits="userSpaceOnUse">
+            <path d="M ${xPixelsPerInch / 10} 0 L 0 0 0 ${yPixelsPerInch /
+      10}" fill="none" stroke="gray" stroke-width="0.5" />
         </pattern>
         <pattern id="grid" width="${xPixelsPerInch}" height="${yPixelsPerInch}" patternUnits="userSpaceOnUse">
             <rect width="${xPixelsPerInch}" height="${yPixelsPerInch}" fill="url(#smallGrid)" />
@@ -464,52 +459,52 @@ export class DavidsPlayground {
 
     this.modelMaker.make(paper, modelParams);
 
-		const self = this;
-		const onResizeCallback = function() {
-      
-      const xScale = 
+    const self = this;
+    const onResizeCallback = function() {
+      const xScale =
         paper.project.view.bounds.width /
         paper.project.activeLayer.bounds.width;
-      
 
       console.log(paper.project.activeLayer.view.scaling);
-      paper.project.activeLayer.view.scale(xScale, paper.project.activeLayer.bounds.topLeft);
+      paper.project.activeLayer.view.scale(
+        xScale,
+        paper.project.activeLayer.bounds.topLeft
+      );
       console.log(paper.project.activeLayer.view.scaling);
       paper.project.activeLayer.applyMatrix = false;
 
       // @ts-ignore
-      const yOffset =  paper.project.view.getSize().height * xScale;   
-      $('#gridArea').css('margin-top', '-' + yOffset + 'px')
-   
-       const ySize =  paper.project.activeLayer.bounds.height * xScale;       
-       $('#gridArea').css('height', ySize + 'px')
+      const yOffset = paper.project.view.getSize().height * xScale;
+      $('#gridArea').css('margin-top', '-' + yOffset + 'px');
+
+      const ySize = paper.project.activeLayer.bounds.height * xScale;
+      $('#gridArea').css('height', ySize + 'px');
 
       self.makeGrid(canvas, xScale, xScale);
-		};
-		
+    };
+
     paper.view.onResize = onResizeCallback;
     onResizeCallback();
 
-    let originalPlayAreaTop = null; 
+    let originalPlayAreaTop = null;
     $(window).scroll(function() {
       var distanceFromTop = $(this).scrollTop();
       let toCheck = $('.playArea').offset().top;
       if (originalPlayAreaTop) {
         toCheck = originalPlayAreaTop;
       } else {
-         originalPlayAreaTop = toCheck;
+        originalPlayAreaTop = toCheck;
       }
       if (distanceFromTop >= toCheck) {
-          $('.jssticky').css('width', $('.playArea').width());
-          $('.jssticky').addClass('fixed');
-          $('body').css('padding-top', $('.jssticky').height() + 'px')
+        $('.jssticky').css('width', $('.playArea').width());
+        $('.jssticky').addClass('fixed');
+        $('body').css('padding-top', $('.jssticky').height() + 'px');
       } else {
-          $('.jssticky').removeClass('fixed');
-          $('body').css('padding-top', '0px');
+        $('.jssticky').removeClass('fixed');
+        $('body').css('padding-top', '0px');
       }
-  });
-  
-    
+    });
+
     $('body').removeClass('loading');
   }
 }

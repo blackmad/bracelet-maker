@@ -58,6 +58,7 @@
     "sticky-js": "^1.2.0",
     "stickybits": "^3.6.7",
     "string-reader": "^0.9.0",
-    "svg-pan-zoom": "github:ariutta/svg-pan-zoom"
+    "svg-pan-zoom": "github:ariutta/svg-pan-zoom",
+    "svg-to-pdfkit": "^0.1.7"
   }
 }
