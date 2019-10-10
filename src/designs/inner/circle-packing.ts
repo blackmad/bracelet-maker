@@ -88,6 +88,8 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
               new paper.Path.Circle(center, radius + params.outlineSize)
             )
           }
+        } else {
+          testCircle.remove();
         }
       }
       radius *= 0.99;

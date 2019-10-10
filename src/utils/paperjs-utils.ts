@@ -86,7 +86,7 @@ export function randomLineOnRectangle(
   model: paper.Rectangle,
   rng?: () => number
 ): paper.Path.Line {
-	const points = this.randomLineEndpointsOnRectangle(model, rng);
+	const points = randomLineEndpointsOnRectangle(model, rng);
   return new paper.Path.Line(points[0], points[1])
 }
 

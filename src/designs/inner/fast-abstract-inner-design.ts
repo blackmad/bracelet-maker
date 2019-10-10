@@ -113,35 +113,35 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     ExtendPaperJs(paper);
 
     let outline = null;
-    if (this.allowOutline && !params.forceContainment) {
-      paths = paths.filter(
-        m =>
-          params.outerModel.contains(m.bounds) ||
-          m.intersects(params.outerModel)
-      );
+    // if (this.allowOutline && !params.forceContainment) {
+    //   paths = paths.filter(
+    //     m =>
+    //       params.outerModel.contains(m.bounds) ||
+    //       m.intersects(params.outerModel)
+    //   );
 
-      const compoundPath = new paper.CompoundPath({
-        strokeColor: 'pink',
-        children: paths
-      });
+    //   const compoundPath = new paper.CompoundPath({
+    //     strokeColor: 'pink',
+    //     children: paths
+    //   });
 
-      if (design['outlinePaths']) {
-        console.log('using outlinePaths')
-        outline = new paper.CompoundPath(design['outlinePaths'])
-        outline = outline.intersect(params.safeCone);
-      } else {
-        // @ts-ignore
-        outline = paper.Path.prototype.offset.call(compoundPath, params.outlineSize, { cap: 'miter' });
-        outline.remove();
-      }
+    //   if (design['outlinePaths']) {
+    //     console.log('using outlinePaths')
+    //     outline = new paper.CompoundPath(design['outlinePaths'])
+    //     outline = outline.intersect(params.safeCone);
+    //   } else {
+    //     // @ts-ignore
+    //     outline = paper.Path.prototype.offset.call(compoundPath, params.outlineSize, { cap: 'miter' });
+    //     outline.remove();
+    //   }
 
-      outline = outline.unite(outline)
-      outline.remove();
-      if (params.smoothOutline) {
-        outline.smooth({ type: 'geometric', factor: 0.3 });
-      }
-      console.log(outline);
-    }
+    //   outline = outline.unite(outline)
+    //   outline.remove();
+    //   if (params.smoothOutline) {
+    //     outline.smooth({ type: 'geometric', factor: 0.3 });
+    //   }
+    //   console.log(outline);
+    // }
 
     return {
       paths,

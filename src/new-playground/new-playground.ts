@@ -324,7 +324,10 @@ export class DavidsPlayground {
 
   downloadSVG() {
     let svgData: string = (paper.project.exportSVG({
-      asString: true
+      asString: true,
+      // @ts-ignore
+      matrix: new paper.Matrix(),
+      bounds: 'content'
     }) as unknown) as string;
 
     const svg = $(svgData);
@@ -461,34 +464,39 @@ export class DavidsPlayground {
 
     this.modelMaker.make(paper, modelParams);
 
-    const svgData =  (paper.project.exportSVG({
-      asString: true
-    }) as unknown) as string;
-    document.getElementById('svgArea').innerHTML = svgData;
+    // const svgData =  (paper.project.exportSVG({
+    //   asString: true
+    // }) as unknown) as string;
+    // document.getElementById('svgArea').innerHTML = svgData;
 
-    const svg = $('#svgArea svg');
-    this.reprocessSVG(svg[0])
-    svg[0].setAttribute('width','100%');
-    svg[0].setAttribute('height','auto');
+    // const svg = $('#svgArea svg');
+    // this.reprocessSVG(svg[0])
+    // svg[0].setAttribute('width','100%');
+    // svg[0].setAttribute('height','auto');
 
 		const self = this;
 		const onResizeCallback = function() {
-      const originalHeight = paper.project.activeLayer.bounds.height;
-      const originalWidth = paper.project.activeLayer.bounds.width;
+      const scale = 
+        paper.project.view.bounds.width /
+        paper.project.activeLayer.bounds.width;
+      paper.project.activeLayer.view.scale(scale, paper.project.activeLayer.bounds.topLeft);
+      paper.project.activeLayer.applyMatrix = false;
 
-      const xPixelsPerInch = document.getElementById('gridArea').clientWidth / originalWidth;
-      const yPixelsPerInch = xPixelsPerInch // paper.view.bounds.height / originalHeight;
+    //   const originalHeight = paper.project.activeLayer.bounds.height;
+    //   const originalWidth = paper.project.activeLayer.bounds.width;
 
-      paper.view.scale(xPixelsPerInch, new paper.Point(0, 0));
-      paper.view.translate(new paper.Point(0, (paper.view.bounds.height - originalHeight)/2));
+    //   const xPixelsPerInch = document.getElementById('gridArea').clientWidth / originalWidth;
+    //   const yPixelsPerInch = xPixelsPerInch // paper.view.bounds.height / originalHeight;
 
-      self.makeGrid(canvas, xPixelsPerInch, yPixelsPerInch);
+    //   paper.view.scale(xPixelsPerInch, new paper.Point(0, 0));
+    //   paper.view.translate(new paper.Point(0, (paper.view.bounds.height - originalHeight)/2));
+
+    //   self.makeGrid(canvas, xPixelsPerInch, yPixelsPerInch);
 		};
 		
 		paper.view.onResize = onResizeCallback;
-		onResizeCallback();
+    onResizeCallback();
     
-
     $('body').removeClass('loading');
   }
 }
