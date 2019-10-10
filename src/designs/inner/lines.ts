@@ -9,13 +9,14 @@ export class InnerDesignLines extends AbstractExpandInnerDesign {
   makePaths(scope: paper.PaperScope, params: any): paper.Point[][] {
     const {
       boundaryModel,
+      outerModel,
       numLines
     } = params;
 
     const lines: paper.Point[][] = [];
 
     for (let c = 0; c < numLines; c++) {
-      const line = randomLineEndpointsOnRectangle(boundaryModel.bounds, this.rng);
+      const line = randomLineEndpointsOnRectangle(outerModel.bounds, this.rng);
       lines.push(line);
     }
 
