@@ -4,10 +4,7 @@
     <link rel="stylesheet" href="./styles/frontend.css" />
 
     <!-- Latest compiled and minified CSS -->
-    <link
-      rel="stylesheet"
-      href="vendor/bootstrap/css/bootstrap.min.css"
-    />
+    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css" />
 
     <!-- jQuery library -->
     <script src="vendor/jquery-3.2.1.min.js"></script>
@@ -18,17 +15,35 @@
     <!-- Latest compiled JavaScript -->
     <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 
-    <!-- <script src="https://js.stripe.com/v3/"></script>
-    <script src="../external/stripe/index.js"></script> -->
-    <!-- <script src="./pdfkit.standalone.js" charset="utf-8"></script> -->
     <script src="./dist/main.js" type="module" charset="utf-8"></script>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/> <!--320-->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"
+    />
   </head>
   <body>
+    <div id="previewArea">
+      <canvas id="myCanvas" resize="true"></canvas>
+
+      <!-- <div id="gridArea"></div> -->
+
+      <div id="loading">Rendering ...</div>
+      <div id="error">
+        Error rendering design. Sorry :-/ <br />
+        <span id="errorMessage"></span>
+      </div>
+
+      <div class="" id="topArea">
+        <div id="downloadContainer" class="text-center">
+          <a href="#" class="downloadSVG">Download SVG</a>
+          <a href="#" class="downloadPDF">Download PDF</a>
+        </div>
+      </div>
+    </div>
 
     <div class="container p-xs-3 p-sm-3 p-md-4 p-lg-5">
-      <div class="m-3">
+      <div class="m-3 control-selectors">
         <h1>Outer Design</h1>
         <div class="row justify-content-center">
           <div class="design-container ">
@@ -47,38 +62,38 @@
               Conic Cuff
             </button>
           </div> -->
-          <div class="design-container ">
-            <button
-              class="outerDesignButton btn btn-primary m-1"
-              value="StraightCuffOuter"
-            >
-              Straight Cuff
-            </button>
+            <div class="design-container ">
+              <button
+                class="outerDesignButton btn btn-primary m-1"
+                value="StraightCuffOuter"
+              >
+                Straight Cuff
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <!--Example 2-->
-      <div class="m-3 algoPattern">
-        <h1>AlgoPattern</h1>
-        <div class="row justify-content-center">
-          <div class="design-container ">
-            <button
-              class="designButton btn btn-primary m-1"
-              value="InnerDesignHashmarks"
-            >
-              Hashmarks
-            </button>
-          </div>
-          <div class="design-container ">
-            <button
-              class="designButton btn btn-primary m-1"
-              value="InnerDesignVoronoi"
-            >
-              Voronoi
-            </button>
-          </div>
-          <!-- <div class="design-container ">
+
+        <!--Example 2-->
+        <div class="m-3 algoPattern">
+          <h1>AlgoPattern</h1>
+          <div class="row justify-content-center">
+            <div class="design-container ">
+              <button
+                class="designButton btn btn-primary m-1"
+                value="InnerDesignHashmarks"
+              >
+                Hashmarks
+              </button>
+            </div>
+            <div class="design-container ">
+              <button
+                class="designButton btn btn-primary m-1"
+                value="InnerDesignVoronoi"
+              >
+                Voronoi
+              </button>
+            </div>
+            <!-- <div class="design-container ">
             <button
               class="designButton btn btn-primary m-1"
               value="InnerDesignCircles"
@@ -86,79 +101,79 @@
               Circles!
             </button>
           </div> -->
-          <div class="design-container ">
-            <button
-              class="designButton btn btn-primary m-1"
-              value="InnerDesignVera"
-            >
-              Vera<3
-            </button>
-          </div>
-          <div class="design-container ">
-            <button
-              class="designButton btn btn-primary m-1"
-              value="InnerDesignCirclesXVera"
-            >
-              Circles! x Vera<3
-            </button>
-          </div>
-          <div class="design-container ">
-            <button
-              class="designButton btn btn-primary m-1"
-              value="InnerDesignCirclePacking"
-            >
-              Circle Packing
-            </button>
-          </div>
-          <div class="design-container ">
-            <button
-              class="designButton btn btn-primary m-1"
-              value="InnerDesignHexes"
-            >
-              Hexes
-            </button>
-          </div>
-           <div class="design-container ">
-            <button
-              class="designButton btn btn-primary m-1"
-              value="InnerDesignLines"
-            >
-              || Lines ||
-            </button>
-          </div>
-          <div class="design-container ">
-            <button
-              class="designButton btn btn-primary m-1"
-              value="InnerDesignExplode"
-            >
-            💥 Explode 💥
-            </button>
-          </div>
-         <div class="design-container ">
-            <button
-              class="designButton btn btn-primary m-1"
-              value="InnerDesignMondrian"
-            >
-              Mondrian
-            </button>
-          </div>
-          <!-- <div class="design-container ">
-            <button
-              class="designButton btn btn-primary m-1"
-              value="InnerDesignGrid"
-            >
-              Grid
-            </button>
-          </div> -->
-          <div class="design-container ">
-            <button
-              class="designButton btn btn-primary m-1"
-              value="InnerDesignEmpty"
-            >
-              Empty
-            </button>
-          </div>
-          <!-- <div class="design-container ">
+            <div class="design-container ">
+              <button
+                class="designButton btn btn-primary m-1"
+                value="InnerDesignVera"
+              >
+                Vera<3
+              </button>
+            </div>
+            <div class="design-container ">
+              <button
+                class="designButton btn btn-primary m-1"
+                value="InnerDesignCirclesXVera"
+              >
+                Circles! x Vera<3
+              </button>
+            </div>
+            <div class="design-container ">
+              <button
+                class="designButton btn btn-primary m-1"
+                value="InnerDesignCirclePacking"
+              >
+                Circle Packing
+              </button>
+            </div>
+            <div class="design-container ">
+              <button
+                class="designButton btn btn-primary m-1"
+                value="InnerDesignHexes"
+              >
+                Hexes
+              </button>
+            </div>
+            <div class="design-container ">
+              <button
+                class="designButton btn btn-primary m-1"
+                value="InnerDesignLines"
+              >
+                || Lines ||
+              </button>
+            </div>
+            <div class="design-container ">
+              <button
+                class="designButton btn btn-primary m-1"
+                value="InnerDesignExplode"
+              >
+                💥 Explode 💥
+              </button>
+            </div>
+            <div class="design-container ">
+              <button
+                class="designButton btn btn-primary m-1"
+                value="InnerDesignMondrian"
+              >
+                Mondrian
+              </button>
+            </div>
+            <div class="design-container ">
+              <button
+                class="designButton btn btn-primary m-1"
+                value="InnerDesignLattice"
+              >
+                Lattice
+              </button>
+            </div>
+            <div class="design-container ">
+              <button
+                class="designButton btn btn-primary m-1"
+                value="InnerDesignEmpty"
+              >
+                Empty
+              </button>
+            </div>
+            <!-- <div class="design-container ">
             <button
               class="designButton btn btn-primary m-1"
               value="InnerDesignHingedTesselation"
@@ -166,24 +181,6 @@
               Hinged Tesselation
             </button>
           </div> -->
-        </div>
-      </div>
-    </div>
-
-      <div class="playArea jssticky">
-        <canvas id="myCanvas" resize="true"></canvas>
-        <div id="gridArea"></div>
-
-        <div id="loading">Rendering ...</div>
-        <div id="error">
-          Error rendering design. Sorry :-/ <br />
-          <span id="errorMessage"></span>
-        </div>
-
-        <div class="" id="topArea">
-          <div id="downloadContainer" class="text-center">
-            <a href="#" class="downloadSVG">Download SVG</a>
-            <a href="#" class="downloadPDF">Download PDF</a>
           </div>
         </div>
       </div>
@@ -203,6 +200,12 @@
           Not all of these variables do what they say. Consider them various
           ways to play with the randomness until you find a design you like.
           <div id="parameterDiv" class="row"></div>
+        </div>
+
+        <div class="row justify-content-center">
+          <button class="btn btn-primary m-1 changeDesign">
+            Change Design
+          </button>
         </div>
       </div>
     </div>

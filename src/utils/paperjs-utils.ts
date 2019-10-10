@@ -44,6 +44,7 @@ export function bufferShape(
     })
   );
   // console.log(roundedPolygon);
+  roundedPolygon.closePath();
 
   return roundedPolygon;
 }

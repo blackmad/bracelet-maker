@@ -11,7 +11,7 @@ import { InnerDesignVera } from "../designs/inner/vera";
 import { InnerDesignHashmarks } from "../designs/inner/hashmarks";
 import { InnerDesignCirclesXVera } from "../designs/inner/circles-x-vera";
 import { InnerDesignVoronoi } from "../designs/inner/voronoi";
-// import { InnerDesignLattice } from "../designs/inner/lattice";
+import { InnerDesignLattice } from "../designs/inner/lattice";
 import { InnerDesignHexes } from "../designs/inner/hexes";
 import { InnerDesignLines } from "../designs/inner/lines";
 import { InnerDesignMondrian } from "../designs/inner/mondrian";
@@ -25,8 +25,9 @@ import { InnerDesignEmpty } from "../designs/inner/empty"
 import * as $ from "jquery";
 
 function attachHandlers() {
-  $("#playArea").hide();
+  $(".playArea").hide();
   $(".algoPattern").hide();
+  $('#previewArea').hide();
   
   let innerDesignClass = null;
   let outerDesignClass = null;
@@ -77,10 +78,16 @@ function attachHandlers() {
     setOuterDesignFromName(design);
   });
 
+  $('.changeDesign').click(function() {
+    $(".playArea").hide();
+    $("#previewArea").hide();
+    $('.control-selectors').show();
+  })
+
   const possibleDesigns = [
     InnerDesignVoronoi,
     InnerDesignHashmarks,
-    // InnerDesignLattice,
+    InnerDesignLattice,
     // InnerDesignCircles,
     InnerDesignVera,
     InnerDesignCirclesXVera,
@@ -108,6 +115,11 @@ function attachHandlers() {
     }
   
     trySetDesign();
+    console.log('why am i here')
+    $('#previewArea').show();
+    // $('.algoPattern').hide();
+    // $('.design-container').hide();
+    $('.control-selectors').hide();
   }
 
   possibleDesigns.forEach(d => {

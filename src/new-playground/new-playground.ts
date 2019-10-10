@@ -464,46 +464,44 @@ export class DavidsPlayground {
       const xScale =
         paper.project.view.bounds.width /
         paper.project.activeLayer.bounds.width;
+      const yScale =
+        paper.project.view.bounds.height /
+        paper.project.activeLayer.bounds.height;
+
+     let scaleToUse = xScale > yScale ? yScale : xScale;
+     scaleToUse *= 0.97;
+    //  scaleToUse *= paper.project.view.getPixelRatio()
+
+      const ySizeInPixels = paper.project.activeLayer.bounds.height * scaleToUse;
+      const xSizeInPixels = paper.project.activeLayer.bounds.width * scaleToUse;
+
+      console.log(ySizeInPixels)
+
+        paper.project.activeLayer.view.translate(new paper.Point(
+          (paper.project.view.bounds.width - xSizeInPixels) /2,
+          (paper.project.view.bounds.height - ySizeInPixels) /2
+        ));
 
       console.log(paper.project.activeLayer.view.scaling);
       paper.project.activeLayer.view.scale(
-        xScale,
+        scaleToUse,
         paper.project.activeLayer.bounds.topLeft
       );
       console.log(paper.project.activeLayer.view.scaling);
       paper.project.activeLayer.applyMatrix = false;
 
       // @ts-ignore
-      const yOffset = paper.project.view.getSize().height * xScale;
-      $('#gridArea').css('margin-top', '-' + yOffset + 'px');
+      // const yOffset = paper.project.view.getSize().height * xScale;
+      // $('#gridArea').css('margin-top', '-' + yOffset + 'px');
 
-      const ySize = paper.project.activeLayer.bounds.height * xScale;
-      $('#gridArea').css('height', ySize + 'px');
+      // const ySize = paper.project.activeLayer.bounds.height * xScale;
+      // $('#gridArea').css('height', ySize + 'px');
 
-      self.makeGrid(canvas, xScale, xScale);
+      // self.makeGrid(canvas, xScale, xScale);
     };
 
     paper.view.onResize = onResizeCallback;
     onResizeCallback();
-
-    let originalPlayAreaTop = null;
-    $(window).scroll(function() {
-      var distanceFromTop = $(this).scrollTop();
-      let toCheck = $('.playArea').offset().top;
-      if (originalPlayAreaTop) {
-        toCheck = originalPlayAreaTop;
-      } else {
-        originalPlayAreaTop = toCheck;
-      }
-      if (distanceFromTop >= toCheck) {
-        $('.jssticky').css('width', $('.playArea').width());
-        $('.jssticky').addClass('fixed');
-        $('body').css('padding-top', $('.jssticky').height() + 'px');
-      } else {
-        $('.jssticky').removeClass('fixed');
-        $('body').css('padding-top', '0px');
-      }
-    });
 
     $('body').removeClass('loading');
   }

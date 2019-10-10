@@ -106,6 +106,7 @@ export class StraightCuffOuter implements PaperModelMaker {
 
     if (debug) {
       safeArea.strokeColor = 'green';
+      safeArea.strokeWidth = 0.1;
     } else {
       safeArea.remove();
     }
