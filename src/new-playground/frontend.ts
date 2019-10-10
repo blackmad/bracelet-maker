@@ -18,6 +18,7 @@ import { InnerDesignMondrian } from "../designs/inner/mondrian";
 import { InnerDesignExplode } from "../designs/inner/explode"
 import { InnerDesignGrid } from "../designs/inner/grid"
 import { InnerDesignEmpty } from "../designs/inner/empty"
+import { InnerDesignSunflower } from "../designs/inner/sunflower"
 
 
 // import { InnerDesignHingedTesselation } from "../designs/inner-design-hinged-tesselation";
@@ -97,7 +98,8 @@ function attachHandlers() {
     InnerDesignMondrian,
     InnerDesignExplode,
     // InnerDesignGrid,
-    InnerDesignEmpty
+    InnerDesignEmpty,
+    InnerDesignSunflower
     // InnerDesignHingedTesselation
   ];
   
