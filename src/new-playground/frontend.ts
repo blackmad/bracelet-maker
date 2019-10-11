@@ -83,6 +83,8 @@ function attachHandlers() {
   });
 
   $('.changeDesign').click(function() {
+    innerDesignClass = null;
+    outerDesignClass = null;
     $('.playArea').hide();
     $('#previewArea').hide();
     $('.control-selectors').show();

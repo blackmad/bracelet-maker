@@ -1,57 +1,15 @@
 import { makeConicSection } from "./conic-section";
-import { RangeMetaParameter, MetaParameterType } from "../../meta-parameter";
-import { ModelMaker } from "../../model-maker";
+import { RangeMetaParameter } from "../../meta-parameter";
+import { PaperModelMaker } from '../../model-maker';
 import Angle from "../../utils/angle";
 import {makeEvenlySpacedBolts} from '../design-utils';
 
-var makerjs = require("makerjs");
+import * as paper from 'paper';
 
-export class ConicCuffOuter implements ModelMaker {
-  make(options): MakerJs.IModel {
-    var {
-      height,
-      wristCircumference,
-      forearmCircumference,
-      safeBorderWidth
-    } = options["ConicCuffOuter"];
+export class ConicCuffOuter implements PaperModelMaker {
+  constructor(public innerDesignClass: any) {}
 
-    if (wristCircumference > forearmCircumference) {
-      throw `wristCircumference ${wristCircumference} must be less than forearmCircumference ${forearmCircumference}`;
-    }
-
-    if (forearmCircumference - wristCircumference < 0.05) {
-      forearmCircumference += 0.05;
-    }
-
-    const debug = false;
-
-    /***** START OVERALL CUFF SHAPE + INNER *****/
-    var cuffModel = makeConicSection({
-        topCircumference: wristCircumference + 1.0,
-        bottomCircumference: forearmCircumference + 1.0,
-        height: height,
-        filletRadius: 0.2
-      });
-    console.log(cuffModel);
-
-    // Inner "safe" area for design. Not actually printed. Used to calculate intersection of inner design.
-    var cuffModelInner = makeConicSection({
-      topCircumference: wristCircumference + 1.0,
-      bottomCircumference: forearmCircumference + 1.0,
-      height: height,
-      widthOffset: 1.1,
-      heightOffset: safeBorderWidth
-    });
-
-    var completeCuffModel = {
-      models: {
-        cuffModel: cuffModel,
-        cuffModelInner: cuffModelInner,
-      },
-      paths: {}
-    };
-    /***** END OVERALL CUFF SHAPE + INNER *****/
-
+  addRivetHoles(cuffModel, cuffModelInner) {
     /***** START RIVET HOLES *****/
     const boltGuideLine1P1 = [
       cuffModel.shortRadius * Math.cos(cuffModelInner.widthOffset.radians / 2),
@@ -83,134 +41,146 @@ export class ConicCuffOuter implements ModelMaker {
     ];
 
     /***** throw in some debugging *****/
-    if (debug) {
-        completeCuffModel.paths = completeCuffModel.paths || {};
-        completeCuffModel.paths["leftBoltLine"] = new makerjs.paths.Line(
-            boltGuideLine1P1,
-            boltGuideLine1P2
-        );
-        completeCuffModel.paths["rightBoltLine"] = new makerjs.paths.Line(
-            boltGuideLine2P1,
-            boltGuideLine2P2
-        );
-    }
+    // if (debug) {
+    //     completeCuffModel.paths = completeCuffModel.paths || {};
+    //     completeCuffModel.paths["leftBoltLine"] = new makerjs.paths.Line(
+    //         boltGuideLine1P1,
+    //         boltGuideLine1P2
+    //     );
+    //     completeCuffModel.paths["rightBoltLine"] = new makerjs.paths.Line(
+    //         boltGuideLine2P1,
+    //         boltGuideLine2P2
+    //     );
+    // }
 
-    const numBolts = Math.round(height);
-    completeCuffModel.models["leftBolts"] = makeEvenlySpacedBolts(
+    const numBolts = Math.round(cuffModel.bounds.height);
+    const leftBolts = makeEvenlySpacedBolts(
       numBolts,
       boltGuideLine1P1,
       boltGuideLine1P2
     );
-    completeCuffModel.models["rightBolts"] = makeEvenlySpacedBolts(
+    const rightBolts = makeEvenlySpacedBolts(
       numBolts,
       boltGuideLine2P1,
       boltGuideLine2P2
     );
+    return [...leftBolts, ...rightBolts]
     /***** END RIVET HOLES *****/
 
-    /***** START RECENTER SHAPE *****/
-    // Model is way far out, move it close to origin
-    makerjs.model.rotate(completeCuffModel, 90 - cuffModel.alpha.degrees / 2);
-    makerjs.model.zero(completeCuffModel);
+  }
 
-    const models: any = {
-      completeCuffModel: completeCuffModel
-    };
-    /***** END RECENTER SHAPE *****/
+  make(scope, options) {
+    var {
+      height,
+      wristCircumference,
+      forearmCircumference,
+      safeBorderWidth
+    } = options["ConicCuffOuter"];
+
+    if (wristCircumference > forearmCircumference) {
+      throw `wristCircumference ${wristCircumference} must be less than forearmCircumference ${forearmCircumference}`;
+    }
+
+    if (forearmCircumference - wristCircumference < 0.05) {
+      forearmCircumference += 0.05;
+    }
+
+    const debug = false;
+
+    var cuffModel = makeConicSection({
+        topCircumference: wristCircumference + 1.0,
+        bottomCircumference: forearmCircumference + 1.0,
+        height: height,
+        filletRadius: 0.2
+      });
+    console.log(cuffModel);
+    cuffModel.model.translate(new paper.Point(
+      -cuffModel.model.bounds.x,
+      -cuffModel.model.bounds.y));
+
+    var cuffModelInner = makeConicSection({
+      topCircumference: wristCircumference + 1.0,
+      bottomCircumference: forearmCircumference + 1.0,
+      height: height,
+      widthOffset: 1.1,
+      heightOffset: safeBorderWidth
+    });
+    // cuffModelInner.model.remove();
+    cuffModelInner.model.strokeWidth = 0.05;
+    cuffModelInner.model.strokeColor = 'green';
+
 
     /***** START DESIGN *****/
     // Now make the design and clamp it to the inner/safe arc we built
-    var bbox = makerjs.measure.modelExtents(completeCuffModel);
-    var totalWidth = bbox.high[0] - bbox.low[0];
-    var totalHeight = bbox.high[1] - bbox.low[1];
 
-    // this is some insane terrible logic to preserve the recentering we did above
-    // and just use the inner shape as the intersection clamp for our design
-    makerjs.model.originate(completeCuffModel);
-
-    var cuffClone = makerjs.model.clone(completeCuffModel);
-    var cuffModelInnerClone = cuffClone.models.cuffModelInner;
-    cuffClone.models = { c: cuffModelInnerClone };
-
-    const boundaryModel = cuffClone;
-    const safeCone = new makerjs.models.ConnectTheDots(true, [
-      boundaryModel.models.c.models.cuff.paths.p1.origin,
-      [
-        20 *
-          Math.cos(
-            Angle.fromDegrees(
-              boundaryModel.models.c.models.cuff.paths.p1.startAngle
-            ).radians
-          ) +
-          boundaryModel.models.c.models.cuff.paths.p1.origin[0],
-        20 *
-          Math.sin(
-            Angle.fromDegrees(
-              boundaryModel.models.c.models.cuff.paths.p1.startAngle
-            ).radians
-          ) +
-          boundaryModel.models.c.models.cuff.paths.p1.origin[1]
-      ],
-      [
-        20 *
-          Math.cos(
-            Angle.fromDegrees(
-              boundaryModel.models.c.models.cuff.paths.p1.endAngle
-            ).radians
-          ) +
-          boundaryModel.models.c.models.cuff.paths.p1.origin[0],
-        20 *
-          Math.sin(
-            Angle.fromDegrees(
-              boundaryModel.models.c.models.cuff.paths.p1.endAngle
-            ).radians
-          ) +
-          boundaryModel.models.c.models.cuff.paths.p1.origin[1]
-      ]
-    ]);
+    // const safeCone = new makerjs.models.ConnectTheDots(true, [
+    //   boundaryModel.models.c.models.cuff.paths.p1.origin,
+    //   [
+    //     20 *
+    //       Math.cos(
+    //         Angle.fromDegrees(
+    //           boundaryModel.models.c.models.cuff.paths.p1.startAngle
+    //         ).radians
+    //       ) +
+    //       boundaryModel.models.c.models.cuff.paths.p1.origin[0],
+    //     20 *
+    //       Math.sin(
+    //         Angle.fromDegrees(
+    //           boundaryModel.models.c.models.cuff.paths.p1.startAngle
+    //         ).radians
+    //       ) +
+    //       boundaryModel.models.c.models.cuff.paths.p1.origin[1]
+    //   ],
+    //   [
+    //     20 *
+    //       Math.cos(
+    //         Angle.fromDegrees(
+    //           boundaryModel.models.c.models.cuff.paths.p1.endAngle
+    //         ).radians
+    //       ) +
+    //       boundaryModel.models.c.models.cuff.paths.p1.origin[0],
+    //     20 *
+    //       Math.sin(
+    //         Angle.fromDegrees(
+    //           boundaryModel.models.c.models.cuff.paths.p1.endAngle
+    //         ).radians
+    //       ) +
+    //       boundaryModel.models.c.models.cuff.paths.p1.origin[1]
+    //   ]
+    // ]);
 
     const innerOptions = options[this.innerDesignClass.constructor.name] || {};
-    innerOptions.height = totalHeight;
-    innerOptions.width = totalWidth;
-    innerOptions.boundaryModel = cuffClone;
-    console.log(cuffClone);
-    innerOptions.safeCone = safeCone;
-    innerOptions.outerModel = {
-      models: { c: makerjs.model.clone(completeCuffModel).models.cuffModel }
-    };
+    innerOptions.boundaryModel = cuffModel.model;
+    innerOptions.outerModel = cuffModel.model;
 
-    const innerDesign = this.innerDesignClass.make(innerOptions);
+    const innerDesign = this.innerDesignClass.make(scope, innerOptions);
 
-    innerDesign.layer = "inner"
-    models.design = innerDesign;
-
-    if (innerDesign.models && innerDesign.models.outline) {
-      models.completeCuffModel.models.cuffModel = makerjs.model.combineUnion(
-        innerDesign.models.outline,
-        models.completeCuffModel.models.cuffModel
-      );
-      models.completeCuffModel.layer = 'outer'
-      innerDesign.models.outline = undefined;
-      models.completeCuffModel.models.completeCuffModel = undefined;
-      models.completeCuffModel.models.cuff = undefined;
-      // models.completeCuffModel.models.cuffModel = undefined
-    }
+    // if (innerDesign.models && innerDesign.models.outline) {
+    //   models.completeCuffModel.models.cuffModel = makerjs.model.combineUnion(
+    //     innerDesign.models.outline,
+    //     models.completeCuffModel.models.cuffModel
+    //   );
+    //   models.completeCuffModel.layer = 'outer'
+    //   innerDesign.models.outline = undefined;
+    //   models.completeCuffModel.models.completeCuffModel = undefined;
+    //   models.completeCuffModel.models.cuff = undefined;
+    //   // models.completeCuffModel.models.cuffModel = undefined
+    // }
 
     /***** END DESIGN *****/
 
-    /***** START CLEANUP *****/
-    // now take out the original inner cuff model, not actually used as a cut
-    if (!debug) {
-      delete models.completeCuffModel.models.cuffModelInner;
-    }
-    /***** END CLEANUP *****/
-
-    console.log(models);
-
-    return {
-      models: models,
-      units: makerjs.unitType.Inch
-    }
+    const allHoles = []
+    console.log(cuffModel)
+    const path = new paper.CompoundPath({
+      // children: [cuffOuter],
+      children: [cuffModel.model, ...allHoles, ...innerDesign.paths],
+      strokeColor: 'red',
+      strokeWidth: '0.005',
+      fillColor: 'lightgrey',
+      fillRule: 'evenodd'
+    });
+    return [path];
+ 
   }
 
   get metaParameters() {
@@ -248,8 +218,5 @@ export class ConicCuffOuter implements ModelMaker {
         name: "safeBorderWidth"
       })
     ];
-  }
-
-  constructor(public innerDesignClass: ModelMaker) {
   }
 }
