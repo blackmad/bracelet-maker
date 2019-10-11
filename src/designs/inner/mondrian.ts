@@ -15,13 +15,14 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
   borderSize: number;
 
   needSubtraction = false;
+  paper: paper.PaperScope;
 
   splitRect(lo, hi, depth = 0) {
     const self = this;
     function makeThisRect() {
       const rect = 
-        new paper.Path.Rectangle(
-            new paper.Rectangle(
+        new self.paper.Path.Rectangle(
+            new self.paper.Rectangle(
               lo[0] + self.borderSize / 2, 
               lo[1] + self.borderSize / 2,
               hi[0] - lo[0] - self.borderSize,
@@ -34,7 +35,7 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
 
     const randNum = this.rng()
     if (depth > this.maxDepth || randNum > this.splitChance) {
-      console.log('bailing on', randNum, this.splitChance, depth, this.maxDepth)
+      // console.log('bailing on', randNum, this.splitChance, depth, this.maxDepth)
       makeThisRect();
       return;
     }
@@ -46,13 +47,13 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
       const splitSize = (hi[0] - lo[0]) * splitPercent
 
       let smallX = (hi[0] - lo[0]) * splitPercent
-      console.log(smallX)
+      // console.log(smallX)
 
       if (splitPercent > 0.5) {
         smallX = (hi[0] - lo[0]) * (1.0 - splitPercent)
       }
      
-      console.log(smallX)
+      // console.log(smallX)
 
       if ((smallX - this.borderSize*2) < this.minCellSize) {
         makeThisRect();
@@ -65,7 +66,7 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
       const splitSize = splitPercent * (hi[1] - lo[1]);
 
       let smallY = (hi[1] - lo[1]) * splitPercent
-      console.log(smallY)
+      // console.log(smallY)
       if (splitPercent > 0.5) {
         smallY = (hi[1] - lo[1]) * (1.0 - splitPercent)
       }
@@ -89,6 +90,8 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
       xyBias,
       minCellSize
     } = params;
+
+    this.paper = paper;
 
     this.rects = [];
 

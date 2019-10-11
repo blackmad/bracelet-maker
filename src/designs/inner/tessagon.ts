@@ -49,7 +49,6 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
      if (rot_factor != 0) {
        options['rot_factor'] = rot_factor;
      }
-     console.log(options);
 
     const bmesh = makeTesselationFromNameAndOptions(tesselation, options);
     // const bmesh = makeTesselationFromName(tesselation,
@@ -58,8 +57,6 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
 
     const vertices = bmesh['vert_list']
     const faces = bmesh['face_list']
-    console.log(bmesh);
-    console.log(faces);
 
     const paths = faces.map(face => {
       const points = face.map(vertIndex => {

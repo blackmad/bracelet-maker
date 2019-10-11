@@ -307,7 +307,7 @@ export class DavidsPlayground {
       compress: false,
       size: [widthInches * 72, heightInches * 72]
     });
-    SVGtoPDF(doc, makeSVGData(paper, true), 0, 0);
+    SVGtoPDF(doc, makeSVGData(paper, true, (svg) => $(svg)[0]), 0, 0);
     
     function blobToDataURL(blob, callback) {
       var a = new FileReader();
@@ -329,7 +329,7 @@ export class DavidsPlayground {
   }
 
   downloadSVG() {
-    const data = makeSVGData(paper, true);
+    const data = makeSVGData(paper, true, (svg) => $(svg)[0]);
     const mimeType = 'image/svg+xml';
     var encoded = encodeURIComponent(data);
     var uriPrefix = 'data:' + mimeType + ',';
@@ -422,7 +422,7 @@ export class DavidsPlayground {
 
     // @ts-ignore
     this.modelMaker.make(paper, modelParams);
-    $('#svgArea')[0].innerHTML = makeSVGData(paper, false);
+    $('#svgArea')[0].innerHTML = makeSVGData(paper, false, (svg) => $(svg)[0]);
 
     $('body').removeClass('loading');
   }

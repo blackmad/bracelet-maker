@@ -1,7 +1,5 @@
 import * as SimplexNoise from 'simplex-noise';
-const makerjs = require('makerjs');
 const seedrandom = require('seedrandom');
-import * as paper from 'paper';
 import ExtendPaperJs from 'paperjs-offset';
 
 import {
@@ -87,15 +85,21 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     return metaParams;
   }
 
-  make(scope: any, params: any): any {
+  make(paper: any, params: any): any {
     const self = this;
 
     if (params.seed) {
       this.rng = seedrandom(params.seed.toString());
-      this.simplex = new SimplexNoise(params.seed.toString());
+      // @ts-ignore
+      if (SimplexNoise.default) {
+        // @ts-ignore
+        this.simplex = new SimplexNoise.default(params.seed.toString());
+      } else {
+        this.simplex = new SimplexNoise(params.seed.toString());
+      }
     }
 
-    const design = self.makeDesign(scope, params);
+    const design = self.makeDesign(paper, params);
     let paths = design;
     if (design['paths']) {
       paths = design['paths'];
@@ -116,7 +120,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
     if (this.needSubtraction && (!this.allowOutline || params.forceContainment)) {
       console.log('clamping sub');
-      console.log(params.boundaryModel);
+      // console.log(params.boundaryModel);
       paths = paths.map(m => m.intersect(params.boundaryModel));
     }
     ExtendPaperJs(paper);

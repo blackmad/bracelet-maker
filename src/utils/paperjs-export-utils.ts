@@ -1,6 +1,4 @@
-import * as $ from 'jquery';
-
-export function makeSVGData(paper: any, shouldClean: boolean) {
+export function makeSVGData(paper: any, shouldClean: boolean, elHydrator: (string) => any) {
   let svgData: string = (paper.project.exportSVG({
     asString: true,
     // @ts-ignore
@@ -8,17 +6,19 @@ export function makeSVGData(paper: any, shouldClean: boolean) {
     bounds: 'content'
   }) as unknown) as string;
 
-  const svg = $(svgData);
+  let svg = elHydrator(svgData);
+
   if (shouldClean) {
-    cleanSVGforDownload(svg[0]);
+    cleanSVGforDownload(svg);
   }
-  reprocessSVG(paper, svg[0]);
-  return svg[0].outerHTML;
+  reprocessSVG(paper, svg);
+  return svg.outerHTML;
 }
 
 export function cleanSVGforDownload(svg: any) {
   function recurse(el) {
     for (let x of Array.from(el.children)) {
+      console.log(el);
       el.removeAttribute('transform');
       el.setAttribute('fill', 'none');
       el.removeAttribute('fill-rule');

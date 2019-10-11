@@ -84,7 +84,6 @@ export function makeConicSection({
   });
 
   path.closePath();
-
   path.fillColor = 'lightgrey';
 
   return {
