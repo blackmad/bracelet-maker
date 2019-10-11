@@ -1,37 +1,36 @@
-import { DavidsPlayground } from "./new-playground";
-import { ModelMaker, PaperModelMaker } from "../model-maker";
+import { DavidsPlayground } from './new-playground';
+import { ModelMaker, PaperModelMaker } from '../model-maker';
 
-import { ConicCuffOuter } from "../designs/outer/conic-cuff";
-import { StraightCollarOuter } from "../designs/outer/collar";
-import { StraightCuffOuter } from "../designs/outer/straight-cuff";
+import { ConicCuffOuter } from '../designs/outer/conic-cuff';
+import { StraightCollarOuter } from '../designs/outer/collar';
+import { StraightCuffOuter } from '../designs/outer/straight-cuff';
 
 // import { InnerDesignCircles } from "../designs/inner-design-circles";
-import { InnerDesignCirclePacking } from "../designs/inner/circle-packing";
-import { InnerDesignVera } from "../designs/inner/vera";
-import { InnerDesignHashmarks } from "../designs/inner/hashmarks";
-import { InnerDesignCirclesXVera } from "../designs/inner/circles-x-vera";
-import { InnerDesignVoronoi } from "../designs/inner/voronoi";
-import { InnerDesignLattice } from "../designs/inner/lattice";
-import { InnerDesignHexes } from "../designs/inner/hexes";
-import { InnerDesignLines } from "../designs/inner/lines";
-import { InnerDesignMondrian } from "../designs/inner/mondrian";
-import { InnerDesignExplode } from "../designs/inner/explode"
-import { InnerDesignGrid } from "../designs/inner/grid"
-import { InnerDesignEmpty } from "../designs/inner/empty"
-import { InnerDesignSunflower } from "../designs/inner/sunflower"
-import { InnerDesignTessagon } from "../designs/inner/tessagon"
-
+import { InnerDesignCirclePacking } from '../designs/inner/circle-packing';
+import { InnerDesignVera } from '../designs/inner/vera';
+import { InnerDesignHashmarks } from '../designs/inner/hashmarks';
+import { InnerDesignCirclesXVera } from '../designs/inner/circles-x-vera';
+import { InnerDesignVoronoi } from '../designs/inner/voronoi';
+import { InnerDesignLattice } from '../designs/inner/lattice';
+import { InnerDesignHexes } from '../designs/inner/hexes';
+import { InnerDesignLines } from '../designs/inner/lines';
+import { InnerDesignMondrian } from '../designs/inner/mondrian';
+import { InnerDesignExplode } from '../designs/inner/explode';
+import { InnerDesignGrid } from '../designs/inner/grid';
+import { InnerDesignEmpty } from '../designs/inner/empty';
+import { InnerDesignSunflower } from '../designs/inner/sunflower';
+import { InnerDesignTessagon } from '../designs/inner/tessagon';
 
 // import { InnerDesignHingedTesselation } from "../designs/inner-design-hinged-tesselation";
 
-import * as $ from "jquery";
+import * as $ from 'jquery';
 
 function attachHandlers() {
   $('#initMessage').show();
-  
+
   let innerDesignClass = null;
   let outerDesignClass = null;
-  
+
   function trySetDesign() {
     if (outerDesignClass) {
       $('.algoPattern').show();
@@ -40,49 +39,54 @@ function attachHandlers() {
         const modelMaker: PaperModelMaker = new outerDesignClass(innerDesign);
         $('.clear-on-reinit').empty();
         new DavidsPlayground(modelMaker, [modelMaker, innerDesign]).rerender();
+        $('.startHidden').show();
+        $('.control-selectors').hide();
+        return true;
       }
     }
-  }``
-  
+    return false;
+  }
+  ``;
+
   // outer
   const possibleOuterDesigns = [
     StraightCollarOuter,
     ConicCuffOuter,
     StraightCuffOuter
   ];
-  
+
   const possibleOuterDesignNameMap = {};
   possibleOuterDesigns.forEach(d => {
     possibleOuterDesignNameMap[d.name] = d;
   });
-  
+
   possibleOuterDesigns.forEach(d => {
     if (window.location.hash.indexOf(d.name + '.') > 0) {
       setOuterDesignFromName(d.name);
     }
   });
-  
+
   function setOuterDesignFromName(name: String) {
     outerDesignClass = possibleOuterDesigns.find(d => d.name == name);
 
     if (!outerDesignClass) {
       throw "can't interpret design: " + name;
     }
-  
-    trySetDesign();
+
+    return trySetDesign();
   }
 
-  $(".outerDesignButton").click(function(button) {
+  $('.outerDesignButton').click(function(button) {
     const design = (<HTMLInputElement>button.target).value;
     window.location.hash = '';
     setOuterDesignFromName(design);
   });
 
   $('.changeDesign').click(function() {
-    $(".playArea").hide();
-    $("#previewArea").hide();
+    $('.playArea').hide();
+    $('#previewArea').hide();
     $('.control-selectors').show();
-  })
+  });
 
   const possibleDesigns = [
     InnerDesignVoronoi,
@@ -102,25 +106,20 @@ function attachHandlers() {
     InnerDesignTessagon
     // InnerDesignHingedTesselation
   ];
-  
+
   const possibleDesignNameMap = {};
   possibleDesigns.forEach(d => {
     possibleDesignNameMap[d.name] = d;
   });
 
-
- function setInnerDesignFromName(name: String) {
+  function setInnerDesignFromName(name: String) {
     innerDesignClass = possibleDesigns.find(d => d.name == name);
 
     if (!innerDesignClass) {
       throw "can't interpret design: " + name;
     }
-  
+
     trySetDesign();
-    console.log('why am i here');
-    $('.startHidden').show();
-    $('#initMessage').hide();
-    $('.control-selectors').hide();
   }
 
   possibleDesigns.forEach(d => {
@@ -129,11 +128,18 @@ function attachHandlers() {
     }
   });
 
-  $(".designButton").click(function(button) {
+  $('.designButton').click(function(button) {
     const design = (<HTMLInputElement>button.target).value;
     window.location.hash = '';
     setInnerDesignFromName(design);
   });
+
+  $('#initMessage').hide();
+  if (innerDesignClass) {
+    $('.control-selectors').hide();
+  } else {
+    $('.control-selectors').show();
+  }  
 }
 
 $(document).ready(attachHandlers);

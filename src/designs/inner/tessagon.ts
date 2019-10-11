@@ -92,7 +92,8 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
       new SelectMetaParameter({
         title: 'tesselation',
         options: getAllTesselationNames(),
-        value: _.sample(getAllTesselationNames()),
+        // value: _.sample(getAllTesselationNames()),
+        value: 'HexSquareTriTessagon',
         name: 'tesselation'
       }),
       new RangeMetaParameter({
@@ -107,7 +108,7 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
         title: 'y cells',
         min: 1,
         max: 100,
-        value: 5,
+        value: 2,
         step: 1,
         name: 'y_num'
       }),
