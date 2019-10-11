@@ -16,7 +16,7 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
   needSeed = false;
 
   makeDesign(scope, params) {
-    const { boundaryModel, tesselation, x_num, y_num, borderSize, x_cyclic, y_cyclic, rot_factor} = params;
+    const { outerModel, boundaryModel, tesselation, x_num, y_num, borderSize, x_cyclic, y_cyclic, rot_factor, whole_tiles_only} = params;
 
     // u_range: a list with two items indicating the minimum and maximum values for u (the first argument to the function passed);
     // v_range: a list with two items indicating the minimum and maximum values for v (the second argument to the function passed);
@@ -26,10 +26,21 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
     // vert_list, face_list and color_list, which point to lists of
     //  vertices, faces (as indices into the vertex list), and color indices for each face.
 
+    let u_range = [0, outerModel.bounds.width]
+    let v_range = [0, outerModel.bounds.height]
+    if (whole_tiles_only) {
+      u_range = [boundaryModel.bounds.x, boundaryModel.bounds.x + boundaryModel.bounds.width]
+      v_range = [boundaryModel.bounds.y, boundaryModel.bounds.y + boundaryModel.bounds.height]
+    }
+    if (!params.forceContainment) {
+      const bleedOff = outerModel.bounds.height*0.07;
+      v_range = [-bleedOff, outerModel.bounds.height + bleedOff]
+    }
+
     const options = {
         'function': plane,
-        'u_range': [0, boundaryModel.bounds.width],
-        'v_range': [0, boundaryModel.bounds.height],
+        'u_range': u_range,
+        'v_range': v_range,
         'u_num': x_num,
         'v_num': y_num,
         'u_cyclic': false,
@@ -54,8 +65,8 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
     const paths = faces.map(face => {
       const points = face.map(vertIndex => {
         return new paper.Point(
-          boundaryModel.bounds.x + vertices[vertIndex][0],
-          boundaryModel.bounds.y + vertices[vertIndex][1]
+          vertices[vertIndex][0],
+          vertices[vertIndex][1]
         )
       })
       const bufferedShape = bufferShape(-borderSize, points)
@@ -100,11 +111,11 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
         step: 1,
         name: 'y_num'
       }),
-      // new OnOffMetaParameter({
-      //   title: 'x cyclic',
-      //   value: false,
-      //   name: 'x_cyclic'
-      // }),
+      new OnOffMetaParameter({
+        title: 'whole tiles only',
+        value: false,
+        name: 'whole_tiles_only'
+      }),
       // new OnOffMetaParameter({
       //   title: 'y cyclic',
       //   value: false,
