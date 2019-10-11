@@ -101,6 +101,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       paths = design['paths'];
     }
 
+    paths = paths.filter(p => !!p);
+
     if (params.debug) {
       return {paths};
     } else {
