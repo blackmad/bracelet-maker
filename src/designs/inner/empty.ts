@@ -1,4 +1,3 @@
-const makerjs = require("makerjs");
 import { MetaParameter } from '../../meta-parameter'
 
 import { FastAbstractInnerDesign } from './fast-abstract-inner-design';

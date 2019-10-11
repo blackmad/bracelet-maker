@@ -1,17 +1,12 @@
-import { SimplexNoiseUtils } from "../../utils/simplex-noise-utils";
 import {
   MetaParameter,
   RangeMetaParameter,
   OnOffMetaParameter
 } from "../../meta-parameter";
-import Angle from "../../utils/angle";
 import * as _ from "lodash";
 
-import { PaperModelMaker } from '../../model-maker';
 import * as paper from 'paper';
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
-
-var makerjs = require("makerjs");
 
 export class InnerDesignHexes extends FastAbstractInnerDesign {
   allowOutline = true;

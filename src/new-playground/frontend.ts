@@ -2,7 +2,7 @@ import { DavidsPlayground } from './new-playground';
 import { ModelMaker, PaperModelMaker } from '../model-maker';
 
 import { ConicCuffOuter } from '../designs/outer/conic-cuff';
-import { StraightCollarOuter } from '../designs/outer/collar';
+import { StraightCollarOuter } from '../designs/outer/straight-collar';
 import { StraightCuffOuter } from '../designs/outer/straight-cuff';
 
 // import { InnerDesignCircles } from "../designs/inner-design-circles";
@@ -16,7 +16,7 @@ import { InnerDesignHexes } from '../designs/inner/hexes';
 import { InnerDesignLines } from '../designs/inner/lines';
 import { InnerDesignMondrian } from '../designs/inner/mondrian';
 import { InnerDesignExplode } from '../designs/inner/explode';
-import { InnerDesignGrid } from '../designs/inner/grid';
+// import { InnerDesignGrid } from '../designs/inner/grid';
 import { InnerDesignEmpty } from '../designs/inner/empty';
 import { InnerDesignSunflower } from '../designs/inner/sunflower';
 import { InnerDesignTessagon } from '../designs/inner/tessagon';
@@ -40,7 +40,7 @@ function attachHandlers() {
         $('.clear-on-reinit').empty();
         new DavidsPlayground(modelMaker, [modelMaker, innerDesign]).rerender();
         $('.startHidden').show();
-        $('.control-selectors').hide();
+        $('.hideAfterDesignSelected').hide();
         return true;
       }
     }

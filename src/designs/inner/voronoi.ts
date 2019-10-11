@@ -1,4 +1,3 @@
-var makerjs = require('makerjs');
 import * as _ from 'lodash';
 import { Delaunay } from 'd3-delaunay';
 import * as paper from 'paper';

@@ -20,7 +20,7 @@ export class InnerDesignSunflower extends FastAbstractInnerDesign {
     // φ = n ∗ 137.5◦
     // r = c√n,
 
-    let numDots = 1000;
+    let numDots = 5000;
 
     const circles = [];
 
@@ -83,7 +83,7 @@ export class InnerDesignSunflower extends FastAbstractInnerDesign {
         title: 'Circle Size',
         min: 0.04,
         max: 0.75,
-        value: 0.1,
+        value: 0.04,
         step: 0.01,
         name: 'circleSize'
       })
