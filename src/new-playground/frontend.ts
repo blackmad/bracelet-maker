@@ -27,9 +27,7 @@ import { InnerDesignTessagon } from "../designs/inner/tessagon"
 import * as $ from "jquery";
 
 function attachHandlers() {
-  $(".playArea").hide();
-  $(".algoPattern").hide();
-  $('#previewArea').hide();
+  $('#initMessage').show();
   
   let innerDesignClass = null;
   let outerDesignClass = null;
@@ -119,10 +117,9 @@ function attachHandlers() {
     }
   
     trySetDesign();
-    console.log('why am i here')
-    $('#previewArea').show();
-    // $('.algoPattern').hide();
-    // $('.design-container').hide();
+    console.log('why am i here');
+    $('.startHidden').show();
+    $('#initMessage').hide();
     $('.control-selectors').hide();
   }
 
