@@ -45,7 +45,7 @@ async function generateDesigns(header, designs) {
     });
     let base64Image = png.split(';base64,').pop();
     const outputPath = 'demo-output/' + innerDesign.name + '.png';
-    fs.writeFile(
+    fs.writeFileSync(
       outputPath,
       base64Image,
       { encoding: 'base64' },
@@ -59,5 +59,9 @@ async function generateDesigns(header, designs) {
   });
 }
 
-generateDesigns('Outer Designs', AllOuterDesigns);
-generateDesigns('Inner Designs', AllInnerDesigns);
+async function generateAll() { 
+  await generateDesigns('Outer Designs', AllOuterDesigns);
+  await generateDesigns('Inner Designs', AllInnerDesigns);
+}
+
+generateAll();

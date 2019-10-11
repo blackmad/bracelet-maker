@@ -1,15 +1,15 @@
 # Outer Designs
-# Inner Designs
 ## StraightCollarOuter
 ![demo-output/StraightCollarOuter.png](demo-output/StraightCollarOuter.png)
-## InnerDesignVoronoi
-![demo-output/InnerDesignVoronoi.png](demo-output/InnerDesignVoronoi.png)
 ## ConicCuffOuter
 ![demo-output/ConicCuffOuter.png](demo-output/ConicCuffOuter.png)
-## InnerDesignHashmarks
-![demo-output/InnerDesignHashmarks.png](demo-output/InnerDesignHashmarks.png)
 ## StraightCuffOuter
 ![demo-output/StraightCuffOuter.png](demo-output/StraightCuffOuter.png)
+# Inner Designs
+## InnerDesignVoronoi
+![demo-output/InnerDesignVoronoi.png](demo-output/InnerDesignVoronoi.png)
+## InnerDesignHashmarks
+![demo-output/InnerDesignHashmarks.png](demo-output/InnerDesignHashmarks.png)
 ## InnerDesignLattice
 ![demo-output/InnerDesignLattice.png](demo-output/InnerDesignLattice.png)
 ## InnerDesignVera
