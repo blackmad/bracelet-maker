@@ -1,10 +1,7 @@
 import { MetaParameter, RangeMetaParameter } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
-
-import * as paper from 'paper';
-
 export class InnerDesignHashmarks extends FastAbstractInnerDesign {
-  makeDesign(scope: any, params: any) {
+  makeDesign(paper: paper.PaperScope, params: any) {
     const {
       height,
       width,

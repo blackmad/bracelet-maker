@@ -1,5 +1,3 @@
-import * as paper from 'paper';
-
 import {
   RangeMetaParameter,
   MetaParameter
@@ -82,7 +80,7 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
     }
   }
 
-  makeDesign(scope, params) {
+  makeDesign(paper, params) {
     const {
       boundaryModel,
       borderSize,

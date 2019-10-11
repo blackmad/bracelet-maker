@@ -1,29 +1,9 @@
 import { DavidsPlayground } from './new-playground';
-import { ModelMaker, PaperModelMaker } from '../model-maker';
-
-import { ConicCuffOuter } from '../designs/outer/conic-cuff';
-import { StraightCollarOuter } from '../designs/outer/straight-collar';
-import { StraightCuffOuter } from '../designs/outer/straight-cuff';
-
-// import { InnerDesignCircles } from "../designs/inner-design-circles";
-import { InnerDesignCirclePacking } from '../designs/inner/circle-packing';
-import { InnerDesignVera } from '../designs/inner/vera';
-import { InnerDesignHashmarks } from '../designs/inner/hashmarks';
-import { InnerDesignCirclesXVera } from '../designs/inner/circles-x-vera';
-import { InnerDesignVoronoi } from '../designs/inner/voronoi';
-import { InnerDesignLattice } from '../designs/inner/lattice';
-import { InnerDesignHexes } from '../designs/inner/hexes';
-import { InnerDesignLines } from '../designs/inner/lines';
-import { InnerDesignMondrian } from '../designs/inner/mondrian';
-import { InnerDesignExplode } from '../designs/inner/explode';
-// import { InnerDesignGrid } from '../designs/inner/grid';
-import { InnerDesignEmpty } from '../designs/inner/empty';
-import { InnerDesignSunflower } from '../designs/inner/sunflower';
-import { InnerDesignTessagon } from '../designs/inner/tessagon';
-
-// import { InnerDesignHingedTesselation } from "../designs/inner-design-hinged-tesselation";
+import { PaperModelMaker } from '../model-maker';
 
 import * as $ from 'jquery';
+import { AllInnerDesigns } from '../designs/inner/all';
+import { AllOuterDesigns } from '../designs/outer/all';
 
 function attachHandlers() {
   $('#initMessage').show();
@@ -49,11 +29,7 @@ function attachHandlers() {
   ``;
 
   // outer
-  const possibleOuterDesigns = [
-    StraightCollarOuter,
-    ConicCuffOuter,
-    StraightCuffOuter
-  ];
+  const possibleOuterDesigns = AllOuterDesigns;
 
   const possibleOuterDesignNameMap = {};
   possibleOuterDesigns.forEach(d => {
@@ -90,25 +66,8 @@ function attachHandlers() {
     $('.control-selectors').show();
   });
 
-  const possibleDesigns = [
-    InnerDesignVoronoi,
-    InnerDesignHashmarks,
-    InnerDesignLattice,
-    // InnerDesignCircles,
-    InnerDesignVera,
-    InnerDesignCirclesXVera,
-    InnerDesignCirclePacking,
-    InnerDesignHexes,
-    InnerDesignLines,
-    InnerDesignMondrian,
-    InnerDesignExplode,
-    // InnerDesignGrid,
-    InnerDesignEmpty,
-    InnerDesignSunflower,
-    InnerDesignTessagon
-    // InnerDesignHingedTesselation
-  ];
-
+ 
+  const possibleDesigns = AllInnerDesigns;
   const possibleDesignNameMap = {};
   possibleDesigns.forEach(d => {
     possibleDesignNameMap[d.name] = d;

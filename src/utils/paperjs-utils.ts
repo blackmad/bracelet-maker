@@ -1,7 +1,7 @@
-import * as paper from 'paper';
 var Shape = require('@doodle3d/clipper-js');
 
 export function randomPointInPolygon(
+  paper: paper.PaperScope,
   polygon: paper.PathItem,
   rng: () => number
 ): paper.Point {
@@ -18,6 +18,7 @@ export function randomPointInPolygon(
 }
 
 export function bufferShape(
+  paper: paper.PaperScope,
   buffer: number,
   points: paper.Point[]
 ): paper.PathItem {
@@ -49,7 +50,9 @@ export function bufferShape(
   return roundedPolygon;
 }
 
-export function pickPointOnRectEdge(box: paper.Rectangle, rng: () => number) {
+export function pickPointOnRectEdge(
+  paper: paper.PaperScope,
+  box: paper.Rectangle, rng: () => number) {
   var randomPoint = rng() * (box.width * 2 + box.height * 2);
   if (randomPoint > 0 && randomPoint < box.height) {
     return new paper.Point(0 + box.x, box.height - randomPoint + box.y);
@@ -72,22 +75,24 @@ export function pickPointOnRectEdge(box: paper.Rectangle, rng: () => number) {
 }
 
 export function randomLineEndpointsOnRectangle(
+  paper: paper.PaperScope,
   model: paper.Rectangle,
   rng?: () => number
 ): paper.Point[] {
-  const p1 = pickPointOnRectEdge(model, rng);
-  let p2 = pickPointOnRectEdge(model, rng);
+  const p1 = pickPointOnRectEdge(paper, model, rng);
+  let p2 = pickPointOnRectEdge(paper, model, rng);
   while (p2.x == p1.x || p2.y == p1.y) {
-    p2 = pickPointOnRectEdge(model, rng);
+    p2 = pickPointOnRectEdge(paper, model, rng);
   }
   return [p1, p2]
 }
 
 export function randomLineOnRectangle(
+  paper: paper.PaperScope,
   model: paper.Rectangle,
   rng?: () => number
 ): paper.Path.Line {
-	const points = randomLineEndpointsOnRectangle(model, rng);
+	const points = randomLineEndpointsOnRectangle(paper, model, rng);
   return new paper.Path.Line(points[0], points[1])
 }
 

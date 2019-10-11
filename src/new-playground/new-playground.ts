@@ -9,6 +9,8 @@ import 'core-js/library';
 import { PaperModelMaker } from '../model-maker';
 import { MetaParameter, MetaParameterType } from '../meta-parameter';
 
+import {makeSVGData} from '../utils/paperjs-export-utils'
+
 // @ts-ignore - this works fine, wtf typescript?
 import * as PDFDocument from '../external/pdfkit.standalone';
 import * as SVGtoPDF from 'svg-to-pdfkit';
@@ -297,31 +299,6 @@ export class DavidsPlayground {
     document.getElementById('errorMessage').innerHTML = errorMessage;
   }
 
-  cleanSVGforDownload(svg) {
-    function recurse(el) {
-      for (let x of Array.from(el.children)) {
-        el.removeAttribute('transform');
-        el.setAttribute('fill', 'none');
-        el.removeAttribute('fill-rule');
-        if (el.tagName == 'g') {
-          el.setAttribute('stroke', '#ff0000');
-          el.setAttribute('stroke-width', '0.001pt');
-        }
-        recurse(x);
-      }
-    }
-    recurse(svg);
-  }
-
-  reprocessSVG(svg) {
-    svg.setAttribute(
-      'viewBox',
-      `0 0 ${paper.project.activeLayer.bounds.width + 0.05} ${paper.project.activeLayer.bounds.height + 0.05}`
-    );
-    svg.setAttribute('height', paper.project.activeLayer.bounds.height + 'in');
-    svg.setAttribute('width', paper.project.activeLayer.bounds.width + 'in');
-  }
-
   downloadPDF() {
     const widthInches = paper.project.activeLayer.bounds.width;
     const heightInches = paper.project.activeLayer.bounds.height;
@@ -330,7 +307,7 @@ export class DavidsPlayground {
       compress: false,
       size: [widthInches * 72, heightInches * 72]
     });
-    SVGtoPDF(doc, this.makeSVGData(true), 0, 0);
+    SVGtoPDF(doc, makeSVGData(paper, true), 0, 0);
     
     function blobToDataURL(blob, callback) {
       var a = new FileReader();
@@ -351,24 +328,8 @@ export class DavidsPlayground {
     doc.end();
   }
 
-  makeSVGData(shouldClean: boolean) {
-    let svgData: string = (paper.project.exportSVG({
-      asString: true,
-      // @ts-ignore
-      matrix: new paper.Matrix(),
-      bounds: 'content'
-    }) as unknown) as string;
-
-    const svg = $(svgData);
-    if (shouldClean) {
-      this.cleanSVGforDownload(svg[0]);
-    }
-    this.reprocessSVG(svg[0]);
-    return svg[0].outerHTML;
-  }
-
   downloadSVG() {
-    const data = this.makeSVGData(true);
+    const data = makeSVGData(paper, true);
     const mimeType = 'image/svg+xml';
     var encoded = encodeURIComponent(data);
     var uriPrefix = 'data:' + mimeType + ',';
@@ -459,8 +420,9 @@ export class DavidsPlayground {
       paper.project.activeLayer.removeChildren();
     }
 
+    // @ts-ignore
     this.modelMaker.make(paper, modelParams);
-    $('#svgArea')[0].innerHTML = this.makeSVGData(false);
+    $('#svgArea')[0].innerHTML = makeSVGData(paper, false);
 
     $('body').removeClass('loading');
   }

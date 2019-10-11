@@ -7,7 +7,8 @@ export enum MetaParameterType {
 export interface MetaParameter {
     name: string;
     type: MetaParameterType;
-    title: string
+    title: string;
+    value: any;
 }
 
 export class RangeMetaParameter implements MetaParameter {

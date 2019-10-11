@@ -4,7 +4,6 @@ import {
   MetaParameter
 } from "../../meta-parameter";
 import * as _ from "lodash";
-import * as paper from 'paper';
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 import { SimpleCircle, randomLineOnRectangle, checkCircleCircleIntersection } from '../../utils/paperjs-utils'
 
@@ -42,7 +41,7 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
     return testCircle.isInside(boundaryRect);
   }
 
-  makeDesign(scope, params) {
+  makeDesign(paper, params) {
     let {
       height = 2,
       width = 10,
@@ -63,7 +62,7 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
     var radius = maxCircleSize;
 
     const lines = _.times(numLines, () => {
-      return randomLineOnRectangle(boundaryRect, this.rng);
+      return randomLineOnRectangle(paper, boundaryRect, this.rng);
     });
 
     const triesPerRadius = 50;

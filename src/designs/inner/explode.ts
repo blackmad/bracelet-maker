@@ -5,13 +5,11 @@ import {
   MetaParameter
 } from "../../meta-parameter";
 
-import * as paper from 'paper';
-
 import { AbstractExpandInnerDesign } from './abstract-expand-and-subtract-inner-design'
 import { pickPointOnRectEdge } from "../../utils/paperjs-utils";
 
 export class InnerDesignExplode extends AbstractExpandInnerDesign {
-  makePaths(scope, params): paper.Point[][] {
+  makePaths(paper, params): paper.Point[][] {
     const { outerModel, numLines, numCenters } = params;
 
     const paths = [];
@@ -35,7 +33,7 @@ export class InnerDesignExplode extends AbstractExpandInnerDesign {
     // }
 
     for (let c = 1; c <= numLines; c++) {
-      const p1 = pickPointOnRectEdge(boundaryRect, this.rng);
+      const p1 = pickPointOnRectEdge(paper, boundaryRect, this.rng);
       const center = centers[Math.floor(this.rng() * centers.length)];
       
       const line = [center, p1];

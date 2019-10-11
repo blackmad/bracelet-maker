@@ -1,6 +1,5 @@
 import { MetaParameter, RangeMetaParameter, SelectMetaParameter, OnOffMetaParameter } from '../../meta-parameter';
 import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
-import * as paper from 'paper';
 import * as _ from 'lodash';
 
 import { bufferShape } from '../../utils/paperjs-utils';
@@ -15,7 +14,7 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
   needSubtraction = true;
   needSeed = false;
 
-  makeDesign(scope, params) {
+  makeDesign(paper: paper.PaperScope, params) {
     const { outerModel, boundaryModel, tesselation, x_num, y_num, borderSize, x_cyclic, y_cyclic, rot_factor, whole_tiles_only} = params;
 
     // u_range: a list with two items indicating the minimum and maximum values for u (the first argument to the function passed);
@@ -69,7 +68,7 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
           vertices[vertIndex][1]
         )
       })
-      const bufferedShape = bufferShape(-borderSize, points)
+      const bufferedShape = bufferShape(paper, -borderSize, points)
       return bufferedShape
       // return new paper.Path(points);
     });

@@ -1,15 +1,12 @@
 import { makeConicSection } from "./conic-section";
 import { RangeMetaParameter } from "../../meta-parameter";
 import { PaperModelMaker } from '../../model-maker';
-import Angle from "../../utils/angle";
 import {makeEvenlySpacedBolts} from '../design-utils';
-
-import * as paper from 'paper';
 
 export class ConicCuffOuter implements PaperModelMaker {
   constructor(public innerDesignClass: any) {}
 
-  addRivetHoles(height, cuffModel, cuffModelInner) {
+  addRivetHoles(paper: paper.PaperScope, height, cuffModel, cuffModelInner) {
     /***** START RIVET HOLES *****/
     const boltGuideLine1P1 = new paper.Point(
       cuffModel.shortRadius * Math.cos(cuffModelInner.widthOffset.radians / 2),
@@ -69,7 +66,7 @@ export class ConicCuffOuter implements PaperModelMaker {
 
   }
 
-  make(scope, options) {
+  make(paper: paper.PaperScope, options) {
     var {
       height,
       wristCircumference,
@@ -108,7 +105,7 @@ export class ConicCuffOuter implements PaperModelMaker {
     cuffModelInner.model.remove();
 
 
-    const rivetHoles = this.addRivetHoles(height, cuffModel, cuffModelInner);
+    const rivetHoles = this.addRivetHoles(paper, height, cuffModel, cuffModelInner);
     console.log(rivetHoles);
     cuffModel.model.remove();
     cuffModel.model = new paper.CompoundPath({
@@ -174,7 +171,7 @@ export class ConicCuffOuter implements PaperModelMaker {
     innerOptions.boundaryModel = cuffModelInner.model;
     innerOptions.outerModel = cuffModel.model;
 
-    const innerDesign = this.innerDesignClass.make(scope, innerOptions);
+    const innerDesign = this.innerDesignClass.make(paper, innerOptions);
 
     // if (innerDesign.models && innerDesign.models.outline) {
     //   models.completeCuffModel.models.cuffModel = makerjs.model.combineUnion(

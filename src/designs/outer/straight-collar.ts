@@ -8,12 +8,10 @@ import {
 
 import { PaperModelMaker } from '../../model-maker';
 
-import * as paper from 'paper';
-
 export class StraightCollarOuter implements PaperModelMaker {
   constructor(public innerDesignClass: any) {}
 
-  make(scope, options): paper.PathItem[] {
+  make(paper: paper.PaperScope, options): paper.PathItem[] {
     var { height, neckSize, safeBorderWidth, debug = false } = options[
       this.constructor.name
     ];
@@ -132,7 +130,7 @@ export class StraightCollarOuter implements PaperModelMaker {
     innerOptions.safeCone = safeCone;
     innerOptions.outerModel = outerModel;
 
-    const innerDesign = this.innerDesignClass.make(scope, innerOptions);
+    const innerDesign = this.innerDesignClass.make(paper, innerOptions);
     // if (models && models.design && models.design.models.outline) {
     //   console.log("outline!!");
     //   console.log("outline:", models.design.models.outline);

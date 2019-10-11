@@ -11,7 +11,6 @@ import {
   SelectMetaParameter
 } from '../../meta-parameter';
 import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
-import * as paper from 'paper';
 import * as _ from 'lodash';
 
 export class InnerDesignVera extends FastAbstractInnerDesign {
@@ -19,7 +18,7 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
   requiresSafeConeClamp = false;
   needSubtraction = true;
 
-  makeDesign(scope, params) {
+  makeDesign(paper: paper.PaperScope, params) {
     const {
       height,
       width,

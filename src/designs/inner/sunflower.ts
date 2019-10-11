@@ -3,14 +3,13 @@ import {
   RangeMetaParameter
 } from '../../meta-parameter';
 import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
-import * as paper from 'paper';
 
 export class InnerDesignSunflower extends FastAbstractInnerDesign {
   allowOutline = false;
   needSubtraction = true;
   needSeed = false;
 
-  makeDesign(scope, params) {
+  makeDesign(paper: paper.PaperScope, params) {
     const {
       boundaryModel,
       scalingParam,

@@ -1,14 +1,13 @@
-import { SimplexNoiseUtils } from "../../utils/simplex-noise-utils";
+
 import { OnOffMetaParameter, MetaParameter, RangeMetaParameter } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
-import * as paper from 'paper';
 
 export class InnerDesignLattice extends FastAbstractInnerDesign {
   allowOutline = false;
   needSubtraction = true;
   needSeed = false;
 
-  makeDesign(scope, params): paper.PathItem[] {
+  makeDesign(paper: paper.PaperScope, params): paper.PathItem[] {
     const {
       boundaryModel,
       shapeHeight,

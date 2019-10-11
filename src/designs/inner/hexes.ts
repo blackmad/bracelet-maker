@@ -1,11 +1,9 @@
 import {
   MetaParameter,
   RangeMetaParameter,
-  OnOffMetaParameter
 } from "../../meta-parameter";
 import * as _ from "lodash";
 
-import * as paper from 'paper';
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 
 export class InnerDesignHexes extends FastAbstractInnerDesign {
@@ -15,13 +13,12 @@ export class InnerDesignHexes extends FastAbstractInnerDesign {
   forceContainmentDefault = true;
   needSeed = false;
 
-  makeDesign(scope, params) {
+  makeDesign(paper: paper.PaperScope, params) {
     const {
       boundaryModel,
       outerModel,
       numRows,
       stretchWidth,
-      filletOutlineRadius,
       forceContainment
     } = params;
 

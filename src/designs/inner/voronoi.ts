@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 import { Delaunay } from 'd3-delaunay';
-import * as paper from 'paper';
 
 import { RangeMetaParameter, MetaParameter } from '../../meta-parameter';
 import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
@@ -9,14 +8,14 @@ import ExtendPaperJs from 'paperjs-offset';
 
 export class InnerDesignVoronoi extends FastAbstractInnerDesign {
   needSubtraction = false;
-  makeDesign(scope, params) {
+  makeDesign(paper: paper.PaperScope, params) {
     ExtendPaperJs(paper);
 
     const seedPoints = [];
     const { numPoints = 100, minPathLength = 1 } = params;
     const boundaryModel: paper.PathItem = params.boundaryModel;
     for (let i = 0; i < numPoints; i++) {
-      const testPoint = randomPointInPolygon(boundaryModel, this.rng);
+      const testPoint = randomPointInPolygon(paper, boundaryModel, this.rng);
       seedPoints.push([testPoint.x, testPoint.y]);
     }
 
@@ -32,7 +31,7 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
     for (const cellPolygon of voronoi.cellPolygons()) {
       const points = cellPolygon.map(p => new paper.Point(p[0], p[1]));
       points.pop();
-      const bufferedShape = bufferShape(-params.borderSize, points)
+      const bufferedShape = bufferShape(paper, -params.borderSize, points)
       if (bufferedShape) {
         polys.push(bufferedShape);
       }

@@ -1,5 +1,4 @@
 import * as _ from "lodash";
-import * as paper from 'paper';
 
 import { RangeMetaParameter, MetaParameter, OnOffMetaParameter } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
@@ -27,10 +26,10 @@ export abstract class AbstractExpandInnerDesign
   abstract makePaths(scope: paper.PaperScope, params): paper.Point[][];
   abstract pathDesignMetaParameters: MetaParameter[]
   
-  makeDesign(scope: paper.PaperScope, params): paper.PathItem[] {
+  makeDesign(paper: paper.PaperScope, params): paper.PathItem[] {
     const { boundaryModel, borderSize, seed, debug } = params;
 
-    const lines = this.makePaths(scope, params);
+    const lines = this.makePaths(paper, params);
 
     let totalPath = boundaryModel.clone();
 
