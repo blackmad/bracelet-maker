@@ -48,7 +48,7 @@ class RotateTileGenerator(TileGenerator):
     def calculate_rot_tiles(self):
         tiles = []
         for rot_tile in [j for i in self.rot_tiles for j in i]:
-            tiles += rot_tile.create_tiles()
+            tiles = tiles.__add__(rot_tile.create_tiles())
         return tiles
 
 
@@ -100,7 +100,7 @@ class RotTile(AbstractTile):
         self.interior \
             = generator.initialize_tiles(self.tessagon.__class__.tile_class)
         generator.initialize_neighbors(self.interior)
-        self.tiles += self._flatten_list(self.interior)
+        self.tiles = self.tiles.__add__(self._flatten_list(self.interior))
 
     def basic_offset(self, fingerprint):
         return [fingerprint[0] * self.n + fingerprint[1] + 1,
@@ -137,7 +137,7 @@ class RotTile(AbstractTile):
 
                 self.boundary['left'] = tiles
                 tile.boundary['right'] = tiles
-                self.tiles += self._flatten_list(tiles)
+                self.tiles = self.tiles.__add__(self._flatten_list(tiles))
 
     def initialize_bottom_boundary(self, id_prefix):
         if not self.boundary['bottom']:
@@ -162,7 +162,7 @@ class RotTile(AbstractTile):
 
                 self.boundary['bottom'] = tiles
                 tile.boundary['top'] = tiles
-                self.tiles += self._flatten_list(tiles)
+                self.tiles = self.tiles.__add__(self._flatten_list(tiles))
 
     def initialize_right_boundary(self, id_prefix):
         if not self.boundary['right']:
