@@ -143,7 +143,6 @@ export class StraightCuffOuter implements PaperModelMaker {
       return [innerDesign.paths];
     } else {
       const path = new paper.CompoundPath({
-        // children: [cuffOuter],
         children: [cuffOuter, ...holes, ...innerDesign.paths],
         strokeColor: 'red',
         strokeWidth: '0.005',

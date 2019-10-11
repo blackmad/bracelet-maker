@@ -9,17 +9,17 @@ import * as paper from 'paper';
 export class ConicCuffOuter implements PaperModelMaker {
   constructor(public innerDesignClass: any) {}
 
-  addRivetHoles(cuffModel, cuffModelInner) {
+  addRivetHoles(height, cuffModel, cuffModelInner) {
     /***** START RIVET HOLES *****/
-    const boltGuideLine1P1 = [
+    const boltGuideLine1P1 = new paper.Point(
       cuffModel.shortRadius * Math.cos(cuffModelInner.widthOffset.radians / 2),
       cuffModel.shortRadius * Math.sin(cuffModelInner.widthOffset.radians / 2)
-    ];
-    const boltGuideLine1P2 = [
+    );
+    const boltGuideLine1P2 = new paper.Point(
       cuffModel.longRadius * Math.cos(cuffModelInner.widthOffset.radians / 2),
       cuffModel.longRadius * Math.sin(cuffModelInner.widthOffset.radians / 2)
-    ];
-    const boltGuideLine2P1 = [
+    );
+    const boltGuideLine2P1 = new paper.Point(
       cuffModel.longRadius *
         Math.cos(
           cuffModel.alpha.radians - cuffModelInner.widthOffset.radians / 2
@@ -28,8 +28,8 @@ export class ConicCuffOuter implements PaperModelMaker {
         Math.sin(
           cuffModel.alpha.radians - cuffModelInner.widthOffset.radians / 2
         )
-    ];
-    const boltGuideLine2P2 = [
+    );
+    const boltGuideLine2P2 = new paper.Point(
       cuffModel.shortRadius *
         Math.cos(
           cuffModel.alpha.radians - cuffModelInner.widthOffset.radians / 2
@@ -38,7 +38,7 @@ export class ConicCuffOuter implements PaperModelMaker {
         Math.sin(
           cuffModel.alpha.radians - cuffModelInner.widthOffset.radians / 2
         )
-    ];
+    );
 
     /***** throw in some debugging *****/
     // if (debug) {
@@ -53,7 +53,7 @@ export class ConicCuffOuter implements PaperModelMaker {
     //     );
     // }
 
-    const numBolts = Math.round(cuffModel.bounds.height);
+    const numBolts = Math.round(height);
     const leftBolts = makeEvenlySpacedBolts(
       numBolts,
       boltGuideLine1P1,
@@ -64,7 +64,7 @@ export class ConicCuffOuter implements PaperModelMaker {
       boltGuideLine2P1,
       boltGuideLine2P2
     );
-    return [...leftBolts, ...rightBolts]
+    return [...leftBolts, ...rightBolts];
     /***** END RIVET HOLES *****/
 
   }
@@ -94,9 +94,9 @@ export class ConicCuffOuter implements PaperModelMaker {
         filletRadius: 0.2
       });
     console.log(cuffModel);
-    cuffModel.model.translate(new paper.Point(
-      -cuffModel.model.bounds.x,
-      -cuffModel.model.bounds.y));
+    const toTranslateX = cuffModel.model.bounds.x;
+    const toTranslateY = cuffModel.model.bounds.y;
+
 
     var cuffModelInner = makeConicSection({
       topCircumference: wristCircumference + 1.0,
@@ -105,9 +105,30 @@ export class ConicCuffOuter implements PaperModelMaker {
       widthOffset: 1.1,
       heightOffset: safeBorderWidth
     });
-    // cuffModelInner.model.remove();
-    cuffModelInner.model.strokeWidth = 0.05;
-    cuffModelInner.model.strokeColor = 'green';
+    cuffModelInner.model.remove();
+
+
+    const rivetHoles = this.addRivetHoles(height, cuffModel, cuffModelInner);
+    console.log(rivetHoles);
+    cuffModel.model.remove();
+    cuffModel.model = new paper.CompoundPath({
+      children: [cuffModel.model, ...rivetHoles]
+    })
+
+    cuffModel.model.translate(new paper.Point(
+      -toTranslateX, -toTranslateY))
+    cuffModelInner.model.translate(new paper.Point(
+        -toTranslateX, -toTranslateY))
+
+    cuffModel.model.rotate(90 - cuffModel.alpha.degrees / 2);
+    cuffModelInner.model.rotate(90 - cuffModel.alpha.degrees / 2);
+
+    const toTranslateX2 = cuffModel.model.bounds.x;
+    const toTranslateY2 = cuffModel.model.bounds.y;
+    cuffModel.model.translate(new paper.Point(
+      -toTranslateX2, -toTranslateY2))
+    cuffModelInner.model.translate(new paper.Point(
+        -toTranslateX2, -toTranslateY2+safeBorderWidth))
 
 
     /***** START DESIGN *****/
@@ -150,7 +171,7 @@ export class ConicCuffOuter implements PaperModelMaker {
     // ]);
 
     const innerOptions = options[this.innerDesignClass.constructor.name] || {};
-    innerOptions.boundaryModel = cuffModel.model;
+    innerOptions.boundaryModel = cuffModelInner.model;
     innerOptions.outerModel = cuffModel.model;
 
     const innerDesign = this.innerDesignClass.make(scope, innerOptions);
@@ -169,18 +190,15 @@ export class ConicCuffOuter implements PaperModelMaker {
 
     /***** END DESIGN *****/
 
-    const allHoles = []
     console.log(cuffModel)
     const path = new paper.CompoundPath({
-      // children: [cuffOuter],
-      children: [cuffModel.model, ...allHoles, ...innerDesign.paths],
+      children: [cuffModel.model, ...innerDesign.paths],
       strokeColor: 'red',
       strokeWidth: '0.005',
       fillColor: 'lightgrey',
       fillRule: 'evenodd'
     });
     return [path];
- 
   }
 
   get metaParameters() {

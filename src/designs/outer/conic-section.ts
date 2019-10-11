@@ -2,15 +2,17 @@ import { Angle } from '../../utils/angle';
 
 import * as paper from 'paper';
 import { Path } from 'opentype.js';
+import { start } from 'repl';
 
 export default makeConicSection;
 
-function arcOver({ center, radius, startAngle, endAngle }) {
+function getArcPoint({ center, radius, angle }) {
+  return center.add(new paper.Point({ length: radius, angle: angle }));
+}
+
+function arcOver({ path, center, radius, startAngle, endAngle }) {
   console.log({ center, radius, startAngle, endAngle });
-  const path = new paper.Path();
-  path.moveTo(
-    center.add(new paper.Point({ length: radius, angle: startAngle }))
-  );
+  path.moveTo(getArcPoint({ center, radius, angle: startAngle }));
   const sweepAngle = endAngle - startAngle;
   var isOver180 = Math.abs(sweepAngle) > 180;
   var isPositive = sweepAngle > 0;
@@ -29,7 +31,7 @@ function arcOver({ center, radius, startAngle, endAngle }) {
     isOver180
   );
 
-  path.strokeColor = 'blue';
+  // path.strokeColor = 'blue';
   path.strokeWidth = 10;
   return path;
 }
@@ -59,48 +61,34 @@ export function makeConicSection({
   var widthOffsetAngle = Angle.fromRadians(widthOffset / Q);
 
   // Compute the arcs that make up the cuff
-  var cuffPaths = {
-    p1: arcOver({
-      center: new paper.Point(0, 0),
-      radius: P + heightOffset,
-      startAngle: widthOffsetAngle.degrees,
-      endAngle: alpha.degrees - widthOffsetAngle.degrees
-    }),
-    p2: arcOver({
-      center: new paper.Point(0, 0),
-      radius: Q - heightOffset,
-      startAngle: widthOffsetAngle.degrees,
-      endAngle: alpha.degrees - widthOffsetAngle.degrees
-    })
-  };
 
-  console.log(cuffPaths['p1']);
+  const center = new paper.Point(0, 0);
 
-  // // Compute the lines that connect the two arcs
-  cuffPaths['l1'] = new paper.Path.Line(
-    cuffPaths['p1'].segments[0].point,
-    cuffPaths['p2'].segments[0].point
-  )
-  cuffPaths['l2'] = new paper.Path.Line(
-    cuffPaths['p1'].segments[1].point,
-    cuffPaths['p2'].segments[1].point
-  )
-  // cuffPaths['l2'] = new makerjs.paths.Line(
-  //     makerjs.point.fromArc(cuffPaths['p1'])[1],
-  //     makerjs.point.fromArc(cuffPaths['p2'])[1]
-  // );
+  const path = arcOver({
+    path: new paper.Path(),
+    center,
+    radius: P + heightOffset,
+    startAngle: widthOffsetAngle.degrees,
+    endAngle: alpha.degrees - widthOffsetAngle.degrees
+  });
 
-  // // make the paths into a unified model
-  // var cuffModel = {paths: cuffPaths} // makerjs.chain.toNewModel(cuffChain);
+  path.lineTo(
+    getArcPoint({center, radius: Q - heightOffset, angle: alpha.degrees - widthOffsetAngle.degrees}))
 
-  // const closedModel = new paper.CompoundPath([cuffPaths['p1'], cuffPaths['l1'], cuffPaths['p2'], cuffPaths['l2']]);
-  const closedModel = new paper.CompoundPath([cuffPaths['p1'], cuffPaths['p2']]);
+  arcOver({
+    path,
+    center: new paper.Point(0, 0),
+    radius: Q - heightOffset,
+    startAngle: alpha.degrees - widthOffsetAngle.degrees,
+    endAngle: widthOffsetAngle.degrees
+  });
 
-  closedModel.closePath();
-  closedModel.rotate(90 - alpha.degrees / 2);
+  path.closePath();
+
+  path.fillColor = 'lightgrey';
 
   return {
-    model: closedModel,
+    model: path,
     widthOffset: widthOffsetAngle,
     alpha: alpha,
     shortRadius: P,

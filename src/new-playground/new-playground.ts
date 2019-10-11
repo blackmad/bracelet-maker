@@ -330,7 +330,7 @@ export class DavidsPlayground {
       compress: false,
       size: [widthInches * 72, heightInches * 72]
     });
-    SVGtoPDF(doc, this.makeSVGData(), 0, 0);
+    SVGtoPDF(doc, this.makeSVGData(true), 0, 0);
     
     function blobToDataURL(blob, callback) {
       var a = new FileReader();
@@ -351,7 +351,7 @@ export class DavidsPlayground {
     doc.end();
   }
 
-  makeSVGData() {
+  makeSVGData(shouldClean: boolean) {
     let svgData: string = (paper.project.exportSVG({
       asString: true,
       // @ts-ignore
@@ -360,13 +360,15 @@ export class DavidsPlayground {
     }) as unknown) as string;
 
     const svg = $(svgData);
-    this.cleanSVGforDownload(svg[0]);
+    if (shouldClean) {
+      this.cleanSVGforDownload(svg[0]);
+    }
     this.reprocessSVG(svg[0]);
     return svg[0].outerHTML;
   }
 
   downloadSVG() {
-    const data = this.makeSVGData();
+    const data = this.makeSVGData(true);
     const mimeType = 'image/svg+xml';
     var encoded = encodeURIComponent(data);
     var uriPrefix = 'data:' + mimeType + ',';
@@ -458,7 +460,7 @@ export class DavidsPlayground {
     }
 
     this.modelMaker.make(paper, modelParams);
-    $('#svgArea')[0].innerHTML = this.makeSVGData();
+    $('#svgArea')[0].innerHTML = this.makeSVGData(false);
 
     $('body').removeClass('loading');
   }
