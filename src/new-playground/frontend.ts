@@ -19,6 +19,7 @@ import { InnerDesignExplode } from "../designs/inner/explode"
 import { InnerDesignGrid } from "../designs/inner/grid"
 import { InnerDesignEmpty } from "../designs/inner/empty"
 import { InnerDesignSunflower } from "../designs/inner/sunflower"
+import { InnerDesignTessagon } from "../designs/inner/tessagon"
 
 
 // import { InnerDesignHingedTesselation } from "../designs/inner-design-hinged-tesselation";
@@ -99,7 +100,8 @@ function attachHandlers() {
     InnerDesignExplode,
     // InnerDesignGrid,
     InnerDesignEmpty,
-    InnerDesignSunflower
+    InnerDesignSunflower,
+    InnerDesignTessagon
     // InnerDesignHingedTesselation
   ];
   
