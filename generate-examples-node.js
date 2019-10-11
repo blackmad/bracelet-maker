@@ -11,13 +11,15 @@ import { InnerDesignEmpty } from './built/designs/inner/empty.js';
 
 paper.setup();
 
+const outputDir = 'static/demo-output/'
+
 function elHydrator(svg) {
   const el = new JSDOM('<div>' + svg + '</div>');
   return el.window.document.getElementsByTagName('svg')[0];
 }
 
-if (!fs.existsSync('demo-output')) {
-  fs.mkdirSync('demo-output/');
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir);
 }
 
 async function asyncForEach(array, callback) {
@@ -37,14 +39,14 @@ async function generateDesigns(header, designs) {
     const svg = demoDesign(paper, new innerDesign(
       new InnerDesignEmpty()
     ), elHydrator);
-    fs.writeFileSync('demo-output/' + innerDesign.name + '.svg', svg);
+    fs.writeFileSync(outputDir + innerDesign.name + '.svg', svg);
     const png = await svg2png({
       input: svg,
       encoding: 'dataURL',
       format: 'png'
     });
     let base64Image = png.split(';base64,').pop();
-    const outputPath = 'demo-output/' + innerDesign.name + '.png';
+    const outputPath = outputDir + innerDesign.name + '.png';
     fs.writeFileSync(
       outputPath,
       base64Image,

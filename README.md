@@ -1,34 +1,34 @@
 # Outer Designs
 ## StraightCollarOuter
-![demo-output/StraightCollarOuter.png](demo-output/StraightCollarOuter.png)
+![static/demo-output/StraightCollarOuter.png](static/demo-output/StraightCollarOuter.png)
 ## ConicCuffOuter
-![demo-output/ConicCuffOuter.png](demo-output/ConicCuffOuter.png)
+![static/demo-output/ConicCuffOuter.png](static/demo-output/ConicCuffOuter.png)
 ## StraightCuffOuter
-![demo-output/StraightCuffOuter.png](demo-output/StraightCuffOuter.png)
+![static/demo-output/StraightCuffOuter.png](static/demo-output/StraightCuffOuter.png)
 # Inner Designs
 ## InnerDesignVoronoi
-![demo-output/InnerDesignVoronoi.png](demo-output/InnerDesignVoronoi.png)
+![static/demo-output/InnerDesignVoronoi.png](static/demo-output/InnerDesignVoronoi.png)
 ## InnerDesignHashmarks
-![demo-output/InnerDesignHashmarks.png](demo-output/InnerDesignHashmarks.png)
+![static/demo-output/InnerDesignHashmarks.png](static/demo-output/InnerDesignHashmarks.png)
 ## InnerDesignLattice
-![demo-output/InnerDesignLattice.png](demo-output/InnerDesignLattice.png)
+![static/demo-output/InnerDesignLattice.png](static/demo-output/InnerDesignLattice.png)
 ## InnerDesignVera
-![demo-output/InnerDesignVera.png](demo-output/InnerDesignVera.png)
+![static/demo-output/InnerDesignVera.png](static/demo-output/InnerDesignVera.png)
 ## InnerDesignCirclesXVera
-![demo-output/InnerDesignCirclesXVera.png](demo-output/InnerDesignCirclesXVera.png)
+![static/demo-output/InnerDesignCirclesXVera.png](static/demo-output/InnerDesignCirclesXVera.png)
 ## InnerDesignCirclePacking
-![demo-output/InnerDesignCirclePacking.png](demo-output/InnerDesignCirclePacking.png)
+![static/demo-output/InnerDesignCirclePacking.png](static/demo-output/InnerDesignCirclePacking.png)
 ## InnerDesignHexes
-![demo-output/InnerDesignHexes.png](demo-output/InnerDesignHexes.png)
+![static/demo-output/InnerDesignHexes.png](static/demo-output/InnerDesignHexes.png)
 ## InnerDesignLines
-![demo-output/InnerDesignLines.png](demo-output/InnerDesignLines.png)
+![static/demo-output/InnerDesignLines.png](static/demo-output/InnerDesignLines.png)
 ## InnerDesignMondrian
-![demo-output/InnerDesignMondrian.png](demo-output/InnerDesignMondrian.png)
+![static/demo-output/InnerDesignMondrian.png](static/demo-output/InnerDesignMondrian.png)
 ## InnerDesignExplode
-![demo-output/InnerDesignExplode.png](demo-output/InnerDesignExplode.png)
+![static/demo-output/InnerDesignExplode.png](static/demo-output/InnerDesignExplode.png)
 ## InnerDesignEmpty
-![demo-output/InnerDesignEmpty.png](demo-output/InnerDesignEmpty.png)
+![static/demo-output/InnerDesignEmpty.png](static/demo-output/InnerDesignEmpty.png)
 ## InnerDesignSunflower
-![demo-output/InnerDesignSunflower.png](demo-output/InnerDesignSunflower.png)
+![static/demo-output/InnerDesignSunflower.png](static/demo-output/InnerDesignSunflower.png)
 ## InnerDesignTessagon
-![demo-output/InnerDesignTessagon.png](demo-output/InnerDesignTessagon.png)
+![static/demo-output/InnerDesignTessagon.png](static/demo-output/InnerDesignTessagon.png)

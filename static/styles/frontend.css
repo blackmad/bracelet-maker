@@ -112,3 +112,7 @@ input[type="number"] {
 .sc2kimg {
   width: 45vw;
 }
+
+.design-container img {
+  width: 90%;
+}
