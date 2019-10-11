@@ -5,7 +5,7 @@ from tessagon.core.tile import Tile
 class Stamp14:
     def __init__(self, tile, i, reference_point):
         self.tile = tile
-        self.neighbors = [None]*6
+        self.neighbors = [None for i in range(6)]
         self.verts = self.init_verts()
         self.faces = self.init_faces()
         self.reference_point = reference_point
@@ -43,7 +43,7 @@ class Stamp14Tile(Tile):
         super().__init__(tessagon, **kwargs)
         self.stamp_class = stamp_class
         # See comment at the top of file for arrangement
-        self.stamps = [None] * 14
+        self.stamps = [None for i in range(14)]
 
     def initialize_stamps(self):
         for i in range(14):

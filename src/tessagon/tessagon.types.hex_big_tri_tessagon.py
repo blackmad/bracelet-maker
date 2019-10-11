@@ -17,10 +17,10 @@ metadata = TessagonMetadata(name='Hexagons and Big Triangles',
 
 class Thingy(Stamp14):
     def init_verts(self):
-        return [None]*13
+        return [None for i in range(13)]
 
     def init_faces(self):
-        return [None]*3
+        return [None for i in range(3)]
 
     def calculate_verts(self):
         unit_u = 1.0 / 14.0

@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 
 import { bufferShape } from '../../utils/paperjs-utils';
 
-import { makeTesselationFromName, makeTesselationFromNameAndOptions, getAllTesselationNames } from '../../tessagon/demo';
+import { makeTesselationFromName, makeTesselationFromNameAndOptions, getAllTesselationNames } from '../../tessagon/js-entry';
 import { plane } from '../..//tessagon/tessagon.misc.shapes';
 import { ListAdaptor } from '../..//tessagon/tessagon.adaptors.list_adaptor';
 

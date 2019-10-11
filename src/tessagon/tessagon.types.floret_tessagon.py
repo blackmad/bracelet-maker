@@ -18,10 +18,10 @@ metadata = TessagonMetadata(name='Florets',
 
 class Floret(Stamp14):
     def init_verts(self):
-        return [None]*19
+        return [None for i in range(19)]
 
     def init_faces(self):
-        return [None]*6
+        return [None for i in range(6)]
 
     def add_offset_vert(self, i, offset_u, offset_v):
         vert = super().add_offset_vert(i, offset_u, offset_v)
