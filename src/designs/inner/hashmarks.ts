@@ -3,8 +3,8 @@ import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 export class InnerDesignHashmarks extends FastAbstractInnerDesign {
   makeDesign(paper: paper.PaperScope, params: any) {
     const {
-      height,
-      width,
+      boundaryModel,
+      outerModel,
       bufferWidth,
       hashWidth,
       initialNoiseRange1,
@@ -13,6 +13,9 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
       noiseOffset2,
       noiseInfluence
     } = params;
+
+    const height = outerModel.bounds.height;
+    const width = outerModel.bounds.width;
 
     var lastNoise1 = this.simplex.noise2D(100, 10) * initialNoiseRange1;
     var lastNoise2 = this.simplex.noise2D(100.5, 10.5) * initialNoiseRange2;

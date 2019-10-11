@@ -44,6 +44,7 @@ export class StraightCuffOuter implements PaperModelMaker {
     );
 
     const holes1 = makeEvenlySpacedBolts(
+      paper,
       Math.floor(height),
       guideLineLeftP1,
       guideLineLeftP2
@@ -59,6 +60,7 @@ export class StraightCuffOuter implements PaperModelMaker {
     );
 
     const holes2 = makeEvenlySpacedBolts(
+      paper,
       Math.floor(height),
       guideLineRightP1,
       guideLineRightP2

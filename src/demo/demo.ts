@@ -1,6 +1,3 @@
-import { AllInnerDesigns } from '../designs/inner/all';
-import { AllOuterDesigns } from '../designs/outer/all';
-
 import {makeSVGData} from '../utils/paperjs-export-utils';
 
 import { PaperModelMaker } from '../model-maker';
@@ -20,15 +17,21 @@ export function demoDesign(
   params['outerModel'] = new paper.Path.Rectangle(
     new paper.Rectangle(0, 0, 3, 3)
   )
+  params[designClass.constructor.name] = params;
   console.log(params);
 
   const innerDesign = designClass.make(paper, params)
   // @ts-ignore
-  console.log(innerDesign.paths)
+  let paths = [innerDesign]
+  if (innerDesign['paths']) {
+    // @ts-ignore
+    paths = innerDesign.paths;
+  }
+  
 // @ts-ignore
   const path = new paper.CompoundPath({
     // @ts-ignore
-    children: [...innerDesign.paths],
+    children: paths,
     strokeColor: 'red',
     strokeWidth: '0.005',
     fillColor: 'lightgrey',
@@ -36,13 +39,4 @@ export function demoDesign(
   });
 
   return makeSVGData(paper, false, elHydrator);
-}
-
-export function demoAllDesigns(paper: paper.PaperScope, elHydrator: (svg) => any) {
-  const ret = {}
-  AllInnerDesigns.forEach((innerDesign) => {
-    console.log(innerDesign.name)
-    ret[innerDesign.name] = demoDesign(paper, new innerDesign(), elHydrator)
-  })
-  return ret;
 }

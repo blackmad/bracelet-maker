@@ -1,18 +1,14 @@
 import { Angle } from '../../utils/angle';
 
-import * as paper from 'paper';
-import { Path } from 'opentype.js';
-import { start } from 'repl';
-
 export default makeConicSection;
 
-function getArcPoint({ center, radius, angle }) {
+function getArcPoint({ paper, center, radius, angle }) {
   return center.add(new paper.Point({ length: radius, angle: angle }));
 }
 
-function arcOver({ path, center, radius, startAngle, endAngle }) {
+function arcOver({ paper, path, center, radius, startAngle, endAngle }) {
   console.log({ center, radius, startAngle, endAngle });
-  path.moveTo(getArcPoint({ center, radius, angle: startAngle }));
+  path.moveTo(getArcPoint({ paper, center, radius, angle: startAngle }));
   const sweepAngle = endAngle - startAngle;
   var isOver180 = Math.abs(sweepAngle) > 180;
   var isPositive = sweepAngle > 0;
@@ -36,6 +32,7 @@ function arcOver({ path, center, radius, startAngle, endAngle }) {
   return path;
 }
 export function makeConicSection({
+  paper,
   topCircumference,
   bottomCircumference,
   height,
@@ -65,6 +62,7 @@ export function makeConicSection({
   const center = new paper.Point(0, 0);
 
   const path = arcOver({
+    paper,
     path: new paper.Path(),
     center,
     radius: P + heightOffset,
@@ -73,9 +71,10 @@ export function makeConicSection({
   });
 
   path.lineTo(
-    getArcPoint({center, radius: Q - heightOffset, angle: alpha.degrees - widthOffsetAngle.degrees}))
+    getArcPoint({paper, center, radius: Q - heightOffset, angle: alpha.degrees - widthOffsetAngle.degrees}))
 
   arcOver({
+    paper,
     path,
     center: new paper.Point(0, 0),
     radius: Q - heightOffset,

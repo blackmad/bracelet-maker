@@ -1,7 +1,7 @@
-import { makeConicSection } from "./conic-section";
-import { RangeMetaParameter } from "../../meta-parameter";
+import { makeConicSection } from './conic-section';
+import { RangeMetaParameter } from '../../meta-parameter';
 import { PaperModelMaker } from '../../model-maker';
-import {makeEvenlySpacedBolts} from '../design-utils';
+import { makeEvenlySpacedBolts } from '../design-utils';
 
 export class ConicCuffOuter implements PaperModelMaker {
   constructor(public innerDesignClass: any) {}
@@ -52,18 +52,19 @@ export class ConicCuffOuter implements PaperModelMaker {
 
     const numBolts = Math.round(height);
     const leftBolts = makeEvenlySpacedBolts(
+      paper,
       numBolts,
       boltGuideLine1P1,
       boltGuideLine1P2
     );
     const rightBolts = makeEvenlySpacedBolts(
+      paper,
       numBolts,
       boltGuideLine2P1,
       boltGuideLine2P2
     );
     return [...leftBolts, ...rightBolts];
     /***** END RIVET HOLES *****/
-
   }
 
   make(paper: paper.PaperScope, options) {
@@ -72,7 +73,7 @@ export class ConicCuffOuter implements PaperModelMaker {
       wristCircumference,
       forearmCircumference,
       safeBorderWidth
-    } = options["ConicCuffOuter"];
+    } = options['ConicCuffOuter'];
 
     if (wristCircumference > forearmCircumference) {
       throw `wristCircumference ${wristCircumference} must be less than forearmCircumference ${forearmCircumference}`;
@@ -85,17 +86,18 @@ export class ConicCuffOuter implements PaperModelMaker {
     const debug = false;
 
     var cuffModel = makeConicSection({
-        topCircumference: wristCircumference + 1.0,
-        bottomCircumference: forearmCircumference + 1.0,
-        height: height,
-        filletRadius: 0.2
-      });
+      paper,
+      topCircumference: wristCircumference + 1.0,
+      bottomCircumference: forearmCircumference + 1.0,
+      height: height,
+      filletRadius: 0.2
+    });
     console.log(cuffModel);
     const toTranslateX = cuffModel.model.bounds.x;
     const toTranslateY = cuffModel.model.bounds.y;
 
-
     var cuffModelInner = makeConicSection({
+      paper,
       topCircumference: wristCircumference + 1.0,
       bottomCircumference: forearmCircumference + 1.0,
       height: height,
@@ -104,29 +106,32 @@ export class ConicCuffOuter implements PaperModelMaker {
     });
     cuffModelInner.model.remove();
 
-
-    const rivetHoles = this.addRivetHoles(paper, height, cuffModel, cuffModelInner);
+    const rivetHoles = this.addRivetHoles(
+      paper,
+      height,
+      cuffModel,
+      cuffModelInner
+    );
     console.log(rivetHoles);
     cuffModel.model.remove();
     cuffModel.model = new paper.CompoundPath({
       children: [cuffModel.model, ...rivetHoles]
-    })
+    });
 
-    cuffModel.model.translate(new paper.Point(
-      -toTranslateX, -toTranslateY))
-    cuffModelInner.model.translate(new paper.Point(
-        -toTranslateX, -toTranslateY))
+    cuffModel.model.translate(new paper.Point(-toTranslateX, -toTranslateY));
+    cuffModelInner.model.translate(
+      new paper.Point(-toTranslateX, -toTranslateY)
+    );
 
     cuffModel.model.rotate(90 - cuffModel.alpha.degrees / 2);
     cuffModelInner.model.rotate(90 - cuffModel.alpha.degrees / 2);
 
     const toTranslateX2 = cuffModel.model.bounds.x;
     const toTranslateY2 = cuffModel.model.bounds.y;
-    cuffModel.model.translate(new paper.Point(
-      -toTranslateX2, -toTranslateY2))
-    cuffModelInner.model.translate(new paper.Point(
-        -toTranslateX2, -toTranslateY2+safeBorderWidth))
-
+    cuffModel.model.translate(new paper.Point(-toTranslateX2, -toTranslateY2));
+    cuffModelInner.model.translate(
+      new paper.Point(-toTranslateX2, -toTranslateY2 + safeBorderWidth)
+    );
 
     /***** START DESIGN *****/
     // Now make the design and clamp it to the inner/safe arc we built
@@ -187,7 +192,7 @@ export class ConicCuffOuter implements PaperModelMaker {
 
     /***** END DESIGN *****/
 
-    console.log(cuffModel)
+    console.log(cuffModel);
     const path = new paper.CompoundPath({
       children: [cuffModel.model, ...innerDesign.paths],
       strokeColor: 'red',
@@ -201,36 +206,36 @@ export class ConicCuffOuter implements PaperModelMaker {
   get metaParameters() {
     return [
       new RangeMetaParameter({
-        title: "Height",
+        title: 'Height',
         min: 1,
         max: 5,
         value: 2,
         step: 0.25,
-        name: "height"
+        name: 'height'
       }),
       new RangeMetaParameter({
-        title: "Wrist Circumference",
+        title: 'Wrist Circumference',
         min: 4,
         max: 10,
         value: 7,
         step: 0.1,
-        name: "wristCircumference"
+        name: 'wristCircumference'
       }),
       new RangeMetaParameter({
-        title: "Wide Wrist Circumference",
+        title: 'Wide Wrist Circumference',
         min: 4,
         max: 10,
         value: 7.4,
         step: 0.1,
-        name: "forearmCircumference"
+        name: 'forearmCircumference'
       }),
       new RangeMetaParameter({
-        title: "Safe Border (in)",
+        title: 'Safe Border (in)',
         min: 0.1,
         max: 0.75,
         value: 0.25,
         step: 0.01,
-        name: "safeBorderWidth"
+        name: 'safeBorderWidth'
       })
     ];
   }

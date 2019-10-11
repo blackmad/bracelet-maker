@@ -51,7 +51,7 @@ export class StraightCollarOuter implements PaperModelMaker {
 
     let curPos = 0;
     function makeTwoHolesAt(distance) {
-      return makeEvenlySpacedBolts(2, [distance, 0], [distance, height]);
+      return makeEvenlySpacedBolts(paper, 2, [distance, 0], [distance, height]);
     }
 
     function makeTwoHolesAtCurPos() {

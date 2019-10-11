@@ -1,11 +1,13 @@
 import { AllInnerDesigns } from './built/designs/inner/all.js';
-import { demoAllDesigns, demoDesign } from './built/demo/demo.js';
+import { AllOuterDesigns } from './built/designs/outer/all.js';
+import { demoDesign } from './built/demo/demo.js';
 import { JSDOM } from 'jsdom';
 import paper from 'paper-jsdom';
 import * as _ from 'lodash';
 import fs from 'fs';
-import { InnerDesignSunflower } from './built/designs/inner/sunflower.js';
 import { svg2png } from 'svg-png-converter';
+import { InnerDesignSunflower } from './built/designs/inner/sunflower.js';
+import { InnerDesignEmpty } from './built/designs/inner/empty.js';
 
 paper.setup();
 
@@ -24,26 +26,38 @@ async function asyncForEach(array, callback) {
   }
 }
 
-asyncForEach(AllInnerDesigns, async innerDesign => {
-  console.log(innerDesign.name);
-  paper.project.activeLayer.removeChildren();
-  const svg = demoDesign(paper, new innerDesign(), elHydrator);
-  fs.writeFileSync('demo-output/' + innerDesign.name + '.svg', svg);
-  const png = await svg2png({
-    input: svg,
-    encoding: 'dataURL',
-    format: 'png'
-  });
-  let base64Image = png.split(';base64,').pop();
-  fs.writeFile(
-    'demo-output/' + innerDesign.name + '.png',
-    base64Image,
-    { encoding: 'base64' },
-    function(err) {
-      console.log('File created');
-    }
-  );
-});
+const readmeFd = fs.openSync('README.md', 'w');
 
-// const svg = demoDesign(paper, new InnerDesignSunflower(), elHydrator);
-// console.log(svg);
+
+async function generateDesigns(header, designs) {
+  fs.writeSync(readmeFd, `# ${header}\n`);
+  await asyncForEach(designs, async innerDesign => {
+    console.log(innerDesign.name);
+    paper.project.activeLayer.removeChildren();
+    const svg = demoDesign(paper, new innerDesign(
+      new InnerDesignEmpty()
+    ), elHydrator);
+    fs.writeFileSync('demo-output/' + innerDesign.name + '.svg', svg);
+    const png = await svg2png({
+      input: svg,
+      encoding: 'dataURL',
+      format: 'png'
+    });
+    let base64Image = png.split(';base64,').pop();
+    const outputPath = 'demo-output/' + innerDesign.name + '.png';
+    fs.writeFile(
+      outputPath,
+      base64Image,
+      { encoding: 'base64' },
+      function(err) {
+        console.log('File created');
+      }
+    );
+
+    fs.writeSync(readmeFd, `## ${innerDesign.name}\n`);
+    fs.writeSync(readmeFd, `![${outputPath}](${outputPath})\n`);
+  });
+}
+
+generateDesigns('Outer Designs', AllOuterDesigns);
+generateDesigns('Inner Designs', AllInnerDesigns);

@@ -20,8 +20,6 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
 
   makeDesign(paper: paper.PaperScope, params) {
     const {
-      height,
-      width,
       shapeSize1,
       shapeSize2,
       bufferWidth,
@@ -40,8 +38,8 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
 
     const gridCellSizeX = shapeSize1 + bufferWidth * 2;
     const gridCellSizeY = shapeSize2 + bufferWidth * 2;
-    const rows = width / gridCellSizeX;
-    const cols = height / gridCellSizeY;
+    const rows = boundaryModel.bounds.width / gridCellSizeX;
+    const cols = boundaryModel.bounds.height / gridCellSizeY;
 
     function makeRow(c) {
       const rowModels = [];

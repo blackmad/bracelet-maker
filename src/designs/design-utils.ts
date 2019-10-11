@@ -1,11 +1,10 @@
-import * as paper from 'paper';
 import * as _ from 'lodash';
 
 export const MillimeterToInches = 0.0393701;
 export const RivetRadius = 2.5 * MillimeterToInches;
 export const BeltHoleRadius = 3 * MillimeterToInches;
 
-export function makeEvenlySpacedBolts(numBolts, p1, p2) {
+export function makeEvenlySpacedBolts(paper, numBolts, p1, p2) {
   let line = new paper.Path.Line(p1, p2);
   line.remove();
 
@@ -24,6 +23,6 @@ export function makeEvenlySpacedBolts(numBolts, p1, p2) {
   return circles;
 }
 
-export function makeAndAddEvenlySpacedBolts({ numBolts, p1, p2, path }) {
-  makeEvenlySpacedBolts(numBolts, p1, p2).forEach(p => path.addChild(p));
+export function makeAndAddEvenlySpacedBolts({ paper, numBolts, p1, p2, path }) {
+  makeEvenlySpacedBolts(paper, numBolts, p1, p2).forEach(p => path.addChild(p));
 }
