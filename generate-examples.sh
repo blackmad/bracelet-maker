@@ -3,4 +3,4 @@
 set +x
 
 tsc
-node --experimental-modules generate-examples-node.js
+node -r esm generate-examples-node.js

@@ -54,7 +54,7 @@ function generateDesignButton({
   clickCb
 }) {
   const html = `
-  <div class="design-container sm-col-1 col-4">
+  <div class="design-container col-sm-12 col-md-4">
 
   <div class="panel panel-default border m-1 p-1">
   <div class="panel-body text-center"><img src="demo-output/${designClassName}.png"/></div>

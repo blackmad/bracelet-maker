@@ -1,4 +1,3 @@
-
 import { OnOffMetaParameter, MetaParameter, RangeMetaParameter } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 
@@ -71,11 +70,11 @@ export class InnerDesignLattice extends FastAbstractInnerDesign {
       }
     }
 
-    if (params.invert) {
-      return [totalPath]
-    } else {
-      return [boundaryModel.subtract(totalPath, {insert: false})];
-    }
+    // if (params.invert) {
+    //   return [totalPath]
+    // } else {
+    return [boundaryModel.subtract(totalPath, {insert: false})];
+    // }
   }
 
   get designMetaParameters(): Array<MetaParameter> {
@@ -92,7 +91,7 @@ export class InnerDesignLattice extends FastAbstractInnerDesign {
         title: "Shape Width",
         min: 0.1,
         max: 2.0,
-        value: 0.75,
+        value: 0.5,
         step: 0.01,
         name: "shapeWidth"
       }),
@@ -116,7 +115,7 @@ export class InnerDesignLattice extends FastAbstractInnerDesign {
         title: "Row Offset",
         min: 0.0,
         max: 1.0,
-        value: 0.2,
+        value: 0.5,
         step: 0.01,
         name: "rowOffset"
       }),
@@ -128,11 +127,11 @@ export class InnerDesignLattice extends FastAbstractInnerDesign {
         step: 0.01,
         name: "colOffset"
       }),
-      new OnOffMetaParameter({
-        title: "Invert",
-        value: false,
-        name: "invert"
-      }),
+      // new OnOffMetaParameter({
+      //   title: "Invert",
+      //   value: false,
+      //   name: "invert"
+      // }),
     ];
   }
 }

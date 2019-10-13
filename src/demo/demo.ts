@@ -11,12 +11,11 @@ export function demoDesign(
     params[metaParam.name] = metaParam.value
   );
 
-  params['boundaryModel'] = new paper.Path.Rectangle(
+  const outerRect = new paper.Path.Rectangle(
     new paper.Rectangle(0, 0, 3, 3)
   )
-  params['outerModel'] = new paper.Path.Rectangle(
-    new paper.Rectangle(0, 0, 3, 3)
-  )
+  params['boundaryModel'] = outerRect;
+  params['outerModel'] = outerRect;
   params[designClass.constructor.name] = params;
   console.log(params);
 
@@ -27,8 +26,9 @@ export function demoDesign(
     // @ts-ignore
     paths = innerDesign.paths;
   }
+
   
-// @ts-ignore
+  // @ts-ignore
   const path = new paper.CompoundPath({
     // @ts-ignore
     children: paths,

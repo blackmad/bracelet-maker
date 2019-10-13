@@ -1,7 +1,7 @@
 
 // why so broken: https://127.0.0.1:4501/static/#StraightCuffOuter.debug=false&StraightCuffOuter.height=2&StraightCuffOuter.wristCircumference=7&StraightCuffOuter.safeBorderWidth=0.22&StraightCuffOuter.forearmCircumference=7.4&InnerDesignVera.debug=false&InnerDesignVera.seed=8148&InnerDesignVera.shapeSize1=0.26&InnerDesignVera.shapeSize2=0.26&InnerDesignVera.bufferWidth=0.1&InnerDesignVera.xNoiseCoefficient=0.01&InnerDesignVera.yNoiseCoefficient=0.01&InnerDesignVera.xScaleNoiseCoefficient=0.01&InnerDesignVera.yScaleNoiseCoefficient=0.01&InnerDesignVera.minScale=0.5&InnerDesignVera.maxScale=1.25&InnerDesignVera.shapeName=Rectangle&InnerDesignVera.constrainShapes=false&InnerDesignVera.forceContainment=false&InnerDesignVera.outlineSize=0.1&InnerDesignVera.boundaryDilation=0.22
 
-import { ShapeMaker } from '../shape-maker';
+import { ShapeMaker } from './utils/shape-maker';
 
 import { SimplexNoiseUtils } from '../../utils/simplex-noise-utils';
 import {
@@ -43,12 +43,8 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
 
     function makeRow(c) {
       const rowModels = [];
-      for (var r = -1; r <= rows; r++) {
-        // .$(ShapeMaker.makeShape(shapeName, shapeSize1, shapeSize2))
-  
-        var point = new paper.Point(0, 0);
-        var size = new paper.Size(shapeSize1, shapeSize2);
-        var path = new paper.Path.Rectangle(point, size);
+      for (var r = -1; r <= rows + 1; r++) {  
+        var path = ShapeMaker.makeShape(paper, shapeName, shapeSize1, shapeSize2)
   
         path.rotate(
           SimplexNoiseUtils.noise2DInRange(
@@ -91,6 +87,7 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
               )
           )
         );
+        path.translate(boundaryModel.bounds.topLeft);
         rowModels.push(path);
       }
       return rowModels
@@ -106,8 +103,14 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
 
   get designMetaParameters(): Array<MetaParameter> {
     return [
+      new SelectMetaParameter({
+        title: 'Shape',
+        options: ShapeMaker.modelNames,
+        name: 'shapeName',
+        value: 'Rectangle'
+      }),
       new RangeMetaParameter({
-        title: 'Shape Size 1 (Width?)',
+        title: 'Shape Width',
         min: 0.02,
         max: 2.0,
         value: 0.2,
@@ -115,7 +118,7 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
         name: 'shapeSize1'
       }),
       new RangeMetaParameter({
-        title: 'Shape Size 2 (Height?)',
+        title: 'Shape Height',
         min: 0.02,
         max: 2.0,
         value: 0.2,
@@ -180,18 +183,11 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
         step: 0.01,
         name: 'maxScale'
       }),
-
-      new SelectMetaParameter({
-        title: 'Shape',
-        options: ShapeMaker.modelNames,
-        name: 'shapeName',
-        value: 'Rectangle'
-      }),
-      new OnOffMetaParameter({
-        title: 'constrainShapes',
-        name: 'constrainShapes',
-        value: false
-      })
+      // new OnOffMetaParameter({
+      //   title: 'constrainShapes',
+      //   name: 'constrainShapes',
+      //   value: false
+      // })
     ];
   }
 }
