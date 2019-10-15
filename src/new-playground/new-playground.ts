@@ -10,9 +10,6 @@ import { PaperModelMaker } from '../model-maker';
 import { MetaParameter, MetaParameterType } from '../meta-parameter';
 
 import {makeSVGData} from '../utils/paperjs-export-utils'
-
-// @ts-ignore - this works fine, wtf typescript?
-import * as PDFDocument from '../external/pdfkit.standalone';
 import * as SVGtoPDF from 'svg-to-pdfkit';
 import blobStream from 'blob-stream';
 
@@ -299,33 +296,39 @@ export class DavidsPlayground {
     document.getElementById('errorMessage').innerHTML = errorMessage;
   }
 
+  loadPDFLibs() {
+    // @ts-ignore - this works fine, wtf typescript?
+  }
+
   downloadPDF() {
     const widthInches = paper.project.activeLayer.bounds.width;
     const heightInches = paper.project.activeLayer.bounds.height;
 
-    let doc = new PDFDocument({
-      compress: false,
-      size: [widthInches * 72, heightInches * 72]
-    });
-    SVGtoPDF(doc, makeSVGData(paper, true, (svg) => $(svg)[0]), 0, 0);
+    import('../external/pdfkit.standalone.js').then((PDFDocument) => {
+      let doc = new PDFDocument.default({
+        compress: false,
+        size: [widthInches * 72, heightInches * 72]
+      });
+      SVGtoPDF(doc, makeSVGData(paper, true, (svg) => $(svg)[0]), 0, 0);
 
-    function blobToDataURL(blob, callback) {
-      var a = new FileReader();
+      function blobToDataURL(blob, callback) {
+        var a = new FileReader();
 
-      a.onload = function(e) {
-        // @ts-ignore
-        callback(e.target.result);
-      };
-      a.readAsDataURL(blob);
-    }
+        a.onload = function(e) {
+          // @ts-ignore
+          callback(e.target.result);
+        };
+        a.readAsDataURL(blob);
+      }
 
-    let stream = doc.pipe(blobStream());
-    const self = this;
-    stream.on('finish', function() {
-      let blob = stream.toBlob('application/pdf');
-      blobToDataURL(blob, s => self.sendFileToUser(s, 'pdf'));
-    });
-    doc.end();
+      let stream = doc.pipe(blobStream());
+      const self = this;
+      stream.on('finish', function() {
+        let blob = stream.toBlob('application/pdf');
+        blobToDataURL(blob, s => self.sendFileToUser(s, 'pdf'));
+      });
+      doc.end();
+    })
   }
 
   downloadSVG() {

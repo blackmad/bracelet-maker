@@ -16,6 +16,7 @@ function setInnerDesignFromName(name: String) {
   }
 
   trySetDesign();
+  updateLocation();
 }
 
 function trySetDesign() {
@@ -34,6 +35,16 @@ function trySetDesign() {
   return false;
 }
 
+function updateLocation() {
+  if (outerDesignClass) {
+    if (innerDesignClass) {
+      window.location.hash = `${outerDesignClass.name}.innerDesign=${innerDesignClass.name}`
+    } else {
+      window.location.hash = `${outerDesignClass.name}.innerDesign=unset`
+    }
+  }
+}
+
 function setOuterDesignFromName(name: String) {
   outerDesignClass = AllOuterDesigns.find(d => d.name == name);
 
@@ -42,6 +53,8 @@ function setOuterDesignFromName(name: String) {
   }
 
   $('.outer-design-container').hide();
+
+  updateLocation();
 
   return trySetDesign();
 }
@@ -152,6 +165,8 @@ function attachHandlers() {
   $('#initMessage').hide();
   if (innerDesignClass) {
     $('.control-selectors').hide();
+  } else if (outerDesignClass) {
+    $('.inner-design-container').show();
   } else {
     $('.control-selectors').show();
   }

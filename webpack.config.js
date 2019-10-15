@@ -3,6 +3,7 @@ module.exports = {
     entry: "./src/new-playground/frontend.ts",
     output: {
         filename: "main.js",
+        publicPath: 'dist/'
     },
 
     mode: "development",
