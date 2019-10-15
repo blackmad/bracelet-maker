@@ -49,6 +49,8 @@ export class DavidsPlayground {
 
     this.buildMetaParameterWidgets(document.getElementById('parameterDiv'));
 
+    $('.sizingInfo').html(modelMaker.controlInfo);
+
     $('.downloadSVG').off('click');
     $('.downloadSVG').click(this.downloadSVG.bind(this));
     $('.downloadPDF').off('click');

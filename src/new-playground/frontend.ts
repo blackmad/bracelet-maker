@@ -16,7 +16,6 @@ function setInnerDesignFromName(name: String) {
   }
 
   trySetDesign();
-  updateLocation();
 }
 
 function trySetDesign() {
@@ -35,16 +34,6 @@ function trySetDesign() {
   return false;
 }
 
-function updateLocation() {
-  if (outerDesignClass) {
-    if (innerDesignClass) {
-      window.location.hash = `${outerDesignClass.name}.innerDesign=${innerDesignClass.name}`
-    } else {
-      window.location.hash = `${outerDesignClass.name}.innerDesign=unset`
-    }
-  }
-}
-
 function setOuterDesignFromName(name: String) {
   outerDesignClass = AllOuterDesigns.find(d => d.name == name);
 
@@ -53,8 +42,6 @@ function setOuterDesignFromName(name: String) {
   }
 
   $('.outer-design-container').hide();
-
-  updateLocation();
 
   return trySetDesign();
 }
@@ -89,13 +76,11 @@ function generateDesignButton({
 }
 
 function generateDesignButtons() {
-  console.log('generate design button');
   AllInnerDesigns.forEach(innerDesign => {
     function clickCb() {
       setInnerDesignFromName(innerDesign.name);
     }
 
-    console.log(innerDesign.name);
     generateDesignButton({
       containerSelector: '.inner-design-row',
       designName: innerDesign.name.replace('InnerDesign', ''),

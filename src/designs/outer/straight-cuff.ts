@@ -32,6 +32,9 @@ export class StraightCuffOuter implements PaperModelMaker {
   bottomPadding = 1.0;
   topPadding = 0.8;
 
+  controlInfo = `Measure your wrist with a sewing measuring tape. I suggest measuring pretty tight, this pattern adds some length.<br/>
+  Cis male wrists average around 7 inches, cis female wrists closer to 6.5 inches." `;
+
   makeHoles({ paper, path, height, width }): paper.Path.Circle[] {
     const paddingDiff = Math.abs(this.topPadding - this.bottomPadding);
     const guideLineLeftP1 = new paper.Point(
