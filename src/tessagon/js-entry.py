@@ -37,6 +37,3 @@ def makeTesselationFromName(name, u_range_lo, u_range_hi, v_range_lo, v_range_hi
 
     bmesh = tessagon.create_mesh()
     return bmesh
-
-
-print(ALL)

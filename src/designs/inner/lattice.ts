@@ -17,14 +17,8 @@ export class InnerDesignLattice extends FastAbstractInnerDesign {
       rowOffset
     } = params;
 
-    console.log('hi');
-
-    console.log(boundaryModel);
     const cols = boundaryModel.bounds.width / shapeWidth;
     const rows = (boundaryModel.bounds.height / shapeHeight) + 1
-    console.log(rows)
-    console.log(boundaryModel.bounds.height)
-    console.log(shapeHeight)
 
     let paths: paper.PathItem[] = [];
     let totalPath = null;
@@ -45,8 +39,8 @@ export class InnerDesignLattice extends FastAbstractInnerDesign {
         const shouldUseCircle = 
           possibleCircle.isInside(boundaryModel.bounds) || 
           possibleCircle.intersects(boundaryModel);
-        console.log(shouldUseCircle);
-        if (shouldUseCircle) {
+
+          if (shouldUseCircle) {
           // this makes a nice layered look
           // if (totalPath == null) {
           //   totalPath = possibleCircle;

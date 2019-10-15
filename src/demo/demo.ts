@@ -17,7 +17,6 @@ export function demoDesign(
   params['boundaryModel'] = outerRect;
   params['outerModel'] = outerRect;
   params[designClass.constructor.name] = params;
-  console.log(params);
 
   const innerDesign = designClass.make(paper, params)
   // @ts-ignore

@@ -34,23 +34,14 @@ export abstract class AbstractExpandInnerDesign
     let totalPath = boundaryModel.clone();
 
     lines.map((line: paper.Point[]) => {
-      console.log(line)
-      console.log(line[0])
-      console.log(line[0].x)
-    
-
       const p1 = line[0];
       const p2 = line[1]
       const m = slope(p1, p2);
       const y = yIntercept(p1, m);
-      console.log(m);
-      console.log(y);
       
       const bufferDistance = 0.2
       var angleRadians = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-      console.log(angleRadians)
       const h = params.lineWidth*0.5 / Math.cos(angleRadians);
-      console.log(h);
 
       const path = new paper.Path([
         new paper.Point(p1.x, p1.y + h),
@@ -60,10 +51,8 @@ export abstract class AbstractExpandInnerDesign
         new paper.Point(p1.x, p1.y + h)
       ])
 
-      console.log(path);
 
       path.closePath();
-      console.log(path.bounds)
       path.strokeColor = "red";
       if (!params.debug) {
         path.remove();
@@ -72,9 +61,7 @@ export abstract class AbstractExpandInnerDesign
       totalPath = totalPath.subtract(path, {insert: false});
 
     })
-    // console.log(paths);
 
-    // return paths;
     return [totalPath]
   }
 

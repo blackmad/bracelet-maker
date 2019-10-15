@@ -7,7 +7,6 @@ function getArcPoint({ paper, center, radius, angle }) {
 }
 
 function arcOver({ paper, path, center, radius, startAngle, endAngle }) {
-  console.log({ center, radius, startAngle, endAngle });
   path.moveTo(getArcPoint({ paper, center, radius, angle: startAngle }));
   const sweepAngle = endAngle - startAngle;
   var isOver180 = Math.abs(sweepAngle) > 180;

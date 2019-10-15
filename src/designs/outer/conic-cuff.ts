@@ -92,7 +92,6 @@ export class ConicCuffOuter implements PaperModelMaker {
       height: height,
       filletRadius: 0.2
     });
-    console.log(cuffModel);
     const toTranslateX = cuffModel.model.bounds.x;
     const toTranslateY = cuffModel.model.bounds.y;
 
@@ -112,7 +111,6 @@ export class ConicCuffOuter implements PaperModelMaker {
       cuffModel,
       cuffModelInner
     );
-    console.log(rivetHoles);
     cuffModel.model.remove();
     cuffModel.model = new paper.CompoundPath({
       children: [cuffModel.model, ...rivetHoles]
@@ -192,7 +190,6 @@ export class ConicCuffOuter implements PaperModelMaker {
 
     /***** END DESIGN *****/
 
-    console.log(cuffModel);
     const path = new paper.CompoundPath({
       children: [cuffModel.model, ...innerDesign.paths],
       strokeColor: 'red',

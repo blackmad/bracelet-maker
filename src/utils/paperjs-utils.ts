@@ -44,7 +44,6 @@ export function bufferShape(
       return new paper.Point(p.X / 100, p.Y / 100);
     })
   );
-  // console.log(roundedPolygon);
   roundedPolygon.closePath();
 
   return roundedPolygon;

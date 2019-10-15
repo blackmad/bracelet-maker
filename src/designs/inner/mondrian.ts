@@ -35,7 +35,6 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
 
     const randNum = this.rng()
     if (depth > this.maxDepth || randNum > this.splitChance) {
-      // console.log('bailing on', randNum, this.splitChance, depth, this.maxDepth)
       makeThisRect();
       return;
     }
@@ -47,13 +46,11 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
       const splitSize = (hi[0] - lo[0]) * splitPercent
 
       let smallX = (hi[0] - lo[0]) * splitPercent
-      // console.log(smallX)
 
       if (splitPercent > 0.5) {
         smallX = (hi[0] - lo[0]) * (1.0 - splitPercent)
       }
      
-      // console.log(smallX)
 
       if ((smallX - this.borderSize*2) < this.minCellSize) {
         makeThisRect();
@@ -66,11 +63,10 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
       const splitSize = splitPercent * (hi[1] - lo[1]);
 
       let smallY = (hi[1] - lo[1]) * splitPercent
-      // console.log(smallY)
       if (splitPercent > 0.5) {
         smallY = (hi[1] - lo[1]) * (1.0 - splitPercent)
       }
-      console.log(smallY)
+
       if ((smallY - this.borderSize*2) < this.minCellSize) {
         makeThisRect();
         return;

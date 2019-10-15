@@ -15,7 +15,6 @@ export function makeEvenlySpacedBolts(paper, numBolts, p1, p2) {
         (line.length * (boltNum + 1)) / (numBolts * 3 + 1)
       );
       const circle = new paper.Path.Circle(center, RivetRadius);
-      console.log(center);
       circles.push(circle);
     }
   });

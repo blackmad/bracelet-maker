@@ -99,7 +99,6 @@ export class InnerDesignPerlinDots extends FastAbstractInnerDesign {
       const rowModels = _.bind(makeRow, this)(c);
       models = models.concat(rowModels);
     }
-    console.log(models);
     return models;
   }
 

@@ -27,7 +27,6 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         (this.simplex.noise2D(i / 200, i / 300) + noiseOffset1) * noiseInfluence;
       var newNoise2 =
         (this.simplex.noise2D(i / 20, i / 30) + noiseOffset2) * noiseInfluence;
-      //   console.log(newNoise1);
       i += 1;
       const path = new paper.Path([
         new paper.Point(pos + lastNoise1 + newNoise1, 0),
