@@ -82,7 +82,9 @@ function generateDesignButton({
 </div>
 `;
   const elem = $(html);
-  elem.find('button').click(clickCb);
+  elem.click(clickCb);
+  // elem.find('button').click(clickCb);
+
   $(containerSelector).append(elem);
 }
 
