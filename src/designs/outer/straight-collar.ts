@@ -144,7 +144,6 @@ export class StraightCollarOuter implements PaperModelMaker {
     let allHoles = [];
     _.forEach(models, (v, k) => allHoles.push(v));
     allHoles = _.flatten(allHoles);
-    console.log(allHoles);
 
     const path = new paper.CompoundPath({
       children: [outerModel, ...allHoles, ...innerDesign.paths],

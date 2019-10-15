@@ -26,3 +26,11 @@
 ![static/demo-output/InnerDesignMondrian.png](static/demo-output/InnerDesignMondrian.png)
 ## InnerDesignExplode
 ![static/demo-output/InnerDesignExplode.png](static/demo-output/InnerDesignExplode.png)
+## InnerDesignEmpty
+![static/demo-output/InnerDesignEmpty.png](static/demo-output/InnerDesignEmpty.png)
+## InnerDesignSunflower
+![static/demo-output/InnerDesignSunflower.png](static/demo-output/InnerDesignSunflower.png)
+## InnerDesignTessagon
+![static/demo-output/InnerDesignTessagon.png](static/demo-output/InnerDesignTessagon.png)
+## InnerDesignPerlinDots
+![static/demo-output/InnerDesignPerlinDots.png](static/demo-output/InnerDesignPerlinDots.png)
