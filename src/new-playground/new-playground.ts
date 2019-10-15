@@ -308,10 +308,10 @@ export class DavidsPlayground {
       size: [widthInches * 72, heightInches * 72]
     });
     SVGtoPDF(doc, makeSVGData(paper, true, (svg) => $(svg)[0]), 0, 0);
-    
+
     function blobToDataURL(blob, callback) {
       var a = new FileReader();
-      
+
       a.onload = function(e) {
         // @ts-ignore
         callback(e.target.result);
@@ -361,7 +361,6 @@ export class DavidsPlayground {
         .join('-');
     }
     const modelName = this.modelMaker.constructor.name;
-    console.log('modelName', modelName);
     filename += `-${this.params[modelName + '.height']}x${
       this.params[modelName + '.wristCircumference']
     }x${this.params[modelName + '.forearmCircumference']}`;

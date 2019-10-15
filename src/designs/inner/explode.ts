@@ -35,11 +35,8 @@ export class InnerDesignExplode extends AbstractExpandInnerDesign {
     for (let c = 1; c <= numLines; c++) {
       const p1 = pickPointOnRectEdge(paper, boundaryRect, this.rng);
       const center = centers[Math.floor(this.rng() * centers.length)];
-      
+
       const line = [center, p1];
-      console.log(center)
-      console.log(p1)
-      console.log(line)
       paths.push(line);
     }
 

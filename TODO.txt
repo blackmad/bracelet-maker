@@ -1,3 +1,6 @@
+- make back/forward work?
+- make clicking on images work
+- invert images, maybe?
 
 - conic vera seems slight off
 - make circles extend to outside

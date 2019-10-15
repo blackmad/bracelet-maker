@@ -52,21 +52,15 @@ export class InnerDesignHexes extends FastAbstractInnerDesign {
       let startColumn = 0;
       let columnsForThisRow = numHexes - offset;
 
-      console.log('row', r);
-      console.log('expected width', hexWidth*(columnsForThisRow - offset))
-      console.log(boundaryModel.bounds.width)
       // if (hexWidth*(columnsForThisRow + offset) > boundaryModel.bounds.width) {
       //   startColumn = 1;
       //   columnsForThisRow -= 1;
       // }
 
-      
-      
+
+
       for (let c = 0; c < columnsForThisRow; c += 1) {
-        console.log('placing at ', startX + (c + offset) * hexWidth);
         const centerX = startX + (c + offset) * hexWidth;
-        console.log(centerX + hexSize/2);
-        console.log((startX + boundaryModel.bounds.width));
         if (centerX - hexSize/2 < startX || (centerX + hexSize/2) > (startX + boundaryModel.bounds.width - 0.02)) {
           continue;
         }
@@ -76,7 +70,7 @@ export class InnerDesignHexes extends FastAbstractInnerDesign {
              startY + r * rowHeight,
           ), 6, hexSize);
           paths.push(hex);
-            
+
           if (stretchWidth != 1) {
             hex.scale(stretchWidth, 1);
           }

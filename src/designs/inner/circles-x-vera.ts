@@ -24,7 +24,6 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
       patternNoiseInfluence
     } = params;
 
-    console.log('hi');
 
     const rowCellSize = boundaryModel.bounds.width / cols;
     const widthCellSize = boundaryModel.bounds.height / rows;
@@ -67,10 +66,9 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
         );
 
         const possibleCircle = new paper.Path.Circle(center, circleSize);
-        const shouldUseCircle = 
-          possibleCircle.isInside(boundaryModel.bounds) || 
+        const shouldUseCircle =
+          possibleCircle.isInside(boundaryModel.bounds) ||
           possibleCircle.intersects(boundaryModel);
-        console.log(shouldUseCircle);
         if (shouldUseCircle) {
           // this makes a nice layered look
           // if (totalPath == null) {
@@ -88,7 +86,7 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
             totalPath = finalCircle
           } else {
             totalPath = totalPath.unite(finalCircle, {insert: false});
-          }          
+          }
         }
       }
     }

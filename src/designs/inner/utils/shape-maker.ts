@@ -31,6 +31,18 @@ class Triangle implements ShapeMakerIface {
     return RegularPolygonMaker.makeRegularPolygon(paper, width, height, 3);
 }}
 
+class RightTriangle implements ShapeMakerIface {
+  makeShape(paper: paper.PaperScope, width: number, height: number): paper.Path {
+    return new paper.Path([
+      new paper.Point(0, 0),
+      new paper.Point(0, width),
+      new paper.Point(height, 0),
+      new paper.Point(0, 0)
+    ])
+  }
+}
+
+
 class Pentagon implements ShapeMakerIface {
   makeShape(paper: paper.PaperScope, width: number, height: number): paper.Path {
     return RegularPolygonMaker.makeRegularPolygon(paper, width, height, 5);
@@ -45,6 +57,7 @@ export class ShapeMaker {
   static models = [
     Ellipse,
     Triangle,
+    RightTriangle,
     Rectangle,
     Pentagon,
     Hexagon
@@ -53,7 +66,7 @@ export class ShapeMaker {
   static modelNames = ShapeMaker.models.map((m) => m.name);
 
   static makeShape(paper, shapeName, width, height): paper.Path {
-    const maker = _.find(this.models, (s) => (s.name == shapeName);
+    const maker = _.find(this.models, (s) => (s.name == shapeName));
     return (new maker()).makeShape(paper, width, height)
   }
 }

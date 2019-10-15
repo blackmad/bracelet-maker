@@ -13,7 +13,9 @@ import { InnerDesignExplode } from './explode';
 import { InnerDesignEmpty } from './empty';
 import { InnerDesignSunflower } from './sunflower';
 import { InnerDesignTessagon } from './tessagon';
-import { PaperModelMaker } from 'src/model-maker';
+import { InnerDesignPerlinDots } from './perlin-dots';
+
+
 
  export const AllInnerDesigns = [
     InnerDesignVoronoi,
@@ -30,6 +32,7 @@ import { PaperModelMaker } from 'src/model-maker';
     // InnerDesignGrid,
     InnerDesignEmpty,
     InnerDesignSunflower,
-    InnerDesignTessagon
+    InnerDesignTessagon,
+    InnerDesignPerlinDots
     // InnerDesignHingedTesselation
   ];
