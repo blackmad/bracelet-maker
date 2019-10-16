@@ -1,4 +1,4 @@
-import { RangeMetaParameter } from '../../meta-parameter';
+import { RangeMetaParameter, OnOffMetaParameter } from '../../meta-parameter';
 import { PaperModelMaker, OuterPaperModelMaker } from '../../model-maker';
 import { makeEvenlySpacedBolts, RivetRadius } from '../design-utils';
 
@@ -77,8 +77,6 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
       'StraightCuffOuter'
     ];
 
-    debug = false;
-
     const totalWidth = wristCircumference + this.bottomPadding * 2;
     const cuffOuterPath: paper.Path = new scope.Path();
     cuffOuterPath.strokeColor = 'black';
@@ -143,7 +141,9 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
       // cuffOuter = cuffOuter.unite(safeArea);
 
       oldCuffOuter.remove();
-      innerDesign.outline.remove();
+      if (false && !debug) {
+        innerDesign.outline.remove();
+      }
     }
 
     if (debug) {
@@ -177,11 +177,11 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
 
   get metaParameters() {
     return [
-      // new OnOffMetaParameter({
-      //   title: 'Debug',
-      //   name: 'debug',
-      //   value: false
-      // }),
+      new OnOffMetaParameter({
+        title: 'Debug',
+        name: 'debug',
+        value: false
+      }),
       new RangeMetaParameter({
         title: 'Height',
         min: 1,

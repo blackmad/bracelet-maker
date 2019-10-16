@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import * as SimplexNoise from 'simplex-noise';
 const seedrandom = require('seedrandom');
 import ExtendPaperJs from 'paperjs-offset';
@@ -165,25 +166,56 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       } else {
         // @ts-ignore
         outline = params.outerModel;
-        paths.map((p) => {
-          const exploded = paper.Path.prototype.offset.call(
-            p,
+        // TODO: this is wrong
+        const hasCurves = !_.some(paths, (p) => _.some(p.curves, (c) => !!c.handle1))
+        
+        console.log('hasCurves', hasCurves)
+        if (!hasCurves) { 
+          const allPoints = []
+          paths.forEach((path: paper.Path) => {
+            path.segments.forEach(s =>
+              allPoints.push([s.point.x, s.point.y])
+            )
+            for (let offset = 0; offset < 1; offset += 0.01) {
+              const point = path.getPointAt(path.length * offset)
+              allPoints.push([point.x, point.y])
+            }
+          })
+          const concaveHull = concaveman(allPoints, 1.5, 0.2);
+          outline = new paper.Path(concaveHull.map((p) => new paper.Point(p[0], p[1])));
+          // outline.simplify(0.0001);
+          if (params.debug) {
+            outline.strokeColor = 'green';
+            outline.strokeWidth = 0.05;
+          }
+
+          outline = paper.Path.prototype.offset.call(
+            outline,
             params.outlineSize,
             { cap: 'miter' });
-           outline = outline.unite(exploded);
-           exploded.remove();
-        })
+          //  outline = outline.children[0];
+          //  outline.closePath();
+        } else {
+          paths.map((p) => {
+            const exploded = paper.Path.prototype.offset.call(
+              p,
+              params.outlineSize,
+              { cap: 'miter' });
+             outline = outline.unite(exploded);
+             exploded.remove();
+          })
+        }
       }
 
       if (params.debug) {
         outline.strokeColor = 'green';
-        outline.strokeWidth = 0.1;
+        outline.strokeWidth = 0.05;
       } else {
         outline.remove();
       }
 
       if (this.smoothOutline) {
-        outline.smooth({ type: 'geometric', factor: 0.2 });
+        // outline.smooth({ type: 'geometric', factor: 0.5 });
       }
     }
 

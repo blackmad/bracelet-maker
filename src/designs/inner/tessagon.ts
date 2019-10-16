@@ -15,7 +15,7 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
   needSeed = false;
 
   makeDesign(paper: paper.PaperScope, params) {
-    const { outerModel, boundaryModel, tesselation, x_num, y_num, borderSize, x_cyclic, y_cyclic, rot_factor, whole_tiles_only} = params;
+    const { outerModel, boundaryModel, tesselation, x_num, y_num, borderSize, x_cyclic, y_cyclic, rot_factor} = params;
 
     // u_range: a list with two items indicating the minimum and maximum values for u (the first argument to the function passed);
     // v_range: a list with two items indicating the minimum and maximum values for v (the second argument to the function passed);
@@ -25,12 +25,8 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
     // vert_list, face_list and color_list, which point to lists of
     //  vertices, faces (as indices into the vertex list), and color indices for each face.
 
-    let u_range = [0, boundaryModel.bounds.width]
-    let v_range = [0, boundaryModel.bounds.height]
-    if (whole_tiles_only) {
-      u_range = [boundaryModel.bounds.x, boundaryModel.bounds.x + boundaryModel.bounds.width]
-      v_range = [boundaryModel.bounds.y, boundaryModel.bounds.y + boundaryModel.bounds.height]
-    }
+    let u_range = [boundaryModel.bounds.x, boundaryModel.bounds.x + boundaryModel.bounds.width]
+    let v_range = [boundaryModel.bounds.y, boundaryModel.bounds.y + boundaryModel.bounds.height]
 
     const options = {
         'function': plane,
@@ -104,11 +100,11 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
         step: 1,
         name: 'y_num'
       }),
-      new OnOffMetaParameter({
-        title: 'whole tiles only',
-        value: false,
-        name: 'whole_tiles_only'
-      }),
+      // new OnOffMetaParameter({
+      //   title: 'whole tiles only',
+      //   value: false,
+      //   name: 'whole_tiles_only'
+      // }),
       // new OnOffMetaParameter({
       //   title: 'y cyclic',
       //   value: false,
