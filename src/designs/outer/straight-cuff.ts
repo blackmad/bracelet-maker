@@ -1,5 +1,5 @@
-import { RangeMetaParameter, OnOffMetaParameter } from '../../meta-parameter';
-import { PaperModelMaker } from '../../model-maker';
+import { RangeMetaParameter } from '../../meta-parameter';
+import { PaperModelMaker, OuterPaperModelMaker } from '../../model-maker';
 import { makeEvenlySpacedBolts, RivetRadius } from '../design-utils';
 
 function roundCorners(paper, path, radius) {
@@ -28,10 +28,9 @@ function roundCorners(paper, path, radius) {
   return path;
 }
 
-export class StraightCuffOuter implements PaperModelMaker {
+export class StraightCuffOuter implements OuterPaperModelMaker {
   bottomPadding = 1.0;
   topPadding = 0.8;
-  subModel: PaperModelMaker = null;
 
   controlInfo = `Measure your wrist with a sewing measuring tape. I suggest measuring pretty tight, this pattern adds some length.<br/>
   Cis male wrists average around 7 inches, cis female wrists closer to 6.5 inches." `;
@@ -126,14 +125,14 @@ export class StraightCuffOuter implements PaperModelMaker {
     );
     safeCone.remove();
 
-    const innerOptions = options[this.innerDesignClass.constructor.name] || {};
+    const innerOptions = options[this.subModel.constructor.name] || {};
     innerOptions.height = height;
     innerOptions.width = totalWidth;
     innerOptions.boundaryModel = safeArea;
     innerOptions.safeCone = safeCone;
     innerOptions.outerModel = cuffOuter;
 
-    const innerDesign = this.innerDesignClass.make(scope, innerOptions);
+    const innerDesign = this.subModel.make(scope, innerOptions);
     if (innerDesign.outline) {
       const oldCuffOuter = cuffOuter;
 
@@ -217,7 +216,6 @@ export class StraightCuffOuter implements PaperModelMaker {
     ];
   }
 
-  constructor(public innerDesignClass: any) {
-    this.subModel = innerDesignClass;
+  constructor(public subModel: any) {
   }
 }

@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 
 import 'core-js/library';
 
-import { PaperModelMaker } from '../model-maker';
+import { OuterPaperModelMaker } from '../model-maker';
 import { MetaParameterBuilder } from './meta-parameter-builder';
 
 import { makeSVGData } from '../utils/paperjs-export-utils';
@@ -30,7 +30,7 @@ export class DavidsPlayground {
   private scope: any;
 
   constructor(
-    public modelMaker: PaperModelMaker,
+    public modelMaker: OuterPaperModelMaker,
     public allowPanAndZoom?: boolean
   ) {
     this.allowPanAndZoom = allowPanAndZoom;

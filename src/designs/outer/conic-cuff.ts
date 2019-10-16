@@ -1,17 +1,13 @@
 import { makeConicSection } from './conic-section';
 import { RangeMetaParameter } from '../../meta-parameter';
-import { PaperModelMaker } from '../../model-maker';
+import { PaperModelMaker, OuterPaperModelMaker } from '../../model-maker';
 import { makeEvenlySpacedBolts } from '../design-utils';
 
-export class ConicCuffOuter implements PaperModelMaker {
-  subModel: PaperModelMaker = null;
-
+export class ConicCuffOuter implements OuterPaperModelMaker {
   controlInfo = `Measure your wrist with a sewing measuring tape. I suggest measuring pretty tight, this pattern adds some length.<br/>
   Cis male wrists average around 7 inches, cis female wrists closer to 6.5 inches."`
 
-  constructor(public innerDesignClass: any) {
-    this.subModel = innerDesignClass;
-  }
+  constructor(public subModel: any) {}
 
   addRivetHoles(paper: paper.PaperScope, height, cuffModel, cuffModelInner) {
     /***** START RIVET HOLES *****/
@@ -177,11 +173,11 @@ export class ConicCuffOuter implements PaperModelMaker {
     //   ]
     // ]);
 
-    const innerOptions = options[this.innerDesignClass.constructor.name] || {};
+    const innerOptions = options[this.subModel.constructor.name] || {};
     innerOptions.boundaryModel = cuffModelInner.model;
     innerOptions.outerModel = cuffModel.model;
 
-    const innerDesign = this.innerDesignClass.make(paper, innerOptions);
+    const innerDesign = this.subModel.make(paper, innerOptions);
 
     // if (innerDesign.models && innerDesign.models.outline) {
     //   models.completeCuffModel.models.cuffModel = makerjs.model.combineUnion(

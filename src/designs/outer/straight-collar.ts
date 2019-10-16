@@ -6,14 +6,10 @@ import {
   RivetRadius
 } from '../design-utils';
 
-import { PaperModelMaker } from '../../model-maker';
+import { PaperModelMaker, OuterPaperModelMaker } from '../../model-maker';
 
-export class StraightCollarOuter implements PaperModelMaker {
-  subModel: PaperModelMaker = null;
-
-  constructor(public innerDesignClass: any) {
-    this.subModel = innerDesignClass;
-  }
+export class StraightCollarOuter implements OuterPaperModelMaker {
+  constructor(public subModel: any) {}
 
   controlInfo = "Measure your neck with a sewing tape measure.<br/>If you don't have one handy, 13.5 inches is usually a good size for a cis woman, and 15 inches for a cis man. Don't worry, this pattern generates extra length.<br/>Note that a straight collar taller than about 2 inches will not be very comfortable."
 
@@ -133,14 +129,14 @@ export class StraightCollarOuter implements PaperModelMaker {
     // round other belt end more
     // get it to work with outlines
 
-    const innerOptions = options[this.innerDesignClass.constructor.name] || {};
+    const innerOptions = options[this.subModel.constructor.name] || {};
     innerOptions.height = height;
     innerOptions.width = totalLength;
     innerOptions.boundaryModel = safeArea;
     innerOptions.safeCone = safeCone;
     innerOptions.outerModel = outerModel;
 
-    const innerDesign = this.innerDesignClass.make(paper, innerOptions);
+    const innerDesign = this.subModel.make(paper, innerOptions);
     // if (models && models.design && models.design.models.outline) {
     //   console.log("outline!!");
     //   console.log("outline:", models.design.models.outline);

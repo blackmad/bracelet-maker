@@ -1,5 +1,5 @@
 import { DavidsPlayground } from './new-playground';
-import { PaperModelMaker } from '../model-maker';
+import { OuterPaperModelMaker } from '../model-maker';
 
 import * as $ from 'jquery';
 import { AllInnerDesigns } from '../designs/inner/all';
@@ -23,7 +23,7 @@ function trySetDesign() {
     $('.algoPattern').show();
     if (innerDesignClass) {
       const innerDesign = new innerDesignClass();
-      const modelMaker: PaperModelMaker = new outerDesignClass(innerDesign);
+      const modelMaker: OuterPaperModelMaker = new outerDesignClass(innerDesign);
       $('.clear-on-reinit').empty();
       new DavidsPlayground(modelMaker).rerender();
       $('.startHidden').show();
