@@ -9,6 +9,21 @@ export interface MetaParameter {
     type: MetaParameterType;
     title: string;
     value: any;
+    target: string | null;
+}
+
+export interface MetaParameterBaseParams {
+  name: string;
+  title: string;
+  value: any;
+  target?: string | null;
+}
+
+export interface RangeMetaParameterParams extends MetaParameterBaseParams {
+  min: number;
+  max: number;
+  value: number;
+  step: number;
 }
 
 export class RangeMetaParameter implements MetaParameter {
@@ -19,23 +34,22 @@ export class RangeMetaParameter implements MetaParameter {
     public max: number;
     public value: number;
     public step: number;
+    public target: string | null = null;
 
-    constructor({ name, title, min, max, value, step }: { 
-        name: string;
-        title: string;
-        min: number;
-        max: number;
-        value: number;
-        step: number;
-    }) {
-        this.name = name;
+    constructor(params: RangeMetaParameterParams) {
+        this.name = params.name;
         this.type = MetaParameterType.Range;
-        this.title = title;
-        this.min = min;
-        this.max = max;
-        this.value = value;
-        this.step = step;
+        this.title = params.title;
+        this.min = params.min;
+        this.max = params.max;
+        this.value = params.value;
+        this.step = params.step;
+        this.target = params.target;
     }
+}
+
+export interface SelectMetaParameterParams extends MetaParameterBaseParams {
+  options: string[];
 }
 
 export class SelectMetaParameter implements MetaParameter {
@@ -44,18 +58,14 @@ export class SelectMetaParameter implements MetaParameter {
     public title: string;
     public options: string[];
     public value: string;
+    public target: string | null = null;
 
-    constructor({ name, title, options, value}: { 
-        name: string;
-        title: string;
-        options: string[];
-        value: string;
-    }) {
-        this.name = name;
+    constructor(params: SelectMetaParameterParams) {
+        this.name = params.name;
         this.type = MetaParameterType.Select;
-        this.title = title;
-        this.options = options;
-        this.value = value;
+        this.title = params.title;
+        this.options = params.options;
+        this.value = params.value;
     }
 }
 
@@ -64,16 +74,13 @@ export class OnOffMetaParameter implements MetaParameter {
     public type: MetaParameterType;
     public title: string;
     public value: boolean;
+    public target: string | null = null;
 
-    constructor({name, title, value}: { 
-        name: string;
-        title: string;
-        value: boolean;
-    }) {
-        this.name = name;
+    constructor(params: MetaParameterBaseParams) {
+        this.name = params.name;
         this.type = MetaParameterType.OnOff;
-        this.title = title;
-        this.value = value;
+        this.title = params.title;
+        this.value = params.value;
     }
 }
 

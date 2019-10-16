@@ -25,7 +25,7 @@ function trySetDesign() {
       const innerDesign = new innerDesignClass();
       const modelMaker: PaperModelMaker = new outerDesignClass(innerDesign);
       $('.clear-on-reinit').empty();
-      new DavidsPlayground(modelMaker, [modelMaker, innerDesign]).rerender();
+      new DavidsPlayground(modelMaker).rerender();
       $('.startHidden').show();
       $('.hideAfterDesignSelected').hide();
       return true;

@@ -10,7 +10,6 @@ export class InnerDesignHexes extends FastAbstractInnerDesign {
   allowOutline = true;
   needSubtraction = false;
   requiresSafeConeClamp = false;
-  forceContainmentDefault = true;
   needSeed = false;
 
   makeDesign(paper: paper.PaperScope, params) {
@@ -19,14 +18,11 @@ export class InnerDesignHexes extends FastAbstractInnerDesign {
       outerModel,
       numRows,
       stretchWidth,
-      forceContainment
     } = params;
 
 
-    let rowHeight = boundaryModel.bounds.height / (numRows-1);
-    if (!forceContainment) {
-      rowHeight = outerModel.bounds.height / (numRows-0.5);
-    }
+    let height = boundaryModel.bounds.height;
+    let rowHeight = height / (numRows);
     const hexSize = rowHeight * 0.5;
     const hexWidth = rowHeight * stretchWidth;
 
@@ -38,26 +34,13 @@ export class InnerDesignHexes extends FastAbstractInnerDesign {
     let endRow = numRows;
 
     let startX = boundaryModel.bounds.x;
-    let startY = boundaryModel.bounds.y;
-
-    if (!forceContainment) {
-      // startRow = -1;
-      // endRow -= 1;
-      startY -= rowHeight/4;
-    }
+    let startY = boundaryModel.bounds.y + rowHeight/2;
 
     for (let r = startRow; r < endRow; r++) {
-      const offset = r % 2 ? -0.5 : -1;
+      const offset = r % 2 ? 0.5 : 1;
 
       let startColumn = 0;
       let columnsForThisRow = numHexes - offset;
-
-      // if (hexWidth*(columnsForThisRow + offset) > boundaryModel.bounds.width) {
-      //   startColumn = 1;
-      //   columnsForThisRow -= 1;
-      // }
-
-
 
       for (let c = 0; c < columnsForThisRow; c += 1) {
         const centerX = startX + (c + offset) * hexWidth;
@@ -76,6 +59,14 @@ export class InnerDesignHexes extends FastAbstractInnerDesign {
           }
       }
     }
+
+    // const minX = _.min(_.map(paths, (p) => p.bounds.x));
+    // const maxX = _.max(_.map(paths, (p) => p.bounds.x));
+    // const usedX = maxX - minX;
+    // const whitespace = boundaryModel.bounds.width - usedX;
+    // console.log(minX, maxX, usedX, whitespace);
+    // paths.forEach(p => new paper.Point(p.translate(whitespace/4, 0)))
+
     return paths;
   }
 

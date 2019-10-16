@@ -1,4 +1,4 @@
-import { RangeMetaParameter, MetaParameterType } from '../../meta-parameter';
+import { RangeMetaParameter } from '../../meta-parameter';
 import * as _ from 'lodash';
 import {
   makeEvenlySpacedBolts,
@@ -9,7 +9,11 @@ import {
 import { PaperModelMaker } from '../../model-maker';
 
 export class StraightCollarOuter implements PaperModelMaker {
-  constructor(public innerDesignClass: any) {}
+  subModel: PaperModelMaker = null;
+
+  constructor(public innerDesignClass: any) {
+    this.subModel = innerDesignClass;
+  }
 
   controlInfo = "Measure your neck with a sewing tape measure.<br/>If you don't have one handy, 13.5 inches is usually a good size for a cis woman, and 15 inches for a cis man. Don't worry, this pattern generates extra length.<br/>Note that a straight collar taller than about 2 inches will not be very comfortable."
 
@@ -110,7 +114,9 @@ export class StraightCollarOuter implements PaperModelMaker {
         height - safeBorderWidth * 2
       )
     );
-    safeArea.remove();
+    safeArea.strokeColor = 'green';
+    safeArea.strokeWidth = 0.001;
+    // safeArea.remove();
 
     const safeCone = new paper.Path.Rectangle(
       new paper.Rectangle(
@@ -179,7 +185,7 @@ export class StraightCollarOuter implements PaperModelMaker {
       }),
       new RangeMetaParameter({
         title: 'Safe Border Width',
-        min: 0.1,
+        min: -0.25,
         max: 0.25,
         value: 0.1,
         step: 0.01,

@@ -4,10 +4,14 @@ import { PaperModelMaker } from '../../model-maker';
 import { makeEvenlySpacedBolts } from '../design-utils';
 
 export class ConicCuffOuter implements PaperModelMaker {
+  subModel: PaperModelMaker = null;
+
   controlInfo = `Measure your wrist with a sewing measuring tape. I suggest measuring pretty tight, this pattern adds some length.<br/>
   Cis male wrists average around 7 inches, cis female wrists closer to 6.5 inches."`
 
-  constructor(public innerDesignClass: any) {}
+  constructor(public innerDesignClass: any) {
+    this.subModel = innerDesignClass;
+  }
 
   addRivetHoles(paper: paper.PaperScope, height, cuffModel, cuffModelInner) {
     /***** START RIVET HOLES *****/

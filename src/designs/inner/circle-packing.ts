@@ -2,10 +2,14 @@ import {
   RangeMetaParameter,
   OnOffMetaParameter,
   MetaParameter
-} from "../../meta-parameter";
-import * as _ from "lodash";
-import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
-import { SimpleCircle, randomLineOnRectangle, checkCircleCircleIntersection } from '../../utils/paperjs-utils'
+} from '../../meta-parameter';
+import * as _ from 'lodash';
+import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
+import {
+  SimpleCircle,
+  randomLineOnRectangle,
+  checkCircleCircleIntersection
+} from '../../utils/paperjs-utils';
 
 export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
   allowOutline = true;
@@ -16,10 +20,7 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
     testCircle: paper.Path.Circle,
     lines: paper.Path.Line[]
   ): boolean {
-    return _.every(
-      lines,
-      l => !testCircle.intersects(l)
-    );
+    return _.every(lines, l => !testCircle.intersects(l));
   }
 
   circleDoesntTouchCircles(
@@ -29,8 +30,7 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
   ): boolean {
     return _.every(
       circles,
-      c =>
-        !checkCircleCircleIntersection(c, testCircle, borderSize)
+      c => !checkCircleCircleIntersection(c, testCircle, borderSize)
     );
   }
 
@@ -49,9 +49,10 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
       minCircleSize,
       maxCircleSize,
       borderSize,
-      numLines,
+      numLines
     } = params;
-    const constrainCircles = params.constrainCircles || !params.forceContainment;
+    const constrainCircles =
+      params.constrainCircles || !params.forceContainment;
 
     const boundaryRect = boundaryModel.bounds;
 
@@ -70,23 +71,25 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
       for (let i = 0; i < triesPerRadius; i++) {
         const center = new paper.Point(this.rng() * width, this.rng() * height);
         const testCircle = new paper.Path.Circle(center, radius);
-        const simpleTestCircle = new SimpleCircle(center.x, center.y, radius)
+        const simpleTestCircle = new SimpleCircle(center.x, center.y, radius);
         if (
           // this checks that we're at least inside the bounding box around the boundary
-          // testCircle.bounds.intersects(boundaryRect) && 
+          // testCircle.bounds.intersects(boundaryRect) &&
           // if we are constraining circles, make sure everything is inside
           (!params.constrainCircles ||
             this.circleInsideModel(testCircle, boundaryRect)) &&
-          this.circleDoesntTouchCircles(simpleTestCircle, simpleCircles, borderSize) &&
+          this.circleDoesntTouchCircles(
+            simpleTestCircle,
+            simpleCircles,
+            borderSize
+          ) &&
           this.circleDoesntTouchLines(testCircle, lines)
         ) {
           circles.push(testCircle);
           simpleCircles.push(simpleTestCircle);
-          if (!params.forceContainment) {
-            outline.push(
-              new paper.Path.Circle(center, radius + params.outlineSize)
-            )
-          }
+          outline.push(
+            new paper.Path.Circle(center, radius + params.outlineSize)
+          );
         } else {
           testCircle.remove();
         }
@@ -97,47 +100,56 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
     return {
       paths: circles,
       outlinePaths: outline
-    }
+    };
   }
 
   get designMetaParameters(): Array<MetaParameter> {
     return [
       new RangeMetaParameter({
-        title: "Border Size",
+        title: 'Border Size',
         min: 0.1,
         max: 0.25,
         value: 0.1,
         step: 0.01,
-        name: "borderSize"
+        name: 'borderSize'
+      }),
+
+      new RangeMetaParameter({
+        title: 'Outline size (in)',
+        min: 0.05,
+        max: 0.4,
+        value: 0.1,
+        step: 0.01,
+        name: 'outlineSize'
       }),
       new RangeMetaParameter({
-        title: "Min Circle Size",
+        title: 'Min Circle Size',
         min: 0.02,
         max: 2.0,
         value: 0.02,
         step: 0.01,
-        name: "minCircleSize"
+        name: 'minCircleSize'
       }),
       new RangeMetaParameter({
-        title: "Max Circle Size",
+        title: 'Max Circle Size',
         min: 0.05,
         max: 3.0,
         value: 0.75,
         step: 0.01,
-        name: "maxCircleSize"
+        name: 'maxCircleSize'
       }),
       new RangeMetaParameter({
-        title: "Num Invisible Lines",
+        title: 'Num Invisible Lines',
         min: 0,
         max: 10,
         value: 1,
         step: 1,
-        name: "numLines"
+        name: 'numLines'
       }),
       new OnOffMetaParameter({
-        title: "ConstrainCircles",
+        title: 'ConstrainCircles',
         value: false,
-        name: "constrainCircles"
+        name: 'constrainCircles'
       })
     ];
   }

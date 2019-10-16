@@ -2,20 +2,17 @@ import * as paper from 'paper';
 
 import * as $ from 'jquery';
 import * as _ from 'lodash';
-import 'rangeslider.js';
 
 import 'core-js/library';
 
 import { PaperModelMaker } from '../model-maker';
-import { MetaParameter, MetaParameterType } from '../meta-parameter';
+import { MetaParameterBuilder } from './meta-parameter-builder';
 
-import {makeSVGData} from '../utils/paperjs-export-utils'
+import { makeSVGData } from '../utils/paperjs-export-utils';
 import * as SVGtoPDF from 'svg-to-pdfkit';
 import blobStream from 'blob-stream';
 
-function clone(src) {
-  return Object.assign({}, src);
-}
+import { MetaParameter, MetaParameterType } from '../meta-parameter';
 
 function parseParamsString(paramsString: string): Map<string, string> {
   const params = new Map<string, string>();
@@ -34,12 +31,8 @@ export class DavidsPlayground {
 
   constructor(
     public modelMaker: PaperModelMaker,
-    public subModels: Array<PaperModelMaker> = null,
     public allowPanAndZoom?: boolean
   ) {
-    if (this.modelMaker.subModels && !subModels) {
-      this.subModels = subModels;
-    }
     this.allowPanAndZoom = allowPanAndZoom;
     this.params = new Map();
 
@@ -47,7 +40,21 @@ export class DavidsPlayground {
       this.params = parseParamsString(window.location.hash.substring(1));
     }
 
-    this.buildMetaParameterWidgets(document.getElementById('parameterDiv'));
+    $('.meta-parameter-container').remove();
+
+    new MetaParameterBuilder(
+      this.params, _.bind(this.onParamChange, this)
+    ).buildMetaParametersForModel(
+      this.modelMaker,
+      document.getElementById('outerParameterDiv')
+    )
+
+    new MetaParameterBuilder(
+      this.params, _.bind(this.onParamChange, this)
+    ).buildMetaParametersForModel(
+      this.modelMaker.subModel,
+      document.getElementById('innerParameterDiv')
+    );
 
     $('.sizingInfo').html(modelMaker.controlInfo);
 
@@ -74,7 +81,7 @@ export class DavidsPlayground {
     window.location.hash = encodeGetParams(this.params);
   }
 
-  metaParamRequiresNumber(metaParameter) {
+  metaParamRequiresNumber(metaParameter: MetaParameter) {
     return metaParameter.type == MetaParameterType.Range;
   }
 
@@ -85,211 +92,6 @@ export class DavidsPlayground {
       this.params[metaParameter.name] = value;
     }
     this.rerender();
-  }
-
-  makeMetaParameterSlider(metaParameter) {
-    const value =
-      Number(this.params[metaParameter.name]) || metaParameter.value;
-
-    const { parentDiv, containingDiv } = this.makeMetaParameterContainer(
-      metaParameter.title
-    );
-
-    const rangeInput = document.createElement('input');
-    rangeInput.type = 'range';
-    rangeInput.name = metaParameter.name + '-range';
-    rangeInput.min = metaParameter.min;
-    rangeInput.max = metaParameter.max;
-    rangeInput.step = metaParameter.step;
-    rangeInput.id = metaParameter.name + '-range';
-    rangeInput.value = value;
-    rangeInput.className = 'col-4';
-
-    const inputWrapDiv = document.createElement('div');
-    inputWrapDiv.className = 'col-3';
-    const textInput = document.createElement('input');
-    textInput.type = 'number';
-    textInput.min = metaParameter.min;
-    textInput.max = metaParameter.max;
-    textInput.step = metaParameter.step;
-    textInput.id = metaParameter.name + '-num-input';
-    textInput.value = value;
-    textInput.className = 'mx-1';
-
-    containingDiv.append(rangeInput);
-    containingDiv.append(inputWrapDiv);
-    inputWrapDiv.append(textInput);
-
-    this.params[metaParameter.name] = Number(value);
-
-    rangeInput.addEventListener(
-      'change',
-      function(event) {
-        const value = event.target.value;
-        textInput.value = value;
-        this.onParamChange({ metaParameter, value });
-      }.bind(this)
-    );
-
-    textInput.addEventListener(
-      'change',
-      function(event) {
-        rangeInput.value = event.target.value;
-        this.onParamChange({ metaParameter, value: event.target.value });
-      }.bind(this)
-    );
-
-    return parentDiv;
-  }
-
-  makeMetaParameterContainer(title) {
-    const sizingDiv = document.createElement('div');
-    sizingDiv.className =
-      'meta-parameter-container col-md-12 col-lg-6 small border-top border-bottom py-1';
-
-    const containingDiv = document.createElement('div');
-    containingDiv.className = 'row';
-
-    sizingDiv.append(containingDiv);
-
-    const textLabelDiv = document.createElement('div');
-    textLabelDiv.className = 'col-5';
-    textLabelDiv.innerHTML = title;
-    containingDiv.append(textLabelDiv);
-
-    // const hr = $('<hr class="d-lg-none"/>');
-    // sizingDiv.append(hr[0]);
-
-    return { parentDiv: sizingDiv, containingDiv };
-  }
-
-  makeMetaParameterSelect(metaParameter) {
-    const selectedValue =
-      this.params[metaParameter.name] || metaParameter.value;
-
-    const { parentDiv, containingDiv } = this.makeMetaParameterContainer(
-      metaParameter.title
-    );
-
-    const colDiv = $('<div class="col-7 leftInputContainer"></div>');
-    containingDiv.append(colDiv[0]);
-
-    const selectInput = document.createElement('select');
-    selectInput.name = metaParameter.name + '-select';
-
-    metaParameter.options.forEach(optionValue => {
-      const option = document.createElement('option');
-      option.value = optionValue;
-      option.text = optionValue;
-      if (optionValue == selectedValue) {
-        option.setAttribute('selected', 'selected');
-      }
-      selectInput.appendChild(option);
-    });
-
-    colDiv.append(selectInput);
-
-    this.params[metaParameter.name] = selectedValue;
-
-    selectInput.addEventListener(
-      'change',
-      function(event) {
-        const selectedValue = event.target.selectedOptions[0].value;
-        this.onParamChange({ metaParameter, value: selectedValue });
-      }.bind(this)
-    );
-
-    return parentDiv;
-  }
-
-  makeMetaParameterOnOff(metaParameter) {
-    var selectedValue = this.params[metaParameter.name] == 'true';
-    if (this.params[metaParameter.name] == null) {
-      selectedValue = metaParameter.value;
-    }
-
-    const { parentDiv, containingDiv } = this.makeMetaParameterContainer(
-      metaParameter.title
-    );
-    const selectInput = document.createElement('select');
-    selectInput.name = metaParameter.name + '-select';
-
-    const switchDiv = $(`<div class="col-7 leftInputContainer">
-      <input type="checkbox" checked autocomplete="off">
-  </div>`);
-
-    // const switchDiv = $(`<div><input type="checkbox"></input></div>`);
-    containingDiv.append(switchDiv[0]);
-
-    (<HTMLInputElement>$(switchDiv).find('input')[0]).checked = selectedValue;
-
-    this.params[metaParameter.name] = selectedValue;
-    const id = metaParameter.name;
-    $(switchDiv)
-      .find('input')
-      .attr('id', id);
-    $(switchDiv)
-      .find('label')
-      .attr('for', id);
-
-    $(switchDiv)
-      .find('input')
-      .on(
-        'change',
-        function(event) {
-          const selectedValue = (<HTMLInputElement>event.target).checked;
-          this.onParamChange({ metaParameter, value: selectedValue });
-        }.bind(this)
-      );
-
-    return parentDiv;
-  }
-
-  buildMetaParameterWidget(metaParam: MetaParameter) {
-    switch (metaParam.type) {
-      case MetaParameterType.Range:
-        return this.makeMetaParameterSlider(metaParam);
-      case MetaParameterType.Select:
-        return this.makeMetaParameterSelect(metaParam);
-      case MetaParameterType.OnOff:
-        return this.makeMetaParameterOnOff(metaParam);
-      default:
-        throw 'unknown metaParam - not slider or select';
-    }
-  }
-
-  buildMetaParameterWidgets(parameterDiv) {
-    $('.meta-parameter-container').remove();
-
-    if (this.subModels) {
-      this.subModels.forEach(subModel => {
-        if (subModel.metaParameters) {
-          subModel.metaParameters.forEach(metaParameter => {
-            const metaParam = clone(metaParameter);
-            metaParam.name =
-              subModel.constructor.name + '.' + metaParameter.name;
-            const subModelDiv = document.getElementById(
-              subModel.constructor.name
-            );
-            let divToAppendTo = parameterDiv;
-            if (subModelDiv) {
-              divToAppendTo = subModelDiv;
-            }
-
-            const el = this.buildMetaParameterWidget(metaParam);
-            divToAppendTo.append(el);
-          });
-        }
-      });
-    } else {
-      this.modelMaker.metaParameters.forEach(metaParameter => {
-        const el = this.buildMetaParameterWidget(metaParameter);
-        parameterDiv.append(el);
-      });
-    }
-
-    // @ts-ignore
-    $('input[type="range"]').rangeslider();
   }
 
   showError(errorMessage) {
@@ -306,12 +108,12 @@ export class DavidsPlayground {
     const widthInches = paper.project.activeLayer.bounds.width;
     const heightInches = paper.project.activeLayer.bounds.height;
 
-    import('../external/pdfkit.standalone.js').then((PDFDocument) => {
+    import('../external/pdfkit.standalone.js').then(PDFDocument => {
       let doc = new PDFDocument.default({
         compress: false,
         size: [widthInches * 72, heightInches * 72]
       });
-      SVGtoPDF(doc, makeSVGData(paper, true, (svg) => $(svg)[0]), 0, 0);
+      SVGtoPDF(doc, makeSVGData(paper, true, svg => $(svg)[0]), 0, 0);
 
       function blobToDataURL(blob, callback) {
         var a = new FileReader();
@@ -330,11 +132,11 @@ export class DavidsPlayground {
         blobToDataURL(blob, s => self.sendFileToUser(s, 'pdf'));
       });
       doc.end();
-    })
+    });
   }
 
   downloadSVG() {
-    const data = makeSVGData(paper, true, (svg) => $(svg)[0]);
+    const data = makeSVGData(paper, true, svg => $(svg)[0]);
     const mimeType = 'image/svg+xml';
     var encoded = encodeURIComponent(data);
     var uriPrefix = 'data:' + mimeType + ',';
@@ -360,10 +162,8 @@ export class DavidsPlayground {
   makeFilename(extension: string): string {
     // @ts-ignore
     let filename = this.modelMaker.name;
-    if (this.subModels) {
-      filename = this.subModels
-        .map((f: PaperModelMaker) => f.constructor.name)
-        .join('-');
+    if (this.modelMaker.subModel) {
+      filename = this.modelMaker.constructor.name  + '-' + this.modelMaker.subModel.constructor.name;
     }
     const modelName = this.modelMaker.constructor.name;
     filename += `-${this.params[modelName + '.height']}x${
@@ -400,7 +200,7 @@ export class DavidsPlayground {
 
     // rebuild params from X.a to {X: {a: }}
     let modelParams = new Map<string, any>();
-    if (this.subModels) {
+    if (this.modelMaker.subModel) {
       _.each(this.params, (value, key) => {
         const parts = key.split('.');
         if (parts.length == 2) {
@@ -426,7 +226,7 @@ export class DavidsPlayground {
 
     // @ts-ignore
     this.modelMaker.make(paper, modelParams);
-    $('#svgArea')[0].innerHTML = makeSVGData(paper, false, (svg) => $(svg)[0]);
+    $('#svgArea')[0].innerHTML = makeSVGData(paper, false, svg => $(svg)[0]);
 
     $('body').removeClass('loading');
   }

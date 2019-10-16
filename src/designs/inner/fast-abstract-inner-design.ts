@@ -18,16 +18,18 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   forceContainmentDefault: boolean = true;
   needSeed: boolean = true;
 
+  controlInfo = '';
+
   abstract makeDesign(scope: any, params: any): any;
   abstract get designMetaParameters(): Array<MetaParameter>;
 
   get metaParameters(): Array<MetaParameter> {
     let metaParams: Array<MetaParameter> = [
-      new OnOffMetaParameter({
-        title: 'Debug',
-        name: 'debug',
-        value: false
-      })
+      // new OnOffMetaParameter({
+      //   title: 'Debug',
+      //   name: 'debug',
+      //   value: false
+      // })
     ];
 
     if (this.needSeed) {
@@ -46,23 +48,13 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     metaParams = metaParams.concat(this.designMetaParameters);
 
     if (this.allowOutline) {
-      metaParams.push(
-        new OnOffMetaParameter({
-          title: 'Force Containment',
-          name: 'forceContainment',
-          value: true
-        })
-      );
-      metaParams.push(
-        new RangeMetaParameter({
-          title: 'Outline size (in)',
-          min: 0.05,
-          max: 0.4,
-          value: 0.1,
-          step: 0.01,
-          name: 'outlineSize'
-        })
-      );
+      // metaParams.push(
+      //   new OnOffMetaParameter({
+      //     title: 'Force Containment',
+      //     name: 'forceContainment',
+      //     value: true
+      //   })
+      // );
       // metaParams.push(
       //   new RangeMetaParameter({
       //     title: 'Boundary Dilation (forceContainment false only)',
@@ -73,13 +65,13 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       //     name: 'boundaryDilation'
       //   })
       // );
-      metaParams.push(
-        new OnOffMetaParameter({
-          title: 'Smooth Outline',
-          name: 'smoothOutline',
-          value: false
-        })
-      );
+      // metaParams.push(
+      //   new OnOffMetaParameter({
+      //     title: 'Smooth Outline',
+      //     name: 'smoothOutline',
+      //     value: false
+      //   })
+      // );
     }
 
     return metaParams;
@@ -87,6 +79,9 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
   make(paper: any, params: any): any {
     const self = this;
+
+    params.outlineSize = 0.1;
+    params.debug = false;
 
     if (params.seed) {
       this.rng = seedrandom(params.seed.toString());
@@ -126,15 +121,19 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       });
     }
 
-    if (this.needSubtraction && (!this.allowOutline || params.forceContainment)) {
+    let shouldMakeOutline = params.boundaryModel.bounds.height > params.outerModel.bounds.height;
+    console.log(params.boundaryModel.bounds.height, params.outerModel.bounds.height);
+
+    if (this.needSubtraction && (!this.allowOutline || shouldMakeOutline)) {
       console.log('clamping sub');
-      // console.log(params.boundaryModel);
       paths = paths.map(m => m.intersect(params.boundaryModel));
     }
     ExtendPaperJs(paper);
 
+    console.log(shouldMakeOutline)
     let outline = null;
-    if (this.allowOutline && !params.forceContainment) {
+    if (this.allowOutline && shouldMakeOutline) {
+      console.log('making outline');
       paths = paths.filter(
         m =>
           params.outerModel.contains(m.bounds) ||
@@ -153,14 +152,17 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       } else {
         // @ts-ignore
         outline = paper.Path.prototype.offset.call(compoundPath, params.outlineSize, { cap: 'miter' });
+      }
+
+      if (params.debug) {
+        outline.strokeColor = 'green';
+        outline.strokeWidth = 0.1;
+      } else {
         outline.remove();
       }
 
-      outline = outline.unite(outline)
-      outline.remove();
-      if (params.smoothOutline) {
-        outline.smooth({ type: 'geometric', factor: 0.3 });
-      }
+      
+      outline.smooth({ type: 'geometric', factor: 0.2 });
       console.log(outline);
     }
 

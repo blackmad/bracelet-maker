@@ -31,6 +31,7 @@ function roundCorners(paper, path, radius) {
 export class StraightCuffOuter implements PaperModelMaker {
   bottomPadding = 1.0;
   topPadding = 0.8;
+  subModel: PaperModelMaker = null;
 
   controlInfo = `Measure your wrist with a sewing measuring tape. I suggest measuring pretty tight, this pattern adds some length.<br/>
   Cis male wrists average around 7 inches, cis female wrists closer to 6.5 inches." `;
@@ -77,6 +78,8 @@ export class StraightCuffOuter implements PaperModelMaker {
       'StraightCuffOuter'
     ];
 
+    debug = false;
+
     const totalWidth = wristCircumference + this.bottomPadding * 2;
     const cuffOuterPath: paper.Path = new scope.Path();
     cuffOuterPath.strokeColor = 'black';
@@ -107,6 +110,8 @@ export class StraightCuffOuter implements PaperModelMaker {
       new scope.Point(this.bottomPadding, safeBorderWidth),
       new scope.Size(safeAreaLength, height - safeBorderWidth * 2)
     );
+    console.log('making a box at ', this.bottomPadding, safeBorderWidth);
+    console.log('of size', safeAreaLength, height - safeBorderWidth * 2);
 
     if (debug) {
       safeArea.strokeColor = 'green';
@@ -135,12 +140,9 @@ export class StraightCuffOuter implements PaperModelMaker {
       cuffOuter = cuffOuter.unite(innerDesign.outline);
       cuffOuter.remove();
       // cheap hack to fill in inner holes for some reason
-      cuffOuter = cuffOuter.unite(safeArea);
+      // cuffOuter = cuffOuter.unite(safeArea);
 
       oldCuffOuter.remove();
-      // innerDesign.outline.removeChildren();
-      // innerDesign.outline.remove();
-      // innerDesign.paths.forEach(p => p.remove());
     }
 
     if (debug) {
@@ -174,11 +176,11 @@ export class StraightCuffOuter implements PaperModelMaker {
 
   get metaParameters() {
     return [
-      new OnOffMetaParameter({
-        title: 'Debug',
-        name: 'debug',
-        value: false
-      }),
+      // new OnOffMetaParameter({
+      //   title: 'Debug',
+      //   name: 'debug',
+      //   value: false
+      // }),
       new RangeMetaParameter({
         title: 'Height',
         min: 1,
@@ -197,11 +199,12 @@ export class StraightCuffOuter implements PaperModelMaker {
       }),
       new RangeMetaParameter({
         title: 'Safe Border (in)',
-        min: 0.1,
+        min: -0.5,
         max: 0.75,
         value: 0.25,
         step: 0.01,
-        name: 'safeBorderWidth'
+        name: 'safeBorderWidth',
+        target: '.design-params-row'
       }),
       new RangeMetaParameter({
         title: 'Wide Wrist Circumference',
@@ -214,5 +217,7 @@ export class StraightCuffOuter implements PaperModelMaker {
     ];
   }
 
-  constructor(public innerDesignClass: any) {}
+  constructor(public innerDesignClass: any) {
+    this.subModel = innerDesignClass;
+  }
 }
