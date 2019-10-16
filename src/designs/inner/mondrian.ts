@@ -17,6 +17,8 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
   needSubtraction = false;
   paper: paper.PaperScope;
 
+  allowOutline = true;
+
   splitRect(lo, hi, depth = 0) {
     const self = this;
     function makeThisRect() {

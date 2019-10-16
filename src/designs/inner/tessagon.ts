@@ -10,7 +10,7 @@ import { ListAdaptor } from '../..//tessagon/tessagon.adaptors.list_adaptor';
 
 
 export class InnerDesignTessagon extends FastAbstractInnerDesign {
-  allowOutline = false;
+  allowOutline = true;
   needSubtraction = true;
   needSeed = false;
 

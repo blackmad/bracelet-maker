@@ -43,7 +43,7 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
 
     function makeRow(c) {
       const rowModels = [];
-      for (var r = -1; r <= rows + 1; r++) {  
+      for (var r = 0; r < rows; r++) {  
         var path = ShapeMaker.makeShape(paper, shapeName, shapeSize1, shapeSize2)
   
         path.rotate(
@@ -93,7 +93,7 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
       return rowModels
     }
 
-    for (var c = -1; c <= cols; c++) {
+    for (var c = 0; c < cols; c++) {
       const rowModels = _.bind(makeRow, this)(c);
       models = models.concat(rowModels);
     }
