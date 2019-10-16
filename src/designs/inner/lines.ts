@@ -4,6 +4,7 @@ import { randomLineEndpointsOnRectangle } from "../../utils/paperjs-utils"
 import { AbstractExpandInnerDesign } from "./abstract-expand-and-subtract-inner-design";
 
 export class InnerDesignLines extends AbstractExpandInnerDesign {
+  allowOutline = true;
   makePaths(paper: paper.PaperScope, params: any): paper.Point[][] {
     const {
       boundaryModel,
