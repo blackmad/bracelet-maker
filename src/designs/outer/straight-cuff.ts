@@ -100,10 +100,10 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
       height,
       width: totalWidth
     });
+    cuffOuterPath.remove();
 
     let cuffOuter: paper.PathItem = cuffOuterPath;
 
-    const safeAreaPadding = 0.5;
     const safeAreaLength = wristCircumference;
     const safeArea = new scope.Path.Rectangle(
       new scope.Point(this.bottomPadding, safeBorderWidth),
@@ -137,11 +137,13 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
       const oldCuffOuter = cuffOuter;
 
       cuffOuter = cuffOuter.unite(innerDesign.outline);
-      cuffOuter.remove();
+      
+      // cuffOuter.remove();
       // cheap hack to fill in inner holes for some reason
       // cuffOuter = cuffOuter.unite(safeArea);
 
       oldCuffOuter.remove();
+      innerDesign.outline.remove();
     }
 
     if (debug) {
@@ -198,7 +200,7 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
       }),
       new RangeMetaParameter({
         title: 'Safe Border (in)',
-        min: -0.5,
+        min: -2.5,
         max: 0.75,
         value: 0.25,
         step: 0.01,

@@ -5,15 +5,17 @@ import ExtendPaperJs from 'paperjs-offset';
 import {
   MetaParameter,
   RangeMetaParameter,
-  OnOffMetaParameter
 } from '../../meta-parameter';
 import { PaperModelMaker } from '../../model-maker';
+
+import concaveman from 'concaveman';
 
 export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   rng: () => number;
   simplex: SimplexNoise;
   needSubtraction: boolean = true;
   allowOutline: boolean = false;
+  smoothOutline: boolean = true;
   requiresSafeConeClamp: boolean = true;
   forceContainmentDefault: boolean = true;
   needSeed: boolean = true;
@@ -110,10 +112,6 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
     let shouldMakeOutline =
       params.boundaryModel.bounds.height > params.outerModel.bounds.height;
-    console.log(
-      params.boundaryModel.bounds.height,
-      params.outerModel.bounds.height
-    );
 
     if (this.needSubtraction && (!this.allowOutline || !shouldMakeOutline)) {
       console.log('clamping sub');
@@ -127,9 +125,9 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       if (this.requiresSafeConeClamp) {
         console.log('clamping cone');
 
-        // const handles = params.outerModel.subtract(params.safeCone, {
-        //   insert: false
-        // });
+        const handles = params.outerModel.subtract(params.safeCone, {
+          insert: false
+        });
         // paths = paths.map(m => {
         //   if (m.intersects(handles)) {
         //     return null;
@@ -140,8 +138,12 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         // paths = paths.filter((p) => !!p);
 
         paths = paths.map(m => {
-          return m.intersect(params.boundaryModel)
-        })
+          if (m.intersects(params.outerModel)) {
+            // return null;
+          }
+          return m.intersect(params.boundaryModel);
+        });
+        paths = paths.filter(p => !!p);
       }
 
       console.log('making outline');
@@ -162,11 +164,15 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         // outline = outline.intersect(params.safeCone);
       } else {
         // @ts-ignore
-        outline = paper.Path.prototype.offset.call(
-          compoundPath,
-          params.outlineSize,
-          { cap: 'miter' }
-        );
+        outline = params.outerModel;
+        paths.map((p) => {
+          const exploded = paper.Path.prototype.offset.call(
+            p,
+            params.outlineSize,
+            { cap: 'miter' });
+           outline = outline.unite(exploded);
+           exploded.remove();
+        })
       }
 
       if (params.debug) {
@@ -176,8 +182,9 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         outline.remove();
       }
 
-      outline.smooth({ type: 'geometric', factor: 0.2 });
-      console.log(outline);
+      if (this.smoothOutline) {
+        outline.smooth({ type: 'geometric', factor: 0.2 });
+      }
     }
 
     return {

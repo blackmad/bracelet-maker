@@ -8,15 +8,30 @@ import ExtendPaperJs from 'paperjs-offset';
 
 export class InnerDesignVoronoi extends FastAbstractInnerDesign {
   needSubtraction = false;
+  // allowOutline = true;
+
   makeDesign(paper: paper.PaperScope, params) {
     ExtendPaperJs(paper);
 
     const seedPoints = [];
     const { numPoints = 100, minPathLength = 1 } = params;
     const boundaryModel: paper.PathItem = params.boundaryModel;
-    for (let i = 0; i < numPoints; i++) {
-      const testPoint = randomPointInPolygon(paper, boundaryModel, this.rng);
-      seedPoints.push([testPoint.x, testPoint.y]);
+    // for (let i = 0; i < numPoints; i++) {
+    //   const testPoint = randomPointInPolygon(paper, boundaryModel, this.rng);
+    //   seedPoints.push([testPoint.x, testPoint.y]);
+    // }
+
+    for (let i = 0; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        const seed = [
+          boundaryModel.bounds.x + 
+            Math.random()*boundaryModel.bounds.width,
+          boundaryModel.bounds.y + 
+          (j/10)*boundaryModel.bounds.height
+        ]
+        console.log(seed)
+        seedPoints.push(seed);
+      }
     }
 
     var delaunay = Delaunay.from(seedPoints);

@@ -25,15 +25,11 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
     // vert_list, face_list and color_list, which point to lists of
     //  vertices, faces (as indices into the vertex list), and color indices for each face.
 
-    let u_range = [0, outerModel.bounds.width]
-    let v_range = [0, outerModel.bounds.height]
+    let u_range = [0, boundaryModel.bounds.width]
+    let v_range = [0, boundaryModel.bounds.height]
     if (whole_tiles_only) {
       u_range = [boundaryModel.bounds.x, boundaryModel.bounds.x + boundaryModel.bounds.width]
       v_range = [boundaryModel.bounds.y, boundaryModel.bounds.y + boundaryModel.bounds.height]
-    }
-    if (!params.forceContainment) {
-      const bleedOff = outerModel.bounds.height*0.07;
-      v_range = [-bleedOff, outerModel.bounds.height + bleedOff]
     }
 
     const options = {

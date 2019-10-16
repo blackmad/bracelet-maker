@@ -188,7 +188,6 @@ export class MetaParameterBuilder {
     divToAppendTo: any
   ) {
     if (modelMaker.metaParameters) {
-      console.log(modelMaker.constructor.name);
       modelMaker.metaParameters.forEach(metaParameter => {
         const metaParam = clone(metaParameter);
         metaParam.name = modelMaker.constructor.name + '.' + metaParameter.name;
@@ -196,8 +195,6 @@ export class MetaParameterBuilder {
         if (metaParam.target) {
           divToAppendTo = $(metaParam.target)
         }
-        console.log('appending to ');
-        console.log(divToAppendTo);
 
         const el = this.buildMetaParameterWidget(metaParam);
         divToAppendTo.append(el);

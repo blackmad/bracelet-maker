@@ -15,6 +15,7 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
   allowOutline = true;
   requiresSafeConeClamp = true;
   needSubtraction = true;
+  smoothOutline = false;
 
   circleDoesntTouchLines(
     testCircle: paper.Path.Circle,
