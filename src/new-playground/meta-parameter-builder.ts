@@ -2,8 +2,8 @@ import {
   MetaParameter,
   MetaParameterType,
   RangeMetaParameter
-} from '../meta-parameter';
-import { PaperModelMaker } from '../model-maker';
+} from '@/bracelet-maker/meta-parameter';
+import { PaperModelMaker } from '@/bracelet-maker/model-maker';
 
 import * as $ from 'jquery';
 import 'rangeslider.js';
@@ -15,7 +15,7 @@ function clone(src) {
 export class MetaParameterBuilder {
   constructor(public params: any, public onParamChange: any) {}
 
-  makeMetaParameterSlider(metaParameter: RangeMetaParameter) {
+  public makeMetaParameterSlider(metaParameter: RangeMetaParameter) {
     const value =
       Number(this.params[metaParameter.name]) || metaParameter.value;
 
@@ -70,7 +70,7 @@ export class MetaParameterBuilder {
     return parentDiv;
   }
 
-  makeMetaParameterContainer(title) {
+  public makeMetaParameterContainer(title) {
     const sizingDiv = document.createElement('div');
     sizingDiv.className =
       'meta-parameter-container col-md-12 col-lg-6 small border-top border-bottom py-1';
@@ -88,7 +88,7 @@ export class MetaParameterBuilder {
     return { parentDiv: sizingDiv, containingDiv };
   }
 
-  makeMetaParameterSelect(metaParameter) {
+  public makeMetaParameterSelect(metaParameter) {
     const selectedValue =
       this.params[metaParameter.name] || metaParameter.value;
 
@@ -102,7 +102,7 @@ export class MetaParameterBuilder {
     const selectInput = document.createElement('select');
     selectInput.name = metaParameter.name + '-select';
 
-    metaParameter.options.forEach(optionValue => {
+    metaParameter.options.forEach((optionValue) => {
       const option = document.createElement('option');
       option.value = optionValue;
       option.text = optionValue;
@@ -127,8 +127,8 @@ export class MetaParameterBuilder {
     return parentDiv;
   }
 
-  makeMetaParameterOnOff(metaParameter) {
-    var selectedValue = this.params[metaParameter.name] == 'true';
+  public makeMetaParameterOnOff(metaParameter) {
+    let selectedValue = this.params[metaParameter.name] == 'true';
     if (this.params[metaParameter.name] == null) {
       selectedValue = metaParameter.value;
     }
@@ -146,7 +146,7 @@ export class MetaParameterBuilder {
     // const switchDiv = $(`<div><input type="checkbox"></input></div>`);
     containingDiv.append(switchDiv[0]);
 
-    (<HTMLInputElement>$(switchDiv).find('input')[0]).checked = selectedValue;
+    ($(switchDiv).find('input')[0] as HTMLInputElement).checked = selectedValue;
 
     this.params[metaParameter.name] = selectedValue;
     const id = metaParameter.name;
@@ -162,7 +162,7 @@ export class MetaParameterBuilder {
       .on(
         'change',
         function(event) {
-          const selectedValue = (<HTMLInputElement>event.target).checked;
+          const selectedValue = (event.target as HTMLInputElement).checked;
           this.onParamChange({ metaParameter, value: selectedValue });
         }.bind(this)
       );
@@ -170,7 +170,7 @@ export class MetaParameterBuilder {
     return parentDiv;
   }
 
-  buildMetaParameterWidget(metaParam: MetaParameter) {
+  public buildMetaParameterWidget(metaParam: MetaParameter) {
     switch (metaParam.type) {
       case MetaParameterType.Range:
         return this.makeMetaParameterSlider(metaParam as RangeMetaParameter);
@@ -179,21 +179,21 @@ export class MetaParameterBuilder {
       case MetaParameterType.OnOff:
         return this.makeMetaParameterOnOff(metaParam);
       default:
-        throw 'unknown metaParam - not slider or select';
+        throw new Error('unknown metaParam - not slider or select');
     }
   }
 
-  buildMetaParametersForModel(
+  public buildMetaParametersForModel(
     modelMaker: PaperModelMaker,
     divToAppendTo: any
   ) {
     if (modelMaker.metaParameters) {
-      modelMaker.metaParameters.forEach(metaParameter => {
+      modelMaker.metaParameters.forEach((metaParameter) => {
         const metaParam = clone(metaParameter);
         metaParam.name = modelMaker.constructor.name + '.' + metaParameter.name;
 
         if (metaParam.target) {
-          divToAppendTo = $(metaParam.target)
+          divToAppendTo = $(metaParam.target);
         }
 
         const el = this.buildMetaParameterWidget(metaParam);

@@ -58,6 +58,7 @@ export class DavidsPlayground {
     downloadPDF() {
         const widthInches = paper.project.activeLayer.bounds.width;
         const heightInches = paper.project.activeLayer.bounds.height;
+        // @ts-ignore
         import('../external/pdfkit.standalone.js').then((PDFDocument) => {
             const doc = new PDFDocument.default({
                 compress: false,

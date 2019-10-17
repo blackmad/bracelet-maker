@@ -3,14 +3,14 @@ import * as paper from 'paper';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
 
-import { OuterPaperModelMaker } from '../model-maker';
+import { OuterPaperModelMaker } from '@/bracelet-maker/model-maker';
 import { MetaParameterBuilder } from './meta-parameter-builder';
 
-import { makeSVGData } from '../utils/paperjs-export-utils';
+import { makeSVGData } from '@/bracelet-maker/utils/paperjs-export-utils';
 import * as SVGtoPDF from 'svg-to-pdfkit';
 import blobStream from 'blob-stream';
 
-import { MetaParameter, MetaParameterType } from '../meta-parameter';
+import { MetaParameter, MetaParameterType } from '../bracelet-maker/meta-parameter';
 
 function parseParamsString(paramsString: string): Map<string, string> {
   const params = new Map<string, string>();
@@ -91,7 +91,7 @@ export class DavidsPlayground {
     const widthInches = paper.project.activeLayer.bounds.width;
     const heightInches = paper.project.activeLayer.bounds.height;
 
-    import('../external/pdfkit.standalone.js').then((PDFDocument) => {
+    import('../bracelet-maker/external/pdfkit.standalone.js').then((PDFDocument) => {
       const doc = new PDFDocument.default({
         compress: false,
         size: [widthInches * 72, heightInches * 72]

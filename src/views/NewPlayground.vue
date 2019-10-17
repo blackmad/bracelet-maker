@@ -54,7 +54,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import { AllInnerDesigns } from "@/bracelet-maker/designs/inner/all";
 import { AllOuterDesigns } from "@/bracelet-maker/designs/outer/all";
 import { OuterPaperModelMaker } from "../bracelet-maker/model-maker";
-import { DavidsPlayground } from "../bracelet-maker/new-playground/new-playground";
+import { DavidsPlayground } from "@/new-playground/new-playground";
 import * as $ from "jquery";
 
 @Component({})
