@@ -26,7 +26,6 @@ export default class SetOuterDesign extends Vue {
   designs = AllOuterDesigns;
 
   onDesignSelected(designName) {
-    console.log(designName);
     this.$router.push({
       name: "SetInnerDesign",
       params: { outerDesign: designName }

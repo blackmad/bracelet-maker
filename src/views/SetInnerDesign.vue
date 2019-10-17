@@ -26,12 +26,7 @@ export default class SetInnerDesign extends Vue {
   designs = AllInnerDesigns;
   @Prop(String) outerDesign: string;
 
-  mounted() {
-    console.log(this.outerDesign);
-  }
-
   onDesignSelected(designName) {
-    console.log(designName);
     this.$router.push({
       name: "NewPlayground",
       params: { outerDesign: this.outerDesign, innerDesign: designName }

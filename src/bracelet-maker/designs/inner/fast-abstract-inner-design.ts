@@ -13,6 +13,7 @@ import concaveman from 'concaveman';
 
 export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   public rng: () => number;
+  // @ts-ignore
   public simplex: SimplexNoise;
   public needSubtraction: boolean = true;
   public allowOutline: boolean = false;
@@ -116,16 +117,15 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       params.boundaryModel.bounds.height > params.outerModel.bounds.height;
 
     if (this.needSubtraction && (!this.allowOutline || !shouldMakeOutline)) {
-      console.log('clamping sub');
+      // console.log('clamping sub');
       paths = paths.map((m) => m.intersect(params.boundaryModel));
     }
     ExtendPaperJs(paper);
 
-    console.log(shouldMakeOutline);
     let outline = null;
     if (this.allowOutline && shouldMakeOutline) {
       if (this.requiresSafeConeClamp) {
-        console.log('clamping cone');
+        // console.log('clamping cone');
 
         const handles = params.outerModel.subtract(params.safeCone, {
           insert: false
@@ -148,7 +148,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         paths = paths.filter((p) => !!p);
       }
 
-      console.log('making outline');
+      // console.log('making outline');
       paths = paths.filter(
         (m) =>
           params.outerModel.contains(m.bounds) ||
@@ -161,7 +161,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       });
 
       if (design.outlinePaths) {
-        console.log('using outlinePaths');
+        // console.log('using outlinePaths');
         outline = new paper.CompoundPath(design.outlinePaths);
         // outline = outline.intersect(params.safeCone);
       } else {
@@ -170,7 +170,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         // TODO: this is wrong
         const hasCurves = !_.some(paths, (p) => _.some(p.curves, (c) => !!c.handle1));
 
-        console.log('hasCurves', hasCurves);
+        // console.log('hasCurves', hasCurves);
         if (!hasCurves) {
           const allPoints = [];
           paths.forEach((path: paper.Path) => {
