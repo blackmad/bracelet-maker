@@ -120,3 +120,15 @@ input[type="number"] {
   padding-left: 15px;
   padding-bottom: 10px;
 }
+
+a.downloadButton {
+  /* text-decoration: underline !important; */
+  cursor: pointer !important;
+  color: #007bff !important;
+}
+a.downloadButton:hover{
+  text-decoration: none !important;
+} 
+.downloadSVG {
+  padding-right: 10px;
+}

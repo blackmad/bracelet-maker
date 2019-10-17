@@ -81,13 +81,15 @@ export class DavidsPlayground {
             doc.end();
         });
     }
-    downloadSVG() {
+    downloadSVG(e) {
         const data = makeSVGData(paper, true, (svg) => $(svg)[0]);
         const mimeType = 'image/svg+xml';
         const encoded = encodeURIComponent(data);
         const uriPrefix = 'data:' + mimeType + ',';
         const dataUri = uriPrefix + encoded;
         this.sendFileToUser(dataUri, 'svg');
+        e.preventDefault();
+        return false;
     }
     sendFileToUser(dataUri, extension) {
         const downloadLink = document.createElement('a');

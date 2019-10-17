@@ -13,8 +13,8 @@
 
       <div class id="topArea">
         <div id="downloadContainer" class="text-center">
-          <a href="#" class="downloadSVG">Download SVG</a>
-          <a href="#" class="downloadPDF">Download PDF</a>
+          <a class="downloadButton downloadSVG">Download SVG</a>
+          <a class="downloadButton downloadPDF">Download PDF</a>
         </div>
       </div>
     </div>
