@@ -2,6 +2,7 @@ import { makeConicSection } from './conic-section';
 import { RangeMetaParameter } from '../../meta-parameter';
 import { PaperModelMaker, OuterPaperModelMaker } from '../../model-maker';
 import { makeEvenlySpacedBolts } from '../design-utils';
+import { CompoundPath, Path } from 'paper';
 
 export class ConicCuffOuter implements OuterPaperModelMaker {
   public controlInfo = `Measure your wrist with a sewing measuring tape. I suggest measuring pretty tight, this pattern adds some length.<br/>
@@ -9,7 +10,7 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
 
   constructor(public subModel: any) {}
 
-  public addRivetHoles(paper: paper.PaperScope, height, cuffModel, cuffModelInner) {
+  public addRivetHoles(paper: paper.PaperScope, height, cuffModel, cuffModelInner): paper.Path[] {
     /***** START RIVET HOLES *****/
     const boltGuideLine1P1 = new paper.Point(
       cuffModel.shortRadius * Math.cos(cuffModelInner.widthOffset.radians / 2),
@@ -70,13 +71,24 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
     /***** END RIVET HOLES *****/
   }
 
+  public rotateConicSectionToZeroZero(paper, model, degrees) {
+    const toTranslateX = model.bounds.x;
+    const toTranslateY = model.bounds.y;
+    model.translate(new paper.Point(-toTranslateX, -toTranslateY));
+    model.rotate(90 - degrees / 2);
+    const toTranslateX2 = model.bounds.x;
+    const toTranslateY2 = model.bounds.y;
+    model.translate(new paper.Point(-toTranslateX2, -toTranslateY2));
+  }
+
   public make(paper: paper.PaperScope, options) {
-    let {
+    const {
       height,
       wristCircumference,
-      forearmCircumference,
       safeBorderWidth
     } = options.ConicCuffOuter;
+
+    let { forearmCircumference } = options.ConicCuffOuter;
 
     if (wristCircumference > forearmCircumference) {
       throw new Error(`wristCircumference ${wristCircumference} must be less than forearmCircumference ${forearmCircumference}`);
@@ -95,8 +107,7 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
       height,
       filletRadius: 0.2
     });
-    const toTranslateX = cuffModel.model.bounds.x;
-    const toTranslateY = cuffModel.model.bounds.y;
+    const originalCuffModel = cuffModel;
 
     const cuffModelInner = makeConicSection({
       paper,
@@ -106,9 +117,6 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
       widthOffset: 1.1,
       heightOffset: safeBorderWidth
     });
-    // cuffModelInner.model.strokeWidth = 0.01;
-    // cuffModelInner.model.strokeColor = new paper.Color('green');
-    cuffModelInner.model.remove();
 
     const rivetHoles = this.addRivetHoles(
       paper,
@@ -116,25 +124,11 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
       cuffModel,
       cuffModelInner
     );
-    cuffModel.model.remove();
-    cuffModel.model = new paper.CompoundPath({
-      children: [cuffModel.model, ...rivetHoles]
+
+    const tmpCuffModel = new paper.CompoundPath({
+      children: [cuffModel.model, cuffModelInner.model, ...rivetHoles]
     });
-
-    cuffModel.model.translate(new paper.Point(-toTranslateX, -toTranslateY));
-    cuffModelInner.model.translate(
-      new paper.Point(-toTranslateX, -toTranslateY)
-    );
-
-    cuffModel.model.rotate(90 - cuffModel.alpha.degrees / 2);
-    cuffModelInner.model.rotate(90 - cuffModel.alpha.degrees / 2);
-
-    const toTranslateX2 = cuffModel.model.bounds.x;
-    const toTranslateY2 = cuffModel.model.bounds.y;
-    cuffModel.model.translate(new paper.Point(-toTranslateX2, -toTranslateY2));
-    cuffModelInner.model.translate(
-      new paper.Point(-toTranslateX2, -toTranslateY2 + safeBorderWidth)
-    );
+    this.rotateConicSectionToZeroZero(paper, tmpCuffModel, cuffModel.alpha.degrees);
 
     /***** START DESIGN *****/
     // Now make the design and clamp it to the inner/safe arc we built
@@ -196,7 +190,7 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
     /***** END DESIGN *****/
 
     const path = new paper.CompoundPath({
-      children: [cuffModel.model, ...innerDesign.paths],
+      children: [cuffModel.model, ...innerDesign.paths, ...rivetHoles],
       strokeColor: 'red',
       strokeWidth: '0.005',
       fillColor: 'lightgrey',
