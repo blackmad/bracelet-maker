@@ -235,7 +235,8 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
         max: 0.75,
         value: 0.25,
         step: 0.01,
-        name: 'safeBorderWidth'
+        name: 'safeBorderWidth',
+        target: '.design-params-row'
       })
     ];
   }
