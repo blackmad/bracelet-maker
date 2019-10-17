@@ -1,17 +1,42 @@
 {
-    "lib": [ "es2017", "dom", "es2017.object" ],
-    "compilerOptions": {
-      "module": "esNext",
-        "baseUrl": ".",
-        "paths": { "*": ["types/*"] },
-        "experimentalDecorators": true,
-        "outDir": "./built",
-        "allowJs": true,
-        "target": "es6",
-        "sourceMap": true,
-        "allowSyntheticDefaultImports": true
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "strict": false,
+    "jsx": "preserve",
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "types": [
+      "webpack-env",
+      "mocha",
+      "chai"
+    ],
+    "paths": {
+      "@/*": [
+        "src/*"
+      ]
     },
-    "include": [
-        "./src/**/*"
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable",
+      "scripthost"
     ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "strictNullChecks": false
 }

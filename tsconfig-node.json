@@ -1,0 +1,17 @@
+{
+    "lib": [ "es2017", "dom", "es2017.object" ],
+    "compilerOptions": {
+      "module": "esNext",
+        "baseUrl": ".",
+        "paths": { "*": ["types/*"] },
+        "experimentalDecorators": true,
+        "outDir": "./built",
+        "allowJs": true,
+        "target": "es6",
+        "sourceMap": true,
+        "allowSyntheticDefaultImports": true
+    },
+    "include": [
+        "./src/bracelet-maker/**/*"
+    ]
+}

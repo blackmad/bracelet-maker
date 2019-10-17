@@ -16,7 +16,7 @@ SegfaultHandler.registerHandler("crash.log"); // With no argument, SegfaultHandl
 
 paper.setup();
 
-const outputDir = 'static/demo-output/'
+const outputDir = 'public/demo-output/'
 
 function elHydrator(svg) {
   const el = new JSDOM('<div>' + svg + '</div>');
@@ -46,7 +46,7 @@ async function generateDesigns(header, designs) {
     ), elHydrator);
     const svgPath = outputDir + innerDesign.name + '.svg';
     fs.writeFileSync(svgPath, svg);
-  
+
     const outputPath = outputDir + innerDesign.name + '.png';
     child_process.execSync(`svg2png -w 300 -o ${outputPath} ${svgPath}`);
     fs.writeSync(readmeFd, `## ${innerDesign.name}\n`);
@@ -54,7 +54,7 @@ async function generateDesigns(header, designs) {
   });
 }
 
-async function generateAll() { 
+async function generateAll() {
   await generateDesigns('Outer Designs', AllOuterDesigns);
   await generateDesigns('Inner Designs', AllInnerDesigns);
 }
