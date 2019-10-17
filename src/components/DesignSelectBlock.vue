@@ -1,5 +1,5 @@
 <template>
-  <div class="design-container col-sm-12 col-md-4">
+  <div class="design-container col-sm-12 col-md-4" @click="onClick()">
     <div class="panel panel-default border m-1 p-1">
       <div class="panel-body text-center">
         <img :src="imgSrc"/>

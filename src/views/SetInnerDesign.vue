@@ -1,10 +1,12 @@
 <template>
-  <div class="container p-xs-3 p-sm-3 p-md-4 p-lg-5 ">
-    <div v-for="design in designs" :key="design.name">
+  <div class="container p-xs-3 p-sm-3 p-md-4 p-lg-5">
+    <div class="row">
       <DesignSelectBlock
         :designName="design.name"
         :designClassName="design.name"
         v-on:design-selected="onDesignSelected"
+        v-for="design in designs"
+        :key="design.name"
       />
     </div>
   </div>

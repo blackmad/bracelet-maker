@@ -20,16 +20,6 @@
     </div>
 
     <div class="container p-xs-3 p-sm-3 p-md-4 p-lg-5">
-      <div class="m-3 control-selectors outer-design-container">
-        <h1>Choose a shape</h1>
-        <div class="row justify-content-center outer-design-row"></div>
-      </div>
-
-      <div class="m-3 algoPattern hideAfterDesignSelected inner-design-container">
-        <h1>Choose a design</h1>
-        <div class="row justify-content-center inner-design-row"></div>
-      </div>
-
       <div class="playArea container">
         <div class="m-3">
           <h1 class="title">Sizing</h1>
