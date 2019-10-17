@@ -4,12 +4,12 @@ import { PaperModelMaker, OuterPaperModelMaker } from '../../model-maker';
 import { makeEvenlySpacedBolts } from '../design-utils';
 
 export class ConicCuffOuter implements OuterPaperModelMaker {
-  controlInfo = `Measure your wrist with a sewing measuring tape. I suggest measuring pretty tight, this pattern adds some length.<br/>
-  Cis male wrists average around 7 inches, cis female wrists closer to 6.5 inches."`
+  public controlInfo = `Measure your wrist with a sewing measuring tape. I suggest measuring pretty tight, this pattern adds some length.<br/>
+  Cis male wrists average around 7 inches, cis female wrists closer to 6.5 inches."`;
 
   constructor(public subModel: any) {}
 
-  addRivetHoles(paper: paper.PaperScope, height, cuffModel, cuffModelInner) {
+  public addRivetHoles(paper: paper.PaperScope, height, cuffModel, cuffModelInner) {
     /***** START RIVET HOLES *****/
     const boltGuideLine1P1 = new paper.Point(
       cuffModel.shortRadius * Math.cos(cuffModelInner.widthOffset.radians / 2),
@@ -70,16 +70,16 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
     /***** END RIVET HOLES *****/
   }
 
-  make(paper: paper.PaperScope, options) {
-    var {
+  public make(paper: paper.PaperScope, options) {
+    let {
       height,
       wristCircumference,
       forearmCircumference,
       safeBorderWidth
-    } = options['ConicCuffOuter'];
+    } = options.ConicCuffOuter;
 
     if (wristCircumference > forearmCircumference) {
-      throw `wristCircumference ${wristCircumference} must be less than forearmCircumference ${forearmCircumference}`;
+      throw new Error(`wristCircumference ${wristCircumference} must be less than forearmCircumference ${forearmCircumference}`);
     }
 
     if (forearmCircumference - wristCircumference < 0.05) {
@@ -88,24 +88,26 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
 
     const debug = false;
 
-    var cuffModel = makeConicSection({
+    const cuffModel = makeConicSection({
       paper,
       topCircumference: wristCircumference + 1.0,
       bottomCircumference: forearmCircumference + 1.0,
-      height: height,
+      height,
       filletRadius: 0.2
     });
     const toTranslateX = cuffModel.model.bounds.x;
     const toTranslateY = cuffModel.model.bounds.y;
 
-    var cuffModelInner = makeConicSection({
+    const cuffModelInner = makeConicSection({
       paper,
       topCircumference: wristCircumference + 1.0,
       bottomCircumference: forearmCircumference + 1.0,
-      height: height,
+      height,
       widthOffset: 1.1,
       heightOffset: safeBorderWidth
     });
+    // cuffModelInner.model.strokeWidth = 0.01;
+    // cuffModelInner.model.strokeColor = new paper.Color('green');
     cuffModelInner.model.remove();
 
     const rivetHoles = this.addRivetHoles(

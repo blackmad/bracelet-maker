@@ -2,7 +2,7 @@
   <div class="container p-xs-3 p-sm-3 p-md-4 p-lg-5">
     <div class="row">
       <DesignSelectBlock
-        :designName="design.name"
+        :designName="design.name.replace('InnerDesign', '')"
         :designClassName="design.name"
         v-on:design-selected="onDesignSelected"
         v-for="design in designs"

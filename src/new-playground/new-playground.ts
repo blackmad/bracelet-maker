@@ -23,18 +23,13 @@ function parseParamsString(paramsString: string): Map<string, string> {
 
 export class DavidsPlayground {
   private params: Map<string, any>;
-  private svgEl: SVGElement;
-  private scope: any;
 
   constructor(
     public modelMaker: OuterPaperModelMaker,
+    initialParams: any,
     public queryParamUpdateCb: (params) => any
   ) {
-    this.params = new Map();
-
-    if (window.location.search.length > 1) {
-      this.params = parseParamsString(window.location.search.substring(1));
-    }
+    this.params = {...initialParams};
 
     $('.meta-parameter-container').remove();
 

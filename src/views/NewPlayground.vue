@@ -62,6 +62,7 @@ export default class NewPlaygroundView extends Vue {
   designs = AllInnerDesigns;
   @Prop(String) outerDesign: string;
   @Prop(String) innerDesign: string;
+  isFirstQueryReplace = true;
 
   mounted() {
     const innerDesignClass = AllInnerDesigns.find(
@@ -74,7 +75,15 @@ export default class NewPlaygroundView extends Vue {
     const innerDesign = new innerDesignClass();
     const modelMaker: OuterPaperModelMaker = new outerDesignClass(innerDesign);
     $(".clear-on-reinit").empty();
-    new DavidsPlayground(modelMaker, (params) => this.$router.replace({query: params})).rerender();
+    new DavidsPlayground(modelMaker,
+      this.$route.query,
+        params => {
+        if (!this.isFirstQueryReplace || !this.$route.query ) {
+          this.$router.replace({ query: params })
+        }
+        this.isFirstQueryReplace = false;
+      }
+    ).rerender();
   }
 }
 </script>
