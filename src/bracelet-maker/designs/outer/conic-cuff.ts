@@ -1,8 +1,7 @@
 import { makeConicSection } from './conic-section';
 import { RangeMetaParameter } from '../../meta-parameter';
-import { PaperModelMaker, OuterPaperModelMaker } from '../../model-maker';
+import { OuterPaperModelMaker } from '../../model-maker';
 import { makeEvenlySpacedBolts } from '../design-utils';
-import { CompoundPath, Path } from 'paper';
 
 export class ConicCuffOuter implements OuterPaperModelMaker {
   public controlInfo = `Measure your wrist with a sewing measuring tape. I suggest measuring pretty tight, this pattern adds some length.<br/>
@@ -40,19 +39,6 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
           cuffModel.alpha.radians - cuffModelInner.widthOffset.radians / 2
         )
     );
-
-    /***** throw in some debugging *****/
-    // if (debug) {
-    //     completeCuffModel.paths = completeCuffModel.paths || {};
-    //     completeCuffModel.paths["leftBoltLine"] = new makerjs.paths.Line(
-    //         boltGuideLine1P1,
-    //         boltGuideLine1P2
-    //     );
-    //     completeCuffModel.paths["rightBoltLine"] = new makerjs.paths.Line(
-    //         boltGuideLine2P1,
-    //         boltGuideLine2P2
-    //     );
-    // }
 
     const numBolts = Math.round(height);
     const leftBolts = makeEvenlySpacedBolts(
@@ -107,7 +93,6 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
       height,
       filletRadius: 0.2
     });
-    const originalCuffModel = cuffModel;
 
     const cuffModelInner = makeConicSection({
       paper,
@@ -174,18 +159,22 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
     innerOptions.outerModel = cuffModel.model;
 
     const innerDesign = this.subModel.make(paper, innerOptions);
+    if (innerDesign.outline) {
+      const oldCuffOuter = cuffModel.model;
 
-    // if (innerDesign.models && innerDesign.models.outline) {
-    //   models.completeCuffModel.models.cuffModel = makerjs.model.combineUnion(
-    //     innerDesign.models.outline,
-    //     models.completeCuffModel.models.cuffModel
-    //   );
-    //   models.completeCuffModel.layer = 'outer'
-    //   innerDesign.models.outline = undefined;
-    //   models.completeCuffModel.models.completeCuffModel = undefined;
-    //   models.completeCuffModel.models.cuff = undefined;
-    //   // models.completeCuffModel.models.cuffModel = undefined
-    // }
+      cuffModel.model = cuffModel.model.unite(innerDesign.outline);
+
+      // cuffOuter.remove();
+      // cheap hack to fill in inner holes for some reason
+      // cuffOuter = cuffOuter.unite(safeArea);
+
+      oldCuffOuter.remove();
+      if (!debug) {
+        innerDesign.outline.remove();
+      }
+    }
+
+    cuffModelInner.model.remove();
 
     /***** END DESIGN *****/
 

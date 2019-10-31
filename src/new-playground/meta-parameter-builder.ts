@@ -187,6 +187,7 @@ export class MetaParameterBuilder {
     modelMaker: PaperModelMaker,
     divToAppendTo: any
   ) {
+    const originalDivToAppendTo = divToAppendTo;
     if (modelMaker.metaParameters) {
       modelMaker.metaParameters.forEach((metaParameter) => {
         const metaParam = clone(metaParameter);
@@ -194,6 +195,8 @@ export class MetaParameterBuilder {
 
         if (metaParam.target) {
           divToAppendTo = $(metaParam.target);
+        } else {
+          divToAppendTo = originalDivToAppendTo;
         }
 
         const el = this.buildMetaParameterWidget(metaParam);

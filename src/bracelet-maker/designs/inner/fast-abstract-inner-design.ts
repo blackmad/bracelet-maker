@@ -59,16 +59,36 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       //     value: true
       //   })
       // );
-      // metaParams.push(
-      //   new RangeMetaParameter({
-      //     title: 'Boundary Dilation (forceContainment false only)',
-      //     min: 0.05,
-      //     max: 2.5,
-      //     value: 0.22,
-      //     step: 0.01,
-      //     name: 'boundaryDilation'
-      //   })
-      // );
+      metaParams.push(
+        new RangeMetaParameter({
+          title: 'Outline Concavity',
+          min: 0.1,
+          max: 3,
+          value: 1.5,
+          step: 0.01,
+          name: 'concavity'
+        })
+      );
+      metaParams.push(
+        new RangeMetaParameter({
+          title: 'Outline Length Threshold',
+          min: 0.01,
+          max: 3,
+          value: 0.2,
+          step: 0.01,
+          name: 'lengthThreshold'
+        })
+      );
+      metaParams.push(
+        new RangeMetaParameter({
+          title: 'Outline Size (inches)',
+          min: 0.01,
+          max: 3,
+          value: 0.1,
+          step: 0.01,
+          name: 'outlineSize'
+        })
+      );
       // metaParams.push(
       //   new OnOffMetaParameter({
       //     title: 'Smooth Outline',
@@ -84,7 +104,6 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   public make(paper: any, params: any): any {
     const self = this;
 
-    params.outlineSize = 0.1;
     params.debug = false;
 
     if (params.seed) {
@@ -123,6 +142,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     ExtendPaperJs(paper);
 
     let outline = null;
+    console.log(this.allowOutline, shouldMakeOutline);
     if (this.allowOutline && shouldMakeOutline) {
       if (this.requiresSafeConeClamp) {
         // console.log('clamping cone');
@@ -155,13 +175,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           m.intersects(params.outerModel)
       );
 
-      const compoundPath = new paper.CompoundPath({
-        strokeColor: 'pink',
-        children: paths
-      });
-
       if (design.outlinePaths) {
-        // console.log('using outlinePaths');
         outline = new paper.CompoundPath(design.outlinePaths);
         // outline = outline.intersect(params.safeCone);
       } else {
@@ -171,6 +185,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         const hasCurves = !_.some(paths, (p) => _.some(p.curves, (c) => !!c.handle1));
 
         // console.log('hasCurves', hasCurves);
+        // params.debug = true;
         if (!hasCurves) {
           const allPoints = [];
           paths.forEach((path: paper.Path) => {
@@ -182,7 +197,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
               allPoints.push([point.x, point.y]);
             }
           });
-          const concaveHull = concaveman(allPoints, 1.5, 0.2);
+          const concaveHull = concaveman(allPoints, params.concavity, params.lengthThreshold);
           outline = new paper.Path(concaveHull.map((p) => new paper.Point(p[0], p[1])));
           // outline.simplify(0.0001);
           if (params.debug) {
@@ -194,8 +209,16 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
             outline,
             params.outlineSize,
             { cap: 'miter' });
+
+          if (params.debug) {
+            outline.strokeColor = 'pink';
+            outline.strokeWidth = 0.05;
+            outline.fillColor = 'blue';
+          }
+          outline.closePath();
+          console.log(outline);
           //  outline = outline.children[0];
-          //  outline.closePath();
+
         } else {
           paths.map((p) => {
             const exploded = paper.Path.prototype.offset.call(

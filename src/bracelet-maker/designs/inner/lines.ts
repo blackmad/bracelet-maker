@@ -66,7 +66,7 @@ export class InnerDesignLines extends AbstractExpandInnerDesign {
           const np =  new paper.Point(
             startOfCellX + (colOffset - (point.x - colOffset*col)),
             point.y);
-          console.log(point.x, point.y, np.x, np.y);
+          // console.log(point.x, point.y, np.x, np.y);
           return np;
         };
 
@@ -74,8 +74,8 @@ export class InnerDesignLines extends AbstractExpandInnerDesign {
           const np = new paper.Point(
             point.x,
             startOfCellY + (rowOffset - (point.y - rowOffset*row)));
-            console.log(point.x, point.y, np.x, np.y)
-                      return np;
+            // console.log(point.x, point.y, np.x, np.y)
+            //           return np;
         };
 
         const offsetPoint = (point) => {

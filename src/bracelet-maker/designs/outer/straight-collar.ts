@@ -34,16 +34,18 @@ export class StraightCollarOuter implements OuterPaperModelMaker {
         max: 0.25,
         value: 0.1,
         step: 0.01,
-        name: 'safeBorderWidth'
+        name: 'safeBorderWidth',
+        target: '.design-params-row'
+
       })
     ];
   }
 
-  controlInfo = "Measure your neck with a sewing tape measure.<br/>If you don't have one handy, 13.5 inches is usually a good size for a cis woman, and 15 inches for a cis man. Don't worry, this pattern generates extra length.<br/>Note that a straight collar taller than about 2 inches will not be very comfortable."
+  public controlInfo = 'Measure your neck with a sewing tape measure.<br/>If you don\'t have one handy, 13.5 inches is usually a good size for a cis woman, and 15 inches for a cis man. Don\'t worry, this pattern generates extra length.<br/>Note that a straight collar taller than about 2 inches will not be very comfortable.'
   constructor(public subModel: any) {}
 
-  make(paper: paper.PaperScope, options): paper.PathItem[] {
-    var { height, neckSize, safeBorderWidth, debug = false } = options[
+  public make(paper: paper.PaperScope, options): paper.PathItem[] {
+    let { height, neckSize, safeBorderWidth, debug = false } = options[
       this.constructor.name
     ];
 
@@ -180,6 +182,18 @@ export class StraightCollarOuter implements OuterPaperModelMaker {
     let allHoles = [];
     _.forEach(models, (v, k) => allHoles.push(v));
     allHoles = _.flatten(allHoles);
+
+    if (innerDesign.outline) {
+      const oldCuffOuter = outerModel;
+
+      outerModel = outerModel.unite(innerDesign.outline);
+
+      oldCuffOuter.remove();
+      if (!debug) {
+        innerDesign.outline.remove();
+      }
+    }
+
 
     const path = new paper.CompoundPath({
       children: [outerModel, ...allHoles, ...innerDesign.paths],
