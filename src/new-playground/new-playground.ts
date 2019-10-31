@@ -10,7 +10,10 @@ import { makeSVGData } from '@/bracelet-maker/utils/paperjs-export-utils';
 import * as SVGtoPDF from 'svg-to-pdfkit';
 import blobStream from 'blob-stream';
 
-import { MetaParameter, MetaParameterType } from '../bracelet-maker/meta-parameter';
+import {
+  MetaParameter,
+  MetaParameterType
+} from '../bracelet-maker/meta-parameter';
 
 function parseParamsString(paramsString: string): Map<string, string> {
   const params = new Map<string, string>();
@@ -29,19 +32,21 @@ export class DavidsPlayground {
     initialParams: any,
     public queryParamUpdateCb: (params) => any
   ) {
-    this.params = {...initialParams};
+    this.params = { ...initialParams };
 
     $('.meta-parameter-container').remove();
 
     new MetaParameterBuilder(
-      this.params, _.bind(this.onParamChange, this)
+      this.params,
+      _.bind(this.onParamChange, this)
     ).buildMetaParametersForModel(
       this.modelMaker,
       document.getElementById('outerParameterDiv')
     );
 
     new MetaParameterBuilder(
-      this.params, _.bind(this.onParamChange, this)
+      this.params,
+      _.bind(this.onParamChange, this)
     ).buildMetaParametersForModel(
       this.modelMaker.subModel,
       document.getElementById('innerParameterDiv')
@@ -86,35 +91,34 @@ export class DavidsPlayground {
     const widthInches = paper.project.activeLayer.bounds.width;
     const heightInches = paper.project.activeLayer.bounds.height;
 
-    import('../bracelet-maker/external/pdfkit.standalone.js').then((PDFDocument) => {
-      const doc = new PDFDocument.default({
-        compress: false,
-        size: [widthInches * 72, heightInches * 72]
-      });
-      SVGtoPDF(doc, makeSVGData(paper, true, (svg) => $(svg)[0]), 0, 0);
-
-      function blobToDataURL(blob, callback) {
-        const a = new FileReader();
-
-        a.onload = function(e) {
-          // @ts-ignore
-          callback(e.target.result);
-        };
-        a.readAsDataURL(blob);
-      }
-
-      const stream = doc.pipe(blobStream());
-      const self = this;
-      stream.on('finish', function() {
-        const blob = stream.toBlob('application/pdf');
-        blobToDataURL(blob, (s) => self.sendFileToUser(s, 'pdf'));
-      });
-      doc.end();
+    // @ts-ignore
+    const doc = new PDFDocument({
+      compress: false,
+      size: [widthInches * 72, heightInches * 72]
     });
+    SVGtoPDF(doc, makeSVGData(paper, true, svg => $(svg)[0]), 0, 0);
+
+    function blobToDataURL(blob, callback) {
+      const a = new FileReader();
+
+      a.onload = function(e) {
+        // @ts-ignore
+        callback(e.target.result);
+      };
+      a.readAsDataURL(blob);
+    }
+
+    const stream = doc.pipe(blobStream());
+    const self = this;
+    stream.on('finish', function() {
+      const blob = stream.toBlob('application/pdf');
+      blobToDataURL(blob, s => self.sendFileToUser(s, 'pdf'));
+    });
+    doc.end();
   }
 
   public downloadSVG() {
-    const data = makeSVGData(paper, true, (svg) => $(svg)[0]);
+    const data = makeSVGData(paper, true, svg => $(svg)[0]);
     const mimeType = 'image/svg+xml';
     const encoded = encodeURIComponent(data);
     const uriPrefix = 'data:' + mimeType + ',';
@@ -141,7 +145,10 @@ export class DavidsPlayground {
     // @ts-ignore
     let filename = this.modelMaker.name;
     if (this.modelMaker.subModel) {
-      filename = this.modelMaker.constructor.name  + '-' + this.modelMaker.subModel.constructor.name;
+      filename =
+        this.modelMaker.constructor.name +
+        '-' +
+        this.modelMaker.subModel.constructor.name;
     }
     const modelName = this.modelMaker.constructor.name;
     filename += `-${this.params[modelName + '.height']}x${
@@ -204,7 +211,7 @@ export class DavidsPlayground {
 
     // @ts-ignore
     this.modelMaker.make(paper, modelParams);
-    $('#svgArea')[0].innerHTML = makeSVGData(paper, false, (svg) => $(svg)[0]);
+    $('#svgArea')[0].innerHTML = makeSVGData(paper, false, svg => $(svg)[0]);
 
     $('body').removeClass('loading');
   }
