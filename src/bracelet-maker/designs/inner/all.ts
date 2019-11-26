@@ -14,6 +14,7 @@ import { InnerDesignEmpty } from './empty';
 import { InnerDesignSunflower } from './sunflower';
 import { InnerDesignTessagon } from './tessagon';
 import { InnerDesignPerlinDots } from './perlin-dots';
+import {InnerDesignDelaunayShapes} from './InnerDesignDelaunayShapes'
 
 
 
@@ -33,6 +34,7 @@ import { InnerDesignPerlinDots } from './perlin-dots';
     InnerDesignEmpty,
     InnerDesignSunflower,
     InnerDesignTessagon,
-    InnerDesignPerlinDots
+    InnerDesignPerlinDots,
+    InnerDesignDelaunayShapes
     // InnerDesignHingedTesselation
   ];

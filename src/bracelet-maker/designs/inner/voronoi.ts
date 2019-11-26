@@ -95,7 +95,6 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
         step: 0.01,
         name: 'smoothingFactor'
       }),
-
       new OnOffMetaParameter({
         title: 'Voronoi',
         value: true,
