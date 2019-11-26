@@ -183,9 +183,9 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
       // cuffOuter = cuffOuter.unite(safeArea);
 
       oldCuffOuter.remove();
-      // if (!debug) {
+      if (!debug) {
         innerDesign.outline.remove();
-      // }
+      }
     }
 
     if (debug) {

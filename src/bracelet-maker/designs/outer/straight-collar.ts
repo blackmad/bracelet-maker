@@ -169,15 +169,6 @@ export class StraightCollarOuter implements OuterPaperModelMaker {
     innerOptions.outerModel = outerModel;
 
     const innerDesign = this.subModel.make(paper, innerOptions);
-    // if (models && models.design && models.design.models.outline) {
-    //   console.log("outline!!");
-    //   console.log("outline:", models.design.models.outline);
-    //   models.outerModel = makerjs.model.combineUnion(
-    //     models.outerModel,
-    //     models.design.models.outline
-    //   );
-    //   // delete models.design.models.outline
-    // }
 
     let allHoles = [];
     _.forEach(models, (v, k) => allHoles.push(v));

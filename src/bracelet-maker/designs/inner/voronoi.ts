@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import { Delaunay, Voronoi } from 'd3-delaunay';
 
-import { RangeMetaParameter, MetaParameter, OnOffMetaParameter } from '../../meta-parameter';
+import { RangeMetaParameter, MetaParameter, OnOffMetaParameter, SelectMetaParameter } from '../../meta-parameter';
 import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
 import { randomPointInPolygon, bufferShape } from '../../utils/paperjs-utils';
 import ExtendPaperJs from 'paperjs-offset';
@@ -14,7 +14,11 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
     ExtendPaperJs(paper);
 
     const seedPoints = [];
-    const { numPoints = 100 } = params;
+    const { 
+      numPoints = 100, 
+      smoothingType = 'None',
+      smoothingFactor = 0.5 
+    } = params;
     const boundaryModel: paper.PathItem = params.boundaryModel;
     for (let i = 0; i < numPoints; i++) {
       const testPoint = randomPointInPolygon(paper, boundaryModel, this.rng);
@@ -43,6 +47,11 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
         polys.push(bufferedShape);
       }
     }
+
+    if (smoothingType != 'None') {
+      polys.forEach(p => p.smooth({ type: smoothingType.toLowerCase(), factor: smoothingFactor }))
+    }
+
     return polys;
   }
 
@@ -72,6 +81,21 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
         step: 0.01,
         name: 'borderSize'
       }),
+      new SelectMetaParameter({
+        title: 'Smoothing Type',
+        value: 'None',
+        options: ['None', 'Catmull-Rom', 'Geometric'],
+        name: 'smoothingType'
+      }),
+      new RangeMetaParameter({
+        title: 'Smoothing Factor',
+        min: 0.01,
+        max: 1.0,
+        value: 0.5,
+        step: 0.01,
+        name: 'smoothingFactor'
+      }),
+
       new OnOffMetaParameter({
         title: 'Voronoi',
         value: true,
