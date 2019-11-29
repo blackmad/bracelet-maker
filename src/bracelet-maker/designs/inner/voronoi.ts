@@ -3,14 +3,14 @@ import { Delaunay, Voronoi } from 'd3-delaunay';
 
 import { RangeMetaParameter, MetaParameter, OnOffMetaParameter, SelectMetaParameter } from '../../meta-parameter';
 import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
-import { randomPointInPolygon, bufferShape } from '../../utils/paperjs-utils';
+import { randomPointInPolygon, bufferShape, bufferShapeToPoints, roundCorners, approxShape } from '../../utils/paperjs-utils';
 import ExtendPaperJs from 'paperjs-offset';
 
 export class InnerDesignVoronoi extends FastAbstractInnerDesign {
   needSubtraction = false;
   allowOutline = true;
 
-  makeRandomPoints({ paper, boundaryModel, rows, cols, numTotalPoints }) {
+  makeRandomPoints({ paper, boundaryModel, rows, cols, numTotalPoints, mirror }) {
     const numPoints = numTotalPoints / (rows * cols);
 
     const colOffset = boundaryModel.bounds.width / cols;
@@ -22,14 +22,21 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
 
     for (let i = 0; i < numPoints; i++) {
       const testPoint = randomPointInPolygon(paper, partialRect, this.rng);
-      console.log('tp:', testPoint);
 
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
-          seedPoints.push([
-            testPoint.x + colOffset * c,
-            testPoint.y + rowOffset * r
-          ]);
+          let x = testPoint.x + colOffset * c;
+          let y = testPoint.y + rowOffset * r;
+
+          if (mirror && (c % 2 == 1)) {
+            x = (colOffset - testPoint.x) + colOffset * c;
+          }
+
+          if (mirror && (r % 2 == 1)) {
+            y = (rowOffset - testPoint.y) + rowOffset * r;
+          }
+
+          seedPoints.push([x, y]);
         }
       }
     }
@@ -40,11 +47,13 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
   makeDesign(paper: paper.PaperScope, params) {
     ExtendPaperJs(paper);
 
-    const { numPoints = 100, rows = 1, cols =1
-    smoothingType = 'None',
-      smoothingFactor = 0.5
-
+    const { numPoints = 100, rows = 1, cols = 1,
+      smoothingType = 'None',
+      smoothingFactor = 0.5,
+      mirror = false
     } = params;
+
+
     const boundaryModel: paper.PathItem = params.boundaryModel;
 
     const seedPoints = this.makeRandomPoints({
@@ -52,7 +61,8 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       boundaryModel,
       rows,
       cols,
-      numTotalPoints: numPoints
+      numTotalPoints: numPoints,
+      mirror
     })
 
     var delaunay = Delaunay.from(seedPoints);
@@ -74,12 +84,18 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       points.pop();
       const bufferedShape = bufferShape(paper, -params.borderSize, points)
       if (bufferedShape) {
-        polys.push(bufferedShape);
+        if (smoothingType != 'None') {
+          if (smoothingType == 'Homegrown') {
+            polys.push(roundCorners({ paper, path: bufferedShape, radius: smoothingFactor }))
+          } else {
+            bufferedShape.smooth({ type: smoothingType.toLowerCase(), factor: smoothingFactor })
+            polys.push(bufferedShape);
+          }
+        } else {
+          bufferedShape.strokeJoin = 'round';
+          polys.push(bufferedShape);
+        }
       }
-    }
-
-    if (smoothingType != 'None') {
-      polys.forEach(p => p.smooth({ type: smoothingType.toLowerCase(), factor: smoothingFactor }))
     }
 
     return polys;
@@ -111,23 +127,20 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
         step: 0.01,
         name: 'borderSize'
       }),
-<<<<<<< HEAD
       new SelectMetaParameter({
         title: 'Smoothing Type',
         value: 'None',
-        options: ['None', 'Catmull-Rom', 'Geometric'],
+        options: ['None', 'Homegrown', 'Catmull-Rom', 'Geometric'],
         name: 'smoothingType'
       }),
       new RangeMetaParameter({
         title: 'Smoothing Factor',
-        min: 0.01,
-        max: 1.0,
-        value: 0.5,
-        step: 0.01,
+        min: 0.001,
+        max: 0.2,
+        value: 0.01,
+        step: 0.001,
         name: 'smoothingFactor'
       }),
-
-=======
       new RangeMetaParameter({
         title: 'Rows',
         min: 1,
@@ -144,7 +157,11 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
         step: 1,
         name: 'cols'
       }),
->>>>>>> 28590c35750ea80741e66cdbc0b6785975bb7f5d
+      new OnOffMetaParameter({
+        title: 'Mirror',
+        value: true,
+        name: 'mirror'
+      }),
       new OnOffMetaParameter({
         title: 'Voronoi',
         value: true,

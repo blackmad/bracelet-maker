@@ -1,3 +1,5 @@
+import { PaperScope } from 'paper';
+
 const Shape = require('@doodle3d/clipper-js');
 
 export function randomPointInPolygon(
@@ -11,7 +13,7 @@ export function randomPointInPolygon(
   } else if (polygon instanceof paper.Path.Rectangle) {
     bounds = polygon.bounds;
   } else {
-    throw 'unknown type of polygon ' + typeof(polygon);
+    throw 'unknown type of polygon ' + typeof (polygon);
   }
 
   let found = false;
@@ -28,11 +30,11 @@ export function randomPointInPolygon(
   }
 }
 
-export function bufferShape(
+export function bufferShapeToPoints(
   paper: paper.PaperScope,
   buffer: number,
   points: paper.Point[]
-): paper.PathItem {
+): paper.Point[] {
   const scaleFactor = 100;
   const scaledPoints = points.map((p) => {
     return { X: p.x * scaleFactor + 0.0001, Y: p.y * scaleFactor + 0.0001 };
@@ -50,11 +52,19 @@ export function bufferShape(
     return null;
   }
 
-  const roundedPolygon = new paper.Path(
-    roundedShape.paths[0].map((p) => {
-      return new paper.Point(p.X / 100, p.Y / 100);
-    })
-  );
+  return roundedShape.paths[0].map((p) => {
+    return new paper.Point(p.X / 100, p.Y / 100);
+  })
+}
+
+export function bufferShape(
+  paper: paper.PaperScope,
+  buffer: number,
+  points: paper.Point[]
+): paper.PathItem {
+  const newPoints = bufferShapeToPoints(paper, buffer, points);
+
+  const roundedPolygon = new paper.Path(newPoints);
   roundedPolygon.closePath();
 
   return roundedPolygon;
@@ -107,7 +117,7 @@ export function randomLineOnRectangle(
 }
 
 export class SimpleCircle {
-  constructor(public x: number, public y: number, public radius: number) {}
+  constructor(public x: number, public y: number, public radius: number) { }
 }
 
 export function checkCircleCircleIntersection(
@@ -123,3 +133,85 @@ export function checkCircleCircleIntersection(
 
   return distanceSquared < sumOfRadii * sumOfRadii;
 }
+
+export function roundCorners({ paper, path, radius }) {
+  var segments = path.segments.slice(0);
+  path.removeSegments();
+
+  for (var i = 0, l = segments.length; i < l; i++) {
+    var curPoint = segments[i].point;
+    var nextPoint = segments[i + 1 == l ? 0 : i + 1].point;
+    var prevPoint = segments[i - 1 < 0 ? segments.length - 1 : i - 1].point;
+    var nextDelta = curPoint.subtract(nextPoint);
+    var prevDelta = curPoint.subtract(prevPoint);
+
+    nextDelta.length = radius;
+    prevDelta.length = radius;
+
+    path.add(
+      new paper.Segment(curPoint.subtract(prevDelta), null, prevDelta.divide(2))
+    );
+
+    path.add(
+      new paper.Segment(curPoint.subtract(nextDelta), nextDelta.divide(2), null)
+    );
+  }
+  path.closed = true;
+  return path;
+}
+
+export function approxShape(
+  paper,
+  shape,
+  numPointsToGet = 200
+) {
+  // console.log('in appro: ', shape);
+  let points = [];
+  let shapeToUse = shape;
+
+  if (shape instanceof paper.CompoundPath) {
+    shapeToUse = shape.children[0];
+  }
+
+  // console.log(actualPath)
+  for (let i = 0; i < numPointsToGet; i++) {
+    points.push(
+      shapeToUse.getPointAt((i / numPointsToGet) * shapeToUse.length)
+    );
+  }
+
+  return points.map(point => shapeToUse.localToGlobal(point));
+}
+
+
+// var BORDER_RADIUS = 20;
+
+// function roundedPath( /* x1, y1, x2, y2, ..., xN, yN */ ){
+//     context.beginPath();
+//     if (!arguments.length) return;
+
+//     //compute the middle of the first line as start-stop-point:
+//     var deltaY = (arguments[3] - arguments[1]);
+//     var deltaX = (arguments[2] - arguments[0]);
+//     var xPerY = deltaY / deltaX;
+//     var startX = arguments[0] + deltaX / 2;
+//     var startY = arguments[1] + xPerY * deltaX / 2;
+
+//     //walk around using arcTo:
+//     context.moveTo(startX, startY);
+//     var x1, y1, x2, y2;
+//     x2 = arguments[2];
+//     y2 = arguments[3];
+//     for (var i = 4; i < arguments.length; i += 2) {
+//         x1 = x2;
+//         y1 = y2;
+//         x2 = arguments[i];
+//         y2 = arguments[i + 1];
+//         context.arcTo(x1, y1, x2, y2, BORDER_RADIUS);
+//     }
+
+//     //finally, close the path:
+//     context.arcTo(x2, y2, arguments[0], arguments[1], BORDER_RADIUS);
+//     context.arcTo(arguments[0], arguments[1], startX, startY, BORDER_RADIUS);
+//     context.closePath();
+// }
