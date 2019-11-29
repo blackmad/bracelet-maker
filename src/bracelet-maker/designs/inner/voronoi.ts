@@ -10,20 +10,52 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
   needSubtraction = false;
   allowOutline = true;
 
+  makeRandomPoints({ paper, boundaryModel, rows, cols, numTotalPoints }) {
+    const numPoints = numTotalPoints / (rows * cols);
+
+    const colOffset = boundaryModel.bounds.width / cols;
+    const rowOffset = boundaryModel.bounds.height / rows;
+
+    const partialRect = new paper.Rectangle(boundaryModel.bounds.topLeft, new paper.Size(colOffset, rowOffset));
+
+    const seedPoints = [];
+
+    console.log(partialRect);
+
+    for (let i = 0; i < numPoints; i++) {
+      const testPoint = randomPointInPolygon(paper, partialRect, this.rng);
+      console.log('tp:', testPoint);
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          seedPoints.push([
+            testPoint.x + colOffset * c,
+            testPoint.y + rowOffset * r
+          ]);
+        }
+      }
+    }
+
+    return seedPoints;
+  }
+
   makeDesign(paper: paper.PaperScope, params) {
     ExtendPaperJs(paper);
 
-    const seedPoints = [];
-    const { numPoints = 100 } = params;
+    const { numPoints = 100, rows = 1, cols =1 } = params;
     const boundaryModel: paper.PathItem = params.boundaryModel;
-    for (let i = 0; i < numPoints; i++) {
-      const testPoint = randomPointInPolygon(paper, boundaryModel, this.rng);
-      seedPoints.push([testPoint.x, testPoint.y]);
-    }
+
+    const seedPoints = this.makeRandomPoints({
+      paper,
+      boundaryModel,
+      rows,
+      cols,
+      numTotalPoints: numPoints
+    })
 
     var delaunay = Delaunay.from(seedPoints);
     let cellPolygonIterator = delaunay.trianglePolygons();
-    
+
     if (params.voronoi) {
       var voronoi = delaunay.voronoi([
         boundaryModel.bounds.x,
@@ -71,6 +103,22 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
         value: 0.1,
         step: 0.01,
         name: 'borderSize'
+      }),
+      new RangeMetaParameter({
+        title: 'Rows',
+        min: 1,
+        max: 20,
+        value: 1,
+        step: 1,
+        name: 'rows'
+      }),
+      new RangeMetaParameter({
+        title: 'Cols',
+        min: 1,
+        max: 20,
+        value: 1,
+        step: 1,
+        name: 'cols'
       }),
       new OnOffMetaParameter({
         title: 'Voronoi',

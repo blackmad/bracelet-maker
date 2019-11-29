@@ -5,14 +5,23 @@ export function randomPointInPolygon(
   polygon: paper.PathItem,
   rng: () => number
 ): paper.Point {
+  let bounds = null;
+  if (polygon instanceof paper.Rectangle) {
+    bounds = polygon;
+  } else if (polygon instanceof paper.Path.Rectangle) {
+    bounds = polygon.bounds;
+  } else {
+    throw 'unknown type of polygon ' + typeof(polygon);
+  }
+
   let found = false;
   while (!found) {
     const testPoint = new paper.Point(
-      polygon.bounds.x + rng() * polygon.bounds.width,
-      polygon.bounds.y + rng() * polygon.bounds.height
+      bounds.x + rng() * bounds.width,
+      bounds.y + rng() * bounds.height
     );
 
-    if (polygon.contains(testPoint)) {
+    if (bounds.contains(testPoint)) {
       found = true;
       return testPoint;
     }
