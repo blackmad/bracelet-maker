@@ -7,7 +7,7 @@ import { randomPointInPolygon, bufferShape, bufferShapeToPoints, roundCorners, a
 import ExtendPaperJs from 'paperjs-offset';
 
 export class InnerDesignVoronoi extends FastAbstractInnerDesign {
-  needSubtraction = false;
+  needSubtraction = true;
   allowOutline = true;
 
   makeRandomPoints({ paper, boundaryModel, rows, cols, numTotalPoints, mirror }) {
@@ -23,8 +23,8 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
     for (let i = 0; i < numPoints; i++) {
       const testPoint = randomPointInPolygon(paper, partialRect, this.rng);
 
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
+      for (let r = 0; r < rows + 1; r++) {
+        for (let c = 0; c < cols + 1; c++) {
           let x = testPoint.x + colOffset * c;
           let y = testPoint.y + rowOffset * r;
 
