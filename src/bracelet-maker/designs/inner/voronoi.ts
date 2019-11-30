@@ -11,7 +11,7 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
   allowOutline = true;
 
   makeRandomPoints({ paper, boundaryModel, rows, cols, numTotalPoints, mirror }) {
-    const numPoints = numTotalPoints / (rows * cols);
+    const numPoints = numTotalPoints // (rows * cols);
 
     const colOffset = boundaryModel.bounds.width / cols;
     const rowOffset = boundaryModel.bounds.height / rows;
@@ -23,8 +23,8 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
     for (let i = 0; i < numPoints; i++) {
       const testPoint = randomPointInPolygon(paper, partialRect, this.rng);
 
-      for (let r = 0; r < rows + 1; r++) {
-        for (let c = 0; c < cols + 1; c++) {
+      for (let r = -2; r < rows + 2; r++) {
+        for (let c = -2; c < cols + 2; c++) {
           let x = testPoint.x + colOffset * c;
           let y = testPoint.y + rowOffset * r;
 
