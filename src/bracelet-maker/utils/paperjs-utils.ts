@@ -1,4 +1,5 @@
 import { PaperScope } from 'paper';
+import roundPathCorners from './rounding.js';
 
 const Shape = require('@doodle3d/clipper-js');
 
@@ -134,30 +135,70 @@ export function checkCircleCircleIntersection(
   return distanceSquared < sumOfRadii * sumOfRadii;
 }
 
+// export function roundCorners({ paper, path, radius }) {
+//   var segments = path.segments.slice(0);
+//   path.removeSegments();
+
+//   for (var i = 0, l = segments.length; i < l; i++) {
+//     var curPoint = segments[i].point;
+//     var nextPoint = segments[i + 1 == l ? 0 : i + 1].point;
+//     var prevPoint = segments[i - 1 < 0 ? segments.length - 1 : i - 1].point;
+//     var nextDelta = curPoint.subtract(nextPoint);
+//     var prevDelta = curPoint.subtract(prevPoint);
+
+//     nextDelta.length = radius;
+//     prevDelta.length = radius;
+
+//     path.add(
+//       new paper.Segment(curPoint.subtract(prevDelta), null, prevDelta.divide(2))
+//     );
+
+//     path.add(
+//       new paper.Segment(curPoint.subtract(nextDelta), nextDelta.divide(2), null)
+//     );
+//   }
+//   path.closed = true;
+//   return path;
+// }
+
 export function roundCorners({ paper, path, radius }) {
-  var segments = path.segments.slice(0);
-  path.removeSegments();
+  path.closePath();
+  const svg = path.exportSVG();
+  console.log(svg);
 
-  for (var i = 0, l = segments.length; i < l; i++) {
-    var curPoint = segments[i].point;
-    var nextPoint = segments[i + 1 == l ? 0 : i + 1].point;
-    var prevPoint = segments[i - 1 < 0 ? segments.length - 1 : i - 1].point;
-    var nextDelta = curPoint.subtract(nextPoint);
-    var prevDelta = curPoint.subtract(prevPoint);
+  let pathString = svg.getAttribute('d')
+  // pathString = 'M0 0 L 1 0 L1 1 L 0 1 Z'
+  pathString = pathString.replace(/,/g, ' ');
+  pathString = pathString.replace(/m/g, 'M');
+  pathString = pathString.replace(/l/g, ' L');
+  pathString = pathString.replace(/h/g, ' H ');
+  // // pathString = pathString.replace(/z/g, ' L 4.83 0.93');
+  pathString = pathString.replace(/z/g, ' Z');
 
-    nextDelta.length = radius;
-    prevDelta.length = radius;
+  console.log(pathString);
 
-    path.add(
-      new paper.Segment(curPoint.subtract(prevDelta), null, prevDelta.divide(2))
-    );
+  let newPathString = roundPathCorners(pathString, 0.00, true)
+  // let newPathString = pathString;
+  console.log(newPathString);
 
-    path.add(
-      new paper.Segment(curPoint.subtract(nextDelta), nextDelta.divide(2), null)
-    );
-  }
-  path.closed = true;
-  return path;
+
+  newPathString = newPathString.replace(/ C /g, 'c');
+  newPathString = newPathString.replace(/M /g, 'm');
+  newPathString = newPathString.replace(/ L /g, 'l');
+  newPathString = newPathString.replace(/L /g, 'l');
+  newPathString = newPathString.replace(/ Z +/g, 'z');
+  newPathString = newPathString.replace(/ /g, ',');
+  newPathString = newPathString.replace(/,$/, '');
+
+
+  console.log(newPathString);
+  svg.setAttribute('d', newPathString);
+  console.log(svg);
+
+  const path2 = new paper.Path()
+  const pathToReturn = path2.importSVG(svg, {onError: (e) => console.log(e)});
+  console.log(pathToReturn);
+  return pathToReturn;
 }
 
 export function approxShape(
