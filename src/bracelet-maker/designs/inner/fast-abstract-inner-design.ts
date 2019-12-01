@@ -142,7 +142,6 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     ExtendPaperJs(paper);
 
     let outline = null;
-    console.log(this.allowOutline, shouldMakeOutline);
     if (this.allowOutline && shouldMakeOutline) {
       if (this.requiresSafeConeClamp) {
         // console.log('clamping cone');
@@ -216,7 +215,6 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
             outline.fillColor = 'blue';
           }
           outline.closePath();
-          console.log(outline);
           //  outline = outline.children[0];
 
         } else {
@@ -241,6 +239,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       if (this.smoothOutline) {
         // outline.smooth({ type: 'geometric', factor: 0.5 });
       }
+
+      // outline.simplify({tolerance: 0.01});
     }
 
     return {

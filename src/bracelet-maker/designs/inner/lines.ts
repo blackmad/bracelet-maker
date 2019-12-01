@@ -98,9 +98,7 @@ export class InnerDesignLines extends AbstractExpandInnerDesign {
         ));
       }
     }
-    console.log(initialLines);
-    console.log(lines);
-
+    
     return lines;
   }
 

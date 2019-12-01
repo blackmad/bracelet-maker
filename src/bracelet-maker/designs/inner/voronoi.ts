@@ -23,8 +23,22 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
     for (let i = 0; i < numPoints; i++) {
       const testPoint = randomPointInPolygon(paper, partialRect, this.rng);
 
-      for (let r = -2; r < rows + 2; r++) {
-        for (let c = -2; c < cols + 2; c++) {
+      let startR = 0
+      let endR = rows
+      let startC = 0
+      let endC = cols
+      if (rows > 1) {
+        startR = -2;
+        endR = rows + 2;
+      }
+
+      if (cols > 1) {
+      startC = -2;
+      endC = cols + 2;
+    }
+
+      for (let r = startR; r < endR; r++) {
+        for (let c = startC; c < endC; c++) {
           let x = testPoint.x + colOffset * c;
           let y = testPoint.y + rowOffset * r;
 
@@ -88,8 +102,12 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
           if (smoothingType == 'Homegrown') {
             polys.push(roundCorners({ paper, path: bufferedShape, radius: smoothingFactor }))
           } else {
-            bufferedShape.smooth({ type: smoothingType.toLowerCase(), factor: smoothingFactor })
-            polys.push(bufferedShape);
+            try {
+              bufferedShape.smooth({ type: smoothingType.toLowerCase(), from: -1, to: 0 })
+              polys.push(bufferedShape);
+            } catch(e) {
+              console.log(e); 
+            }
           }
         } else {
           bufferedShape.strokeJoin = 'round';
@@ -129,16 +147,16 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       }),
       new SelectMetaParameter({
         title: 'Smoothing Type',
-        value: 'None',
-        options: ['None', 'Homegrown', 'Catmull-Rom', 'Geometric'],
+        value: 'Homegrown',
+        options: ['None', 'Homegrown', 'continuous', 'Catmull-Rom', 'Geometric'],
         name: 'smoothingType'
       }),
       new RangeMetaParameter({
         title: 'Smoothing Factor',
-        min: 0.001,
-        max: 0.2,
-        value: 0.01,
-        step: 0.001,
+        min: 0.01,
+        max: 1.0,
+        value: 0.8,
+        step: 0.01,
         name: 'smoothingFactor'
       }),
       new RangeMetaParameter({
