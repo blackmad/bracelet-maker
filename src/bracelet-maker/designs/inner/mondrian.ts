@@ -13,9 +13,10 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
   xyBias: number;
   minCellSize: number;
   borderSize: number;
+  paper: paper.PaperScope;
 
   needSubtraction = false;
-  paper: paper.PaperScope;
+  canRound = true;
 
   allowOutline = true;
 

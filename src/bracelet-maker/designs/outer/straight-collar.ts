@@ -99,14 +99,13 @@ export class StraightCollarOuter implements OuterPaperModelMaker {
     curPos += distanceBetweenBolts;
     models.secondBolts = makeTwoHolesAtCurPos();
     curPos += slotPadding + slotHeight;
-    models.slot = new paper.Path.Rectangle(
-      // @ts-ignore
-      new paper.Rectangle(
-        new paper.Point(curPos, height / 2 - slotHeight),
-        new paper.Point(curPos + slotLength, height / 2 + slotHeight)
-      ),
-      slotHeight
+
+    const slotRectangle = new paper.Rectangle(
+      new paper.Point(curPos, height / 2 - slotHeight),
+      new paper.Point(curPos + slotLength, height / 2 + slotHeight)
     );
+    // @ts-ignore
+    models.slot = new paper.Path.Rectangle(slotRectangle, slotHeight);
 
     curPos += slotLength + slotPadding;
     models.thirdBolts = makeTwoHolesAtCurPos();
@@ -177,6 +176,7 @@ export class StraightCollarOuter implements OuterPaperModelMaker {
     if (innerDesign.outline) {
       const oldCuffOuter = outerModel;
 
+      // @ts-ignore
       outerModel = outerModel.unite(innerDesign.outline);
 
       oldCuffOuter.remove();

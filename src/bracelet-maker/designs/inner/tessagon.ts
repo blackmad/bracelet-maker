@@ -13,6 +13,7 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
   allowOutline = true;
   needSubtraction = true;
   needSeed = false;
+  canRound = true;
 
   makeDesign(paper: paper.PaperScope, params) {
     const { outerModel, boundaryModel, tesselation, x_num, y_num, borderSize, x_cyclic, y_cyclic, rot_factor} = params;

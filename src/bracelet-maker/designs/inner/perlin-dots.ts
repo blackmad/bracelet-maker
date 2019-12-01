@@ -131,7 +131,7 @@ export class InnerDesignPerlinDots extends FastAbstractInnerDesign {
         min: 0.0,
         max: 0.2,
         step: 0.001,
-        value: 0.01,
+        value: 0.165,
         name: 'xNoiseCoefficient'
       }),
       new RangeMetaParameter({
@@ -139,7 +139,7 @@ export class InnerDesignPerlinDots extends FastAbstractInnerDesign {
         min: 0.0,
         max: 0.2,
         step: 0.001,
-        value: 0.01,
+        value: 0.124,
         name: 'yNoiseCoefficient'
       }),
       new RangeMetaParameter({

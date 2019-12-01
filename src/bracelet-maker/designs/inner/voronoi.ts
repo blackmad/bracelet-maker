@@ -9,6 +9,7 @@ import ExtendPaperJs from 'paperjs-offset';
 export class InnerDesignVoronoi extends FastAbstractInnerDesign {
   needSubtraction = true;
   allowOutline = true;
+  canRound = true;
 
   makeRandomPoints({ paper, boundaryModel, rows, cols, numTotalPoints, mirror }) {
     const numPoints = numTotalPoints // (rows * cols);
@@ -97,23 +98,7 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       const points = cellPolygon.map(p => new paper.Point(p[0], p[1]));
       points.pop();
       const bufferedShape = bufferShape(paper, -params.borderSize, points)
-      if (bufferedShape) {
-        if (smoothingType != 'None') {
-          if (smoothingType == 'Homegrown') {
-            polys.push(roundCorners({ paper, path: bufferedShape, radius: smoothingFactor }))
-          } else {
-            try {
-              bufferedShape.smooth({ type: smoothingType.toLowerCase(), from: -1, to: 0 })
-              polys.push(bufferedShape);
-            } catch(e) {
-              console.log(e); 
-            }
-          }
-        } else {
-          bufferedShape.strokeJoin = 'round';
-          polys.push(bufferedShape);
-        }
-      }
+      polys.push(bufferedShape);
     }
 
     return polys;
@@ -144,20 +129,6 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
         value: 0.1,
         step: 0.01,
         name: 'borderSize'
-      }),
-      new SelectMetaParameter({
-        title: 'Smoothing Type',
-        value: 'Homegrown',
-        options: ['None', 'Homegrown', 'continuous', 'Catmull-Rom', 'Geometric'],
-        name: 'smoothingType'
-      }),
-      new RangeMetaParameter({
-        title: 'Smoothing Factor',
-        min: 0.01,
-        max: 1.0,
-        value: 0.8,
-        step: 0.01,
-        name: 'smoothingFactor'
       }),
       new RangeMetaParameter({
         title: 'Rows',

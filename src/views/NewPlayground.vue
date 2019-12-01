@@ -42,7 +42,7 @@
         </div>
 
         <div class="row justify-content-center">
-          <button class="btn btn-primary m-1 changeDesign">Change Design</button>
+          <button class="btn btn-primary m-1 changeDesign" @click="changeDesign">Change Design</button>
         </div>
       </div>
     </div>
@@ -84,6 +84,10 @@ export default class NewPlaygroundView extends Vue {
         this.isFirstQueryReplace = false;
       }
     ).rerender();
+  }
+
+  changeDesign() {
+    this.$router.replace("/");
   }
 }
 </script>

@@ -6,10 +6,12 @@ import ExtendPaperJs from 'paperjs-offset';
 import {
   MetaParameter,
   RangeMetaParameter,
+  SelectMetaParameter,
 } from '../../meta-parameter';
 import { PaperModelMaker } from '../../model-maker';
 
 import concaveman from 'concaveman';
+import { roundCorners } from '../../utils/paperjs-utils';
 
 export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   public rng: () => number;
@@ -21,6 +23,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   public requiresSafeConeClamp: boolean = true;
   public forceContainmentDefault: boolean = true;
   public needSeed: boolean = true;
+  public canRound: boolean = false;
 
   public controlInfo = '';
 
@@ -50,6 +53,23 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     }
 
     metaParams = metaParams.concat(this.designMetaParameters);
+
+    if (this.canRound) {
+      metaParams.push(new SelectMetaParameter({
+        title: 'Smoothing Type',
+        value: 'Homegrown',
+        options: ['None', 'Homegrown', 'continuous', 'Catmull-Rom', 'Geometric'],
+        name: 'smoothingType'
+      }))
+      metaParams.push(new RangeMetaParameter({
+        title: 'Smoothing Factor',
+        min: 0.01,
+        max: 1.0,
+        value: 0.8,
+        step: 0.01,
+        name: 'smoothingFactor'
+      }))
+    }
 
     if (this.allowOutline) {
       // metaParams.push(
@@ -132,12 +152,29 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       paths.forEach((p) => p.remove());
     }
 
+    if (this.canRound) {
+      if (params.smoothingType != 'None') {
+        if (params.smoothingType == 'Homegrown') {
+          paths = paths.map((path) =>
+            roundCorners({ paper, path: path, radius: params.smoothingFactor }))
+        } else {
+          try {
+            paths.forEach(path => path.smooth({ type: params.smoothingType.toLowerCase(), from: -1, to: 0 }))
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      }
+    }
+
     const shouldMakeOutline =
       params.boundaryModel.bounds.height > params.outerModel.bounds.height;
 
     if (this.needSubtraction && (!this.allowOutline || !shouldMakeOutline)) {
       // console.log('clamping sub');
-      paths = paths.map((m) => m.intersect(params.boundaryModel));
+      paths = paths.map((m) => {
+        return m.intersect(params.boundaryModel)
+      });
     }
     ExtendPaperJs(paper);
 

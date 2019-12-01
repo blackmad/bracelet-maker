@@ -38,7 +38,7 @@ export class InnerDesignLines extends AbstractExpandInnerDesign {
     const { boundaryModel, outerModel, numLines } = params;
 
     const numRows = 1;
-    const numCols = 2;
+    const numCols = 1;
 
     const initialLines: paper.Point[][] = this.makeInitialPaths({
       paper,
@@ -54,8 +54,8 @@ export class InnerDesignLines extends AbstractExpandInnerDesign {
 
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
-        const startOfCellY = colOffset*col;
-        const startOfCellX = rowOffset*row;
+        const startOfCellY = colOffset * col;
+        const startOfCellX = rowOffset * row;
 
         const mirrorX = (point) => {
           // say cell size = 50
@@ -63,8 +63,8 @@ export class InnerDesignLines extends AbstractExpandInnerDesign {
           // we would want x to move to 140
           // x = 140, move to 110
           // get x within cell ()
-          const np =  new paper.Point(
-            startOfCellX + (colOffset - (point.x - colOffset*col)),
+          const np = new paper.Point(
+            startOfCellX + (colOffset - (point.x - colOffset * col)),
             point.y);
           // console.log(point.x, point.y, np.x, np.y);
           return np;
@@ -73,13 +73,13 @@ export class InnerDesignLines extends AbstractExpandInnerDesign {
         const mirrorY = (point) => {
           const np = new paper.Point(
             point.x,
-            startOfCellY + (rowOffset - (point.y - rowOffset*row)));
-            // console.log(point.x, point.y, np.x, np.y)
-            //           return np;
+            startOfCellY + (rowOffset - (point.y - rowOffset * row)));
+          // console.log(point.x, point.y, np.x, np.y)
+          return np;
         };
 
         const offsetPoint = (point) => {
-          return new paper.Point(point.x + colOffset*col, point.y + rowOffset*row);
+          return new paper.Point(point.x + colOffset * col, point.y + rowOffset * row);
         };
 
         const transformPoint = (point) => {
@@ -93,12 +93,14 @@ export class InnerDesignLines extends AbstractExpandInnerDesign {
           return offsetPoint(newPoint);
         };
 
-        initialLines.forEach((line) => lines.push(
-          line.map(transformPoint)
-        ));
+        initialLines.forEach((line) => {
+          lines.push(
+            line.map(transformPoint)
+          )
+        });
       }
     }
-    
+
     return lines;
   }
 

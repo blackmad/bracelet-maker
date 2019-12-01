@@ -1,5 +1,3 @@
-import { PaperScope, Path } from 'paper';
-
 const Shape = require('@doodle3d/clipper-js');
 
 export function randomPointInPolygon(
@@ -158,7 +156,7 @@ export function roundCorners({paper, path, radius}) {
   const fraction = 0.5 + 0.5*(1-radius);
   const fractionOffset = (1 - fraction)*0.95;
 
-  const newPath = new Path();
+  const newPath = new paper.Path();
   for (let i = 0; i < segments.length; i++) {
     // for (let i = 0; i < 1; i++) {
         const p1 = segments[i];
@@ -166,11 +164,11 @@ export function roundCorners({paper, path, radius}) {
         const p3 = segments[(i+2) % segments.length];
 
 
-        const line1 = new Path([p1, p2]);
+        const line1 = new paper.Path([p1, p2]);
         const c1 = line1.getPointAt(line1.length * fraction)
         var handleOut = line1.getPointAt(line1.length * (fraction + fractionOffset));
     
-        const line2 = new Path([p2, p3]);
+        const line2 = new paper.Path([p2, p3]);
         const c2 = line2.getPointAt(line2.length * (1 - fraction))
         var handleIn = line2.getPointAt(line2.length * (1 - (fraction + fractionOffset)));
     
