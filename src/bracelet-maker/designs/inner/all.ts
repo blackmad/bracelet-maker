@@ -13,6 +13,8 @@ import { InnerDesignExplode } from './explode';
 import { InnerDesignEmpty } from './empty';
 import { InnerDesignSunflower } from './sunflower';
 import { InnerDesignTessagon } from './tessagon';
+import { InnerDesignTactile } from './tactile';
+
 import { InnerDesignPerlinDots } from './perlin-dots';
 
 
@@ -33,6 +35,7 @@ import { InnerDesignPerlinDots } from './perlin-dots';
     InnerDesignEmpty,
     InnerDesignSunflower,
     InnerDesignTessagon,
-    InnerDesignPerlinDots
+    InnerDesignPerlinDots,
+    InnerDesignTactile
     // InnerDesignHingedTesselation
   ];

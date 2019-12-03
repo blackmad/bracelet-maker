@@ -143,7 +143,7 @@ export function roundCorners({paper, path, radius}) {
 
     if (p1.point.getDistance(p2.point) < 0.1) {
       segmentsToRemove.push(i);
-      console.log(`removing segment ${i} from ${p1.point} to ${p2.point}`)
+      // console.log(`removing segment ${i} from ${p1.point} to ${p2.point}`)
     }
   }
 
