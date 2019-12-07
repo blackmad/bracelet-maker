@@ -181,14 +181,11 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
 
     /***** END DESIGN *****/
 
-    const path = new paper.CompoundPath({
-      children: [cuffModel.model, ...innerDesign.paths, ...rivetHoles],
-      strokeColor: 'red',
-      strokeWidth: '0.005',
-      fillColor: 'lightgrey',
-      fillRule: 'evenodd'
-    });
-    return [path];
+    return {
+      outer: outerModel, 
+      holes: rivetHoles,
+      design: innerDesign.paths
+    }
   }
 
   get metaParameters() {

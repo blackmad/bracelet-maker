@@ -185,14 +185,10 @@ export class StraightCollarOuter implements OuterPaperModelMaker {
       }
     }
 
-
-    const path = new paper.CompoundPath({
-      children: [outerModel, ...allHoles, ...innerDesign.paths],
-      strokeColor: 'red',
-      strokeWidth: '0.005',
-      fillColor: 'lightgrey',
-      fillRule: 'evenodd'
-    });
-    return [path];
+    return {
+      outer: outerModel, 
+      holes: allHoles,
+      design: innerDesign.paths
+    }
   }
 }

@@ -83,10 +83,6 @@ export class DavidsPlayground {
     document.getElementById('errorMessage').innerHTML = errorMessage;
   }
 
-  public loadPDFLibs() {
-    // @ts-ignore - this works fine, wtf typescript?
-  }
-
   public downloadPDF() {
     const widthInches = paper.project.activeLayer.bounds.width;
     const heightInches = paper.project.activeLayer.bounds.height;
@@ -96,7 +92,23 @@ export class DavidsPlayground {
       compress: false,
       size: [widthInches * 72, heightInches * 72]
     });
-    SVGtoPDF(doc, makeSVGData(paper, true, svg => $(svg)[0]), 0, 0);
+    const wholeDesign = makeSVGData(paper, paper.project, true, svg => $(svg)[0]);
+    SVGtoPDF(doc, wholeDesign, 0, 0);
+
+    const tmpOuter = new paper.CompoundPath({
+      children: [this.currentModel.outer, ...this.currentModel.holes],
+      strokeColor: 'red',
+      strokeWidth: '0.005',
+      fillColor: 'lightgrey',
+      fillRule: 'evenodd'
+    });
+    tmpOuter.remove();
+    const outerDesignOnly = makeSVGData(paper, tmpOuter, true, svg => $(svg)[0]);
+    const $wholeDesign = $(wholeDesign);
+    $wholeDesign.empty();
+    $wholeDesign.append($(outerDesignOnly))
+    doc.addPage();
+    SVGtoPDF(doc, $wholeDesign[0].outerHTML, 0, 0);
 
     function blobToDataURL(blob, callback) {
       const a = new FileReader();
@@ -118,7 +130,7 @@ export class DavidsPlayground {
   }
 
   public downloadSVG() {
-    const data = makeSVGData(paper, true, svg => $(svg)[0]);
+    const data = makeSVGData(paper, paper.project, true, svg => $(svg)[0]);
     const mimeType = 'image/svg+xml';
     const encoded = encodeURIComponent(data);
     const uriPrefix = 'data:' + mimeType + ',';
@@ -209,9 +221,17 @@ export class DavidsPlayground {
       paper.project.activeLayer.removeChildren();
     }
 
-    // @ts-ignore
-    this.modelMaker.make(paper, modelParams);
-    $('#svgArea')[0].innerHTML = makeSVGData(paper, false, svg => $(svg)[0]);
+    this.currentModel = this.modelMaker.make(paper, modelParams);
+
+    new paper.CompoundPath({
+      children: [this.currentModel.outer, ...this.currentModel.holes, ...this.currentModel.design],
+      strokeColor: 'red',
+      strokeWidth: '0.005',
+      fillColor: 'lightgrey',
+      fillRule: 'evenodd'
+    });
+
+    $('#svgArea')[0].innerHTML = makeSVGData(paper, paper.project, false, svg => $(svg)[0]);
 
     $('body').removeClass('loading');
   }

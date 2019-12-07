@@ -25,6 +25,7 @@ function roundCorners(paper, path, radius) {
     );
   }
   path.closed = true;
+
   return path;
 }
 
@@ -193,17 +194,10 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
       }
     }
 
-    if (debug) {
-      return [innerDesign.paths];
-    } else {
-      const path = new paper.CompoundPath({
-        children: [cuffOuter, ...holes, ...innerDesign.paths],
-        strokeColor: 'red',
-        strokeWidth: '0.005',
-        fillColor: 'lightgrey',
-        fillRule: 'evenodd'
-      });
-      return [path];
+    return {
+      outer: cuffOuter, 
+      holes: holes,
+      design: innerDesign.paths
     }
 
     // innerDesign.layer = "inner"
