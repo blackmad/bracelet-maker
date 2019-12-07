@@ -36,6 +36,6 @@ import { InnerDesignPerlinDots } from './perlin-dots';
     InnerDesignSunflower,
     InnerDesignTessagon,
     InnerDesignPerlinDots,
-    InnerDesignTactile
+    // InnerDesignTactile
     // InnerDesignHingedTesselation
   ];
