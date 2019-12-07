@@ -85,10 +85,10 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
 
     if (params.voronoi) {
       var voronoi = delaunay.voronoi([
-        boundaryModel.bounds.x,
-        boundaryModel.bounds.y,
-        boundaryModel.bounds.x + boundaryModel.bounds.width,
-        boundaryModel.bounds.y + boundaryModel.bounds.height
+        boundaryModel.bounds.x - params.borderSize,
+        boundaryModel.bounds.y - params.borderSize,
+        boundaryModel.bounds.x + boundaryModel.bounds.width + params.borderSize,
+        boundaryModel.bounds.y + boundaryModel.bounds.height + params.borderSize
       ]);
       cellPolygonIterator = voronoi.cellPolygons();
     }
