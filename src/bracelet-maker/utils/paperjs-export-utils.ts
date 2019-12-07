@@ -1,5 +1,5 @@
-export function makeSVGData(paper: any, shouldClean: boolean, elHydrator: (string) => any) {
-  let svgData: string = (paper.project.exportSVG({
+export function makeSVGData(paper: any, toExport: any, shouldClean: boolean, elHydrator: (string) => any) {
+  let svgData: string = (toExport.exportSVG({
     asString: true,
     // @ts-ignore
     matrix: new paper.Matrix(),

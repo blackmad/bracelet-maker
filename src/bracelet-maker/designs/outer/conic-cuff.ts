@@ -40,7 +40,10 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
         )
     );
 
-    const numBolts = Math.round(height);
+    let numBolts = Math.round(height);
+    if (height > 1.5) {
+      numBolts = Math.max(2, numBolts);
+    }
     const leftBolts = makeEvenlySpacedBolts(
       paper,
       numBolts,

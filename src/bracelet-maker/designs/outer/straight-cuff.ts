@@ -92,9 +92,14 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
       height
     );
 
+    let numBolts = Math.round(height);
+    if (height > 1.5) {
+      numBolts = Math.max(2, numBolts);
+    }
+
     const holes1 = makeEvenlySpacedBolts(
       paper,
-      Math.floor(height),
+      numBolts,
       guideLineLeftP1,
       guideLineLeftP2
     );
@@ -110,7 +115,7 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
 
     const holes2 = makeEvenlySpacedBolts(
       paper,
-      Math.floor(height),
+      numBolts,
       guideLineRightP1,
       guideLineRightP2
     );
