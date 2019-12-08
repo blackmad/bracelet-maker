@@ -3,7 +3,7 @@ import * as paper from 'paper';
 import * as $ from 'jquery';
 import * as _ from 'lodash';
 
-import { OuterPaperModelMaker } from '@/bracelet-maker/model-maker';
+import { CompletedModel, OuterPaperModelMaker } from '@/bracelet-maker/model-maker';
 import { MetaParameterBuilder } from './meta-parameter-builder';
 
 import { makeSVGData } from '@/bracelet-maker/utils/paperjs-export-utils';
@@ -26,6 +26,7 @@ function parseParamsString(paramsString: string): Map<string, string> {
 
 export class DavidsPlayground {
   private params: Map<string, any>;
+  private currentModel: CompletedModel;
 
   constructor(
     public modelMaker: OuterPaperModelMaker,
@@ -58,6 +59,8 @@ export class DavidsPlayground {
     $('.downloadSVG').click(this.downloadSVG.bind(this));
     $('.downloadPDF').off('click');
     $('.downloadPDF').click(this.downloadPDF.bind(this));
+    $('.downloadOutlinePDF').off('click');
+    $('.downloadOutlinePDF').click(this.downloadOutlinePDF.bind(this));
   }
 
   public rerender() {
@@ -83,7 +86,7 @@ export class DavidsPlayground {
     document.getElementById('errorMessage').innerHTML = errorMessage;
   }
 
-  public downloadPDF() {
+  public downloadPDFHelper(designCallback) {
     const widthInches = paper.project.activeLayer.bounds.width;
     const heightInches = paper.project.activeLayer.bounds.height;
 
@@ -92,23 +95,8 @@ export class DavidsPlayground {
       compress: false,
       size: [widthInches * 72, heightInches * 72]
     });
-    const wholeDesign = makeSVGData(paper, paper.project, true, svg => $(svg)[0]);
-    SVGtoPDF(doc, wholeDesign, 0, 0);
 
-    const tmpOuter = new paper.CompoundPath({
-      children: [this.currentModel.outer, ...this.currentModel.holes],
-      strokeColor: 'red',
-      strokeWidth: '0.005',
-      fillColor: 'lightgrey',
-      fillRule: 'evenodd'
-    });
-    tmpOuter.remove();
-    const outerDesignOnly = makeSVGData(paper, tmpOuter, true, svg => $(svg)[0]);
-    const $wholeDesign = $(wholeDesign);
-    $wholeDesign.empty();
-    $wholeDesign.append($(outerDesignOnly))
-    doc.addPage();
-    SVGtoPDF(doc, $wholeDesign[0].outerHTML, 0, 0);
+    SVGtoPDF(doc, designCallback(), 0, 0);
 
     function blobToDataURL(blob, callback) {
       const a = new FileReader();
@@ -127,6 +115,31 @@ export class DavidsPlayground {
       blobToDataURL(blob, s => self.sendFileToUser(s, 'pdf'));
     });
     doc.end();
+  }
+
+
+  public downloadPDF() {
+    this.downloadPDFHelper(() => makeSVGData(paper, paper.project, true, svg => $(svg)[0]));
+  }
+
+  public downloadOutlinePDF() {
+    this.downloadPDFHelper(() => {
+      const wholeDesign = makeSVGData(paper, paper.project, true, svg => $(svg)[0]);
+
+      const tmpOuter = new paper.CompoundPath({
+        children: [this.currentModel.outer, ...this.currentModel.holes],
+        strokeColor: 'red',
+        strokeWidth: '0.005',
+        fillColor: 'lightgrey',
+        fillRule: 'evenodd'
+      });
+      tmpOuter.remove();
+      const outerDesignOnly = makeSVGData(paper, tmpOuter, true, svg => $(svg)[0]);
+      const $wholeDesign = $(wholeDesign);
+      $wholeDesign.empty();
+      $wholeDesign.append($(outerDesignOnly))
+      return $wholeDesign[0].outerHTML;
+    })
   }
 
   public downloadSVG() {

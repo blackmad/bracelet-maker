@@ -1,3 +1,5 @@
+// how do I make this not happen?
+// http://localhost:8080/#/newPlayground/StraightCuffOuter/InnerDesignHashmarks?StraightCuffOuter.debug=false&StraightCuffOuter.height=2&StraightCuffOuter.wristCircumference=7&StraightCuffOuter.safeBorderWidth=0.25&StraightCuffOuter.forearmCircumference=7.4&InnerDesignHashmarks.seed=1&InnerDesignHashmarks.bufferWidth=0.01&InnerDesignHashmarks.hashWidth=0.525&InnerDesignHashmarks.initialNoiseRange1=3.8&InnerDesignHashmarks.initialNoiseRange2=0&InnerDesignHashmarks.noiseOffset1=0.01&InnerDesignHashmarks.noiseOffset2=0.41&InnerDesignHashmarks.noiseInfluence=1
 
 import { MetaParameter, RangeMetaParameter } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
@@ -23,20 +25,82 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
     var paths = [];
     var pos = -width;
     var i = 0;
+
+    const attractorDistance = params.attractorDistance;
+    let attractorYPercentage = params.attractorYPercentage;
+    let attractorYGrowRate = params.attractorYGrowRate;
+
+    const megaBlockSize = 0.25;
+    const megaBlockDistance = 0.5;
+
+    const megaBlock = new paper.Path.Rectangle(
+      boundaryModel.bounds.topLeft.add(
+        new paper.Point(0, (boundaryModel.bounds.height - megaBlockSize) / 2)),
+      boundaryModel.bounds.bottomRight.subtract(
+          new paper.Point(0, (boundaryModel.bounds.height - megaBlockSize) / 2))
+    ) //.fillColor='orange';
+    // megaBlock.remove();
+
     while (pos <= width) {
       var newNoise1 =
         (this.simplex.noise2D(i / 200, i / 300) + noiseOffset1) * noiseInfluence;
       var newNoise2 =
         (this.simplex.noise2D(i / 20, i / 30) + noiseOffset2) * noiseInfluence;
       i += 1;
+
+      const leftLine = new paper.Path([
+        new paper.Point(pos + lastNoise1 + newNoise1, 0),
+        new paper.Point(pos + lastNoise2 + newNoise2, height)
+      ]);
+      leftLine.remove();
+      let leftAnchorPoint = leftLine.getPointAt(leftLine.length * attractorYPercentage)
+      leftAnchorPoint = leftAnchorPoint.add(new paper.Point(attractorDistance, 0))
+
+      const rightLine = new paper.Path([
+        new paper.Point(pos + lastNoise1 + newNoise1 + hashWidth, 0),
+        new paper.Point(pos + lastNoise2 + newNoise2 + hashWidth, height)
+      ]);
+      rightLine.remove();
+      let rightAnchorPoint = rightLine.getPointAt(rightLine.length * attractorYPercentage)
+      rightAnchorPoint = rightAnchorPoint.add(new paper.Point(attractorDistance, 0))
+
+      attractorYPercentage += attractorYGrowRate;
+      console.log(attractorYPercentage);
+      if (attractorYPercentage >= 0.75 || attractorYPercentage <= 0.25) {
+        attractorYGrowRate *= -1;
+        attractorYPercentage += 2*attractorYGrowRate;
+      }
+
       const path = new paper.Path([
         new paper.Point(pos + lastNoise1 + newNoise1, 0),
+        leftAnchorPoint,
         new paper.Point(pos + lastNoise2 + newNoise2, height),
         new paper.Point(pos + lastNoise2 + newNoise2 + hashWidth, height),
+        rightAnchorPoint,
         new paper.Point(pos + lastNoise1 + newNoise1 + hashWidth, 0)
       ]);
+      path.closePath();
 
-      paths.push(path);
+      // new paper.Path.Circle(new paper.Point(pos + lastNoise1 + newNoise1, 0), 0.1).fillColor='red';
+      // new paper.Path.Circle(new paper.Point(pos + lastNoise2 + newNoise2, height), 0.1).fillColor='blue';
+      // new paper.Path.Circle(new paper.Point(pos + lastNoise2 + newNoise2 + hashWidth, height), 0.1).fillColor='green';
+      // new paper.Path.Circle(new paper.Point(pos + lastNoise1 + newNoise1 + hashWidth, 0), 0.1).fillColor='orange';
+
+      // path.smooth({
+      //   from: 0,
+      //   to: 2,
+      //   type: 'continuous'
+      // })
+
+      path.smooth({
+        // from: 3,
+        // to: 5,
+        type: 'continuous'
+      })
+
+      path.remove();
+      paths.push(path.subtract(megaBlock, {insert: false}));
+      // paths.push(path);
       lastNoise1 = lastNoise1 + newNoise1;
       lastNoise2 = lastNoise2 + newNoise2;
       pos += hashWidth + bufferWidth;
@@ -101,6 +165,34 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         step: 0.01,
         value: 0.5,
         name: "noiseInfluence"
+      }),
+
+      new RangeMetaParameter({
+        title: "Attractor Distance",
+        min: 0.00,
+        max: 5,
+        step: 0.1,
+        value: 2,
+        name: "attractorDistance",
+        // group: "curve"
+      }),
+      new RangeMetaParameter({
+        title: "Attractor Percentage Start",
+        min: 0.25,
+        max: 0.75,
+        step: 0.01,
+        value: 0.4,
+        name: "attractorYPercentage",
+        // group: "curve"
+      }),
+      new RangeMetaParameter({
+        title: "Attractor Change Rate",
+        min: 0,
+        max: 1,
+        step: 0.01,
+        value: 0.1,
+        name: "attractorYGrowRate",
+        // group: "curve"
       })
     ];
   }

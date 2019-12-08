@@ -21,12 +21,15 @@ export function demoDesign(
   const innerDesign = designClass.make(paper, params)
   // @ts-ignore
   let paths = [innerDesign]
-  if (innerDesign['paths']) {
+  if (innerDesign.outer) {
+    // @ts-ignore
+    paths = innerDesign.outer;
+  }
+  if (innerDesign.paths) {
     // @ts-ignore
     paths = innerDesign.paths;
   }
 
-  
   // @ts-ignore
   const path = new paper.CompoundPath({
     // @ts-ignore
@@ -37,5 +40,5 @@ export function demoDesign(
     fillRule: 'evenodd'
   });
 
-  return makeSVGData(paper, false, elHydrator);
+  return makeSVGData(paper, paper.project, false, elHydrator);
 }

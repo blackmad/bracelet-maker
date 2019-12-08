@@ -3,7 +3,7 @@ import {
   MetaParameterType,
   RangeMetaParameter
 } from '@/bracelet-maker/meta-parameter';
-import { PaperModelMaker } from '@/bracelet-maker/model-maker';
+import { HasMetaParameters } from '@/bracelet-maker/model-maker';
 
 import * as $ from 'jquery';
 import 'rangeslider.js';
@@ -184,7 +184,7 @@ export class MetaParameterBuilder {
   }
 
   public buildMetaParametersForModel(
-    modelMaker: PaperModelMaker,
+    modelMaker: HasMetaParameters,
     divToAppendTo: any
   ) {
     const originalDivToAppendTo = divToAppendTo;

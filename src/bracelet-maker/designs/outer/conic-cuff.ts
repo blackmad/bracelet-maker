@@ -1,6 +1,6 @@
 import { makeConicSection } from './conic-section';
 import { RangeMetaParameter } from '../../meta-parameter';
-import { OuterPaperModelMaker } from '../../model-maker';
+import { CompletedModel, OuterPaperModelMaker } from '../../model-maker';
 import { makeEvenlySpacedBolts } from '../design-utils';
 
 export class ConicCuffOuter implements OuterPaperModelMaker {
@@ -181,11 +181,11 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
 
     /***** END DESIGN *****/
 
-    return {
-      outer: outerModel, 
+    return new CompletedModel({
+      outer: cuffModel.model, 
       holes: rivetHoles,
       design: innerDesign.paths
-    }
+    })
   }
 
   get metaParameters() {

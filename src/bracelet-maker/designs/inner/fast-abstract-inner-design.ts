@@ -240,7 +240,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           _.some(p.curves, c => !!c.handle1)
         );
 
-        // console.log('hasCurves', hasCurves);
+        console.log('hasCurves', hasCurves);
         // params.debug = true;
         if (!hasCurves) {
           const allPoints = [];
@@ -265,11 +265,18 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
             outline.strokeWidth = 0.05;
           }
 
+          console.log(outline);
+
           outline = paper.Path.prototype.offset.call(
             outline,
             params.outlineSize,
             { cap: "miter" }
           );
+
+          console.log(outline);
+          if (outline instanceof paper.CompoundPath) {
+            outline = _.sortBy(outline.children, (c) => -c.area)[0];
+          }
 
           if (params.debug) {
             outline.strokeColor = "pink";
@@ -308,18 +315,22 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       // console.log(simplify);
       // console.log(simplify(points, 0.01));
 
+      outline.strokeColor = "green";
+      outline.strokeWidth = 0.05;
+      outline.fillColor = 'green';
+
       if (params.debug) {
         outline.strokeColor = "green";
         outline.strokeWidth = 0.05;
       } else {
-        outline.remove();
+        // outline.remove();
       }
 
       if (this.smoothOutline) {
         // outline.smooth({ type: 'geometric', factor: 0.5 });
       }
 
-      outline.simplify({ tolerance: 10 });
+      // outline.simplify({ tolerance: 10 });
     }
 
     return {

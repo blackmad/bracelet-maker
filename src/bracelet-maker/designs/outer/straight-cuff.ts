@@ -1,5 +1,5 @@
 import { RangeMetaParameter, OnOffMetaParameter } from '../../meta-parameter';
-import { OuterPaperModelMaker } from '../../model-maker';
+import { CompletedModel, OuterPaperModelMaker } from '../../model-maker';
 import { makeEvenlySpacedBolts, RivetRadius } from '../design-utils';
 
 function roundCorners(paper, path, radius) {
@@ -50,7 +50,7 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
         title: 'Wrist Circumference',
         min: 4,
         max: 10,
-        value: 7,
+        value: 6.9,
         step: 0.1,
         name: 'wristCircumference'
       }),
@@ -67,7 +67,7 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
         title: 'Wide Wrist Circumference',
         min: 4,
         max: 10,
-        value: 7.4,
+        value: 7.2,
         step: 0.1,
         name: 'forearmCircumference'
       })
@@ -124,7 +124,7 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
     return [...holes1, ...holes2];
   }
 
-  public make(paper: paper.PaperScope, options): paper.PathItem[] {
+  public make(paper: paper.PaperScope, options): CompletedModel {
     const { height, wristCircumference, safeBorderWidth, debug } = options.StraightCuffOuter;
 
     const totalWidth = wristCircumference + this.bottomPadding * 2;
@@ -194,11 +194,11 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
       }
     }
 
-    return {
+    return new CompletedModel({
       outer: cuffOuter, 
       holes: holes,
       design: innerDesign.paths
-    }
+    })
 
     // innerDesign.layer = "inner"
     // models['design'] = innerDesign;
