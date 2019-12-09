@@ -187,14 +187,26 @@ export class MetaParameterBuilder {
     modelMaker: HasMetaParameters,
     divToAppendTo: any
   ) {
+    let groupDivs = {};
+
     const originalDivToAppendTo = divToAppendTo;
     if (modelMaker.metaParameters) {
       modelMaker.metaParameters.forEach((metaParameter) => {
         const metaParam = clone(metaParameter);
         metaParam.name = modelMaker.constructor.name + '.' + metaParameter.name;
 
+        console.log(metaParam);
         if (metaParam.target) {
           divToAppendTo = $(metaParam.target);
+        } else if (metaParam.group) {
+          console.log('group', metaParam.group)
+          if (!groupDivs[metaParam.group]) {
+            const groupDiv = $('<div class="meta-parameter-container col-md-12 col-lg-12 small border-top border-bottom py-1 row"></div>');
+            groupDiv.append($(`<div class="row col-12"><h3>${metaParam.group} params</h3></div>`))
+            $(originalDivToAppendTo).parent().append(groupDiv[0])
+            groupDivs[metaParam.group] = groupDiv;
+          }
+          divToAppendTo = groupDivs[metaParam.group];
         } else {
           divToAppendTo = originalDivToAppendTo;
         }

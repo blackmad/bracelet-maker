@@ -28,6 +28,7 @@ export function randomPointInPolygon(
   }
 }
 
+
 export function bufferShapeToPoints(
   paper: paper.PaperScope,
   buffer: number,
@@ -250,6 +251,13 @@ export function approxShape(
   }
 
   return points.map(point => shapeToUse.localToGlobal(point));
+}
+
+export function intersectShapes(shapes: paper.Point[][]) {
+  const scaleFactor = 100;
+  const clipperShapes = shapes.map((shape) => shape.map((p) => {
+    return { X: p.x * scaleFactor + 0.0001, Y: p.y * scaleFactor + 0.0001 };
+  }))
 }
 
 

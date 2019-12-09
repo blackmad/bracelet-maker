@@ -99,8 +99,8 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
       })
 
       path.remove();
-      paths.push(path.subtract(megaBlock, {insert: false}));
-      // paths.push(path);
+      // paths.push(path.subtract(megaBlock, {insert: false}));
+      paths.push(path);
       lastNoise1 = lastNoise1 + newNoise1;
       lastNoise2 = lastNoise2 + newNoise2;
       pos += hashWidth + bufferWidth;
@@ -174,7 +174,7 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         step: 0.1,
         value: 2,
         name: "attractorDistance",
-        // group: "curve"
+        group: "curve"
       }),
       new RangeMetaParameter({
         title: "Attractor Percentage Start",
@@ -183,7 +183,7 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         step: 0.01,
         value: 0.4,
         name: "attractorYPercentage",
-        // group: "curve"
+        group: "curve"
       }),
       new RangeMetaParameter({
         title: "Attractor Change Rate",
@@ -192,7 +192,7 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         step: 0.01,
         value: 0.1,
         name: "attractorYGrowRate",
-        // group: "curve"
+        group: "curve"
       })
     ];
   }

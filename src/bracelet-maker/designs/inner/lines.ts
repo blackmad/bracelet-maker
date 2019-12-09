@@ -1,10 +1,73 @@
 import { RangeMetaParameter, MetaParameter } from '../../meta-parameter';
 import { randomLineEndpointsOnRectangle } from '../../utils/paperjs-utils';
+import * as jsts from 'jsts';
+import * as _ from 'lodash';
 
 import { AbstractExpandInnerDesign } from './abstract-expand-and-subtract-inner-design';
 
+// jsts fast? https://gist.github.com/rclark/6168912
+// jsts slow? https://gist.github.com/rclark/6123614
+
+function paperPointsToLineString(points: paper.Point[]) {
+  return {
+    "type": "LineString",
+    "coordinates": 
+      points.map((point) => [point.y, point.x])
+  }
+}
+
+function paperPointsToPolygon(points: paper.Point[]) {
+  return {
+    "type": "Polygon",
+    "coordinates": 
+      [points.map((point) => [point.y, point.x])]
+  }
+}
+
 export class InnerDesignLines extends AbstractExpandInnerDesign {
   public allowOutline = false;
+
+  makeDesign(paper: paper.PaperScope, params): paper.PathItem[] {
+    const lines = this.makePaths(paper, params);
+    // @ts-ignore
+    const polygonizer = new jsts.operation.polygonize.Polygonizer();
+    const reader = new jsts.io.GeoJSONReader();
+
+    const geojsonLineStrings = lines.map(paperPointsToLineString);
+    const geojsonBBox = paperPointsToLineString([
+      params.boundaryModel.bounds.topLeft,
+      params.boundaryModel.bounds.bottomLeft,
+      params.boundaryModel.bounds.bottomRight,
+      params.boundaryModel.bounds.topRight,
+      params.boundaryModel.bounds.topLeft
+    ]);
+
+    const geoms = geojsonLineStrings.map((l) => reader.read(l));
+
+
+    let  cleaned = null;
+    geoms.forEach(function (geom, i, array) {
+      if (i === 0) { cleaned = geom; }
+      else { cleaned = cleaned.union(geom); }
+  });
+
+    cleaned = cleaned.union(reader.read(geojsonBBox));
+
+    polygonizer.add(cleaned);
+    var polygons = polygonizer.getPolygons().array_;
+    
+    const paperPolys = polygons.map((_polygon: jsts.geom.Polygon) => {
+      const polygon = _polygon.buffer(-params.lineWidth/2, null, null);
+      if (polygon) {
+        const coords = polygon.getCoordinates();
+        const points = coords.map((c) => new paper.Point(c.y, c.x))
+        return new paper.Path(points);
+      } else {
+        return null;
+      }
+    });
+    return _.filter(paperPolys, (p) => !!p);
+  }
 
   public makeInitialPaths({
     paper,

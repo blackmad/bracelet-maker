@@ -31,7 +31,7 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
     let paths: paper.PathItem[] = [];
     let totalPath = null;
 
-    for (var r = 0; r < rows; r++) {
+    for (var r = 0; r <= rows; r++) {
       for (var c = 0; c <= cols; c++) {
         const center = new paper.Point(
           (r % 2) * rowOffset * rowCellSize + boundaryModel.bounds.x +

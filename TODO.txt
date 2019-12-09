@@ -1,10 +1,7 @@
 12/8
-- gahhh fix outline in tessagon afucking gain
 - clean up hashmarks.ts now
 - add grouping of params and/or hiding of params (curves in hashmarks, outline elsewhere)
 - make a mode that uses clipper.js to explode a bunch of shapes.
-
-
 
 
 

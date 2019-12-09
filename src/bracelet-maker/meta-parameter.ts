@@ -10,6 +10,7 @@ export interface MetaParameter {
     title: string;
     value: any;
     target: string | null;
+    group: string | null;
 }
 
 export interface MetaParameterBaseParams {
@@ -17,6 +18,7 @@ export interface MetaParameterBaseParams {
   title: string;
   value: any;
   target?: string | null;
+  group?: string | null;
 }
 
 export interface RangeMetaParameterParams extends MetaParameterBaseParams {
@@ -35,6 +37,7 @@ export class RangeMetaParameter implements MetaParameter {
     public value: number;
     public step: number;
     public target: string | null = null;
+    public group: string | null;
 
     constructor(params: RangeMetaParameterParams) {
         this.name = params.name;
@@ -45,6 +48,7 @@ export class RangeMetaParameter implements MetaParameter {
         this.value = params.value;
         this.step = params.step;
         this.target = params.target;
+        this.group = params.group;
     }
 }
 
@@ -59,6 +63,7 @@ export class SelectMetaParameter implements MetaParameter {
     public options: string[];
     public value: string;
     public target: string | null = null;
+    public group: string | null;
 
     constructor(params: SelectMetaParameterParams) {
         this.name = params.name;
@@ -66,6 +71,7 @@ export class SelectMetaParameter implements MetaParameter {
         this.title = params.title;
         this.options = params.options;
         this.value = params.value;
+        this.group = params.group;
     }
 }
 
@@ -75,12 +81,14 @@ export class OnOffMetaParameter implements MetaParameter {
     public title: string;
     public value: boolean;
     public target: string | null = null;
+    public group: string | null;
 
     constructor(params: MetaParameterBaseParams) {
         this.name = params.name;
         this.type = MetaParameterType.OnOff;
         this.title = params.title;
         this.value = params.value;
+        this.group = params.group;
     }
 }
 
