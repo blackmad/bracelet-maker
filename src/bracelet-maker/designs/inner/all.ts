@@ -16,6 +16,7 @@ import { InnerDesignTessagon } from './tessagon';
 import { InnerDesignTactile } from './tactile';
 
 import { InnerDesignPerlinDots } from './perlin-dots';
+import { InnerDesignGrid } from './grid';
 
 
 
@@ -37,5 +38,6 @@ import { InnerDesignPerlinDots } from './perlin-dots';
     InnerDesignTessagon,
     InnerDesignPerlinDots,
     // InnerDesignTactile
-    // InnerDesignHingedTesselation
+    // InnerDesignHingedTesselation,
+    InnerDesignGrid
   ];

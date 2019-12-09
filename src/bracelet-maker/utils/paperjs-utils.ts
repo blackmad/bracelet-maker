@@ -1,4 +1,6 @@
-const Shape = require('@doodle3d/clipper-js');
+const Shape = require("@doodle3d/clipper-js");
+import * as jsts from 'jsts';
+import * as _ from 'lodash';
 
 export function randomPointInPolygon(
   paper: paper.PaperScope,
@@ -11,7 +13,7 @@ export function randomPointInPolygon(
   } else if (polygon instanceof paper.Path.Rectangle) {
     bounds = polygon.bounds;
   } else {
-    throw 'unknown type of polygon ' + typeof (polygon);
+    throw "unknown type of polygon " + typeof polygon;
   }
 
   let found = false;
@@ -28,21 +30,20 @@ export function randomPointInPolygon(
   }
 }
 
-
 export function bufferShapeToPoints(
   paper: paper.PaperScope,
   buffer: number,
   points: paper.Point[]
 ): paper.Point[] {
   const scaleFactor = 100;
-  const scaledPoints = points.map((p) => {
+  const scaledPoints = points.map(p => {
     return { X: p.x * scaleFactor + 0.0001, Y: p.y * scaleFactor + 0.0001 };
   });
   const shape = new Shape.default([scaledPoints]);
 
   const roundedShape = shape.offset(buffer * scaleFactor, {
-    jointType: 'jtRound',
-    endType: 'etClosedPolygon',
+    jointType: "jtRound",
+    endType: "etClosedPolygon",
     miterLimit: 2.0,
     roundPrecision: 0.25
   });
@@ -51,9 +52,9 @@ export function bufferShapeToPoints(
     return null;
   }
 
-  return roundedShape.paths[0].map((p) => {
+  return roundedShape.paths[0].map(p => {
     return new paper.Point(p.X / 100, p.Y / 100);
-  })
+  });
 }
 
 export function bufferShape(
@@ -71,7 +72,9 @@ export function bufferShape(
 
 export function pickPointOnRectEdge(
   paper: paper.PaperScope,
-  box: paper.Rectangle, rng: () => number) {
+  box: paper.Rectangle,
+  rng: () => number
+) {
   const randomPoint = rng() * (box.width * 2 + box.height * 2);
   if (randomPoint > 0 && randomPoint < box.height) {
     return new paper.Point(0 + box.x, box.height - randomPoint + box.y);
@@ -116,7 +119,7 @@ export function randomLineOnRectangle(
 }
 
 export class SimpleCircle {
-  constructor(public x: number, public y: number, public radius: number) { }
+  constructor(public x: number, public y: number, public radius: number) {}
 }
 
 export function checkCircleCircleIntersection(
@@ -133,14 +136,14 @@ export function checkCircleCircleIntersection(
   return distanceSquared < sumOfRadii * sumOfRadii;
 }
 
-export function roundCorners({paper, path, radius}) {
+export function roundCorners({ paper, path, radius }) {
   let segments = path.segments;
 
-  const segmentsToRemove = []
+  const segmentsToRemove = [];
 
   for (let i = 0; i < segments.length; i++) {
     const p1 = segments[i];
-    const p2 = segments[(i+1) % segments.length];
+    const p2 = segments[(i + 1) % segments.length];
 
     if (p1.point.getDistance(p2.point) < 0.1) {
       segmentsToRemove.push(i);
@@ -148,60 +151,60 @@ export function roundCorners({paper, path, radius}) {
     }
   }
 
-  if ((segments.length - segmentsToRemove.length) > 4) {
-    segmentsToRemove.forEach((i) => path.removeSegment(i));
+  if (segments.length - segmentsToRemove.length > 4) {
+    segmentsToRemove.forEach(i => path.removeSegment(i));
   }
 
   segments = path.segments;
-  
-  const fraction = 0.5 + 0.5*(1-radius);
-  const fractionOffset = (1 - fraction)*0.95;
+
+  const fraction = 0.5 + 0.5 * (1 - radius);
+  const fractionOffset = (1 - fraction) * 0.95;
 
   const newPath = new paper.Path();
   for (let i = 0; i < segments.length; i++) {
     // for (let i = 0; i < 1; i++) {
-        const p1 = segments[i];
-        const p2 = segments[(i+1) % segments.length];
-        const p3 = segments[(i+2) % segments.length];
+    const p1 = segments[i];
+    const p2 = segments[(i + 1) % segments.length];
+    const p3 = segments[(i + 2) % segments.length];
 
+    const line1 = new paper.Path([p1, p2]);
+    const c1 = line1.getPointAt(line1.length * fraction);
+    var handleOut = line1.getPointAt(
+      line1.length * (fraction + fractionOffset)
+    );
 
-        const line1 = new paper.Path([p1, p2]);
-        const c1 = line1.getPointAt(line1.length * fraction)
-        var handleOut = line1.getPointAt(line1.length * (fraction + fractionOffset));
-    
-        const line2 = new paper.Path([p2, p3]);
-        const c2 = line2.getPointAt(line2.length * (1 - fraction))
-        var handleIn = line2.getPointAt(line2.length * (1 - (fraction + fractionOffset)));
-    
+    const line2 = new paper.Path([p2, p3]);
+    const c2 = line2.getPointAt(line2.length * (1 - fraction));
+    var handleIn = line2.getPointAt(
+      line2.length * (1 - (fraction + fractionOffset))
+    );
 
-        // if (Math.abs(c1.getDistance(c2)) < 0.2) {
-        //   continue;
-        // }
-        
-        // new paper.Path.Circle(c1, 0.01).fillColor = 'blue'
-        // new paper.Path.Circle(c2, 0.01).fillColor = 'red'
-        
-        // new paper.Path.Circle(handleIn, 0.01).fillColor = 'orange'
-        // new paper.Path.Circle(handleOut, 0.01).fillColor = 'green'
+    // if (Math.abs(c1.getDistance(c2)) < 0.2) {
+    //   continue;
+    // }
 
- 
-        
-        newPath.add(
-            new paper.Segment({
-             point: c1,
-             handleOut: handleOut.subtract(c1),
-            })
-        );
-        
-        newPath.add(
-            new paper.Segment({
-             point: c2,
-             handleIn: handleIn.subtract(c2),
-            })
-        );
-    }
-    newPath.closePath();
-    return newPath;
+    // new paper.Path.Circle(c1, 0.01).fillColor = 'blue'
+    // new paper.Path.Circle(c2, 0.01).fillColor = 'red'
+
+    // new paper.Path.Circle(handleIn, 0.01).fillColor = 'orange'
+    // new paper.Path.Circle(handleOut, 0.01).fillColor = 'green'
+
+    newPath.add(
+      new paper.Segment({
+        point: c1,
+        handleOut: handleOut.subtract(c1)
+      })
+    );
+
+    newPath.add(
+      new paper.Segment({
+        point: c2,
+        handleIn: handleIn.subtract(c2)
+      })
+    );
+  }
+  newPath.closePath();
+  return newPath;
 }
 
 export function roundCornersOld({ paper, path, radius }) {
@@ -230,11 +233,7 @@ export function roundCornersOld({ paper, path, radius }) {
   return path;
 }
 
-export function approxShape(
-  paper,
-  shape,
-  numPointsToGet = 200
-) {
+export function approxShape(paper, shape, numPointsToGet = 200) {
   // console.log('in appro: ', shape);
   let points = [];
   let shapeToUse = shape;
@@ -255,11 +254,12 @@ export function approxShape(
 
 export function intersectShapes(shapes: paper.Point[][]) {
   const scaleFactor = 100;
-  const clipperShapes = shapes.map((shape) => shape.map((p) => {
-    return { X: p.x * scaleFactor + 0.0001, Y: p.y * scaleFactor + 0.0001 };
-  }))
+  const clipperShapes = shapes.map(shape =>
+    shape.map(p => {
+      return { X: p.x * scaleFactor + 0.0001, Y: p.y * scaleFactor + 0.0001 };
+    })
+  );
 }
-
 
 // var BORDER_RADIUS = 20;
 
@@ -292,3 +292,70 @@ export function intersectShapes(shapes: paper.Point[][]) {
 //     context.arcTo(arguments[0], arguments[1], startX, startY, BORDER_RADIUS);
 //     context.closePath();
 // }
+
+export function paperPointsToGeoJsonLineString(points: paper.Point[]) {
+  return {
+    type: "LineString",
+    coordinates: points.map(point => [point.y, point.x])
+  };
+}
+
+export function paperRectToGeoJsonLineString(rect: paper.Rectangle) {
+  return paperPointsToGeoJsonLineString(paperRectToPoints(rect));
+}
+
+export function paperRectToPoints(rect: paper.Rectangle) {
+  return [
+    rect.topLeft,
+    rect.bottomLeft,
+    rect.bottomRight,
+    rect.topRight,
+    rect.topLeft
+  ];
+}
+
+export function jstsGeometryToPaperJsGeometry(paper: paper.PaperScope, geom: jsts.geom.Geometry): paper.Path {
+  if (geom) {
+    const coords = geom.getCoordinates();
+    const points = coords.map((c) => new paper.Point(c.y, c.x))
+    return new paper.Path(points);
+  } else {
+    return null;
+  }
+}
+
+export function polygonize(paper: paper.PaperScope, shapes: paper.Point[][], buffer?: number): paper.Path[] {
+  // @ts-ignore
+  const polygonizer = new jsts.operation.polygonize.Polygonizer();
+  const reader = new jsts.io.GeoJSONReader();
+
+  const geojsonLineStrings = shapes.map(paperPointsToGeoJsonLineString);
+  const geoms = geojsonLineStrings.map(l => reader.read(l));
+
+  let cleaned = null;
+  geoms.forEach(function(geom, i, array) {
+    if (i === 0) {
+      cleaned = geom;
+    } else {
+      cleaned = cleaned.union(geom);
+    }
+  });
+
+  polygonizer.add(cleaned);
+  var polygons = polygonizer.getPolygons().array_;
+  
+
+  const paperPolys = polygons.map((_polygon: jsts.geom.Polygon) => {
+    let polygon: jsts.geom.Geometry = _polygon;
+    if (buffer) {
+      polygon = _polygon.buffer(buffer, null, null);
+    }
+    return jstsGeometryToPaperJsGeometry(paper, polygon);
+  })
+
+  return _.compact(paperPolys);
+}
+
+export function translateShapes(shapes: paper.Point[][], to: paper.Point): paper.Point[][] {
+  return shapes.map((shape) => shape.map((p) => p.add(to)))
+}
