@@ -65,7 +65,7 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
       rightAnchorPoint = rightAnchorPoint.add(new paper.Point(attractorDistance, 0))
 
       attractorYPercentage += attractorYGrowRate;
-      console.log(attractorYPercentage);
+
       if (attractorYPercentage >= 0.75 || attractorYPercentage <= 0.25) {
         attractorYGrowRate *= -1;
         attractorYPercentage += 2*attractorYGrowRate;

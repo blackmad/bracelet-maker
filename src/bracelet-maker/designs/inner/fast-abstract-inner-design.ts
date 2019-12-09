@@ -179,7 +179,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
               })
             );
           } catch (e) {
-            console.log(e);
+            // console.error(e);
           }
         }
       }
@@ -240,7 +240,6 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           _.some(p.curves, c => !!c.handle1)
         );
 
-        console.log('hasCurves', hasCurves);
         // params.debug = true;
         if (!hasCurves) {
           const allPoints = [];
@@ -265,15 +264,12 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
             outline.strokeWidth = 0.05;
           }
 
-          console.log(outline);
-
           outline = paper.Path.prototype.offset.call(
             outline,
             params.outlineSize,
             { cap: "miter" }
           );
 
-          console.log(outline);
           if (outline instanceof paper.CompoundPath) {
             outline = _.sortBy(outline.children, (c) => -c.area)[0];
           }

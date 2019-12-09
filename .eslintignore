@@ -1,2 +1,4 @@
 src/bracelet-maker/tessagon/**
 src/bracelet-maker/external/**
+src/bracelet-maker/tactile/**
+tests/**
