@@ -34,3 +34,5 @@
 ![public/demo-output/InnerDesignTessagon.png](public/demo-output/InnerDesignTessagon.png)
 ## InnerDesignPerlinDots
 ![public/demo-output/InnerDesignPerlinDots.png](public/demo-output/InnerDesignPerlinDots.png)
+## InnerDesignGrid
+![public/demo-output/InnerDesignGrid.png](public/demo-output/InnerDesignGrid.png)

@@ -9,7 +9,7 @@ import {
   RangeMetaParameter,
   SelectMetaParameter
 } from "../../meta-parameter";
-import { PaperModelMaker } from "../../model-maker";
+import { PaperModelMaker, InnerCompletedModel } from "../../model-maker";
 
 import concaveman from "concaveman";
 import { roundCorners } from "../../utils/paperjs-utils";
@@ -132,7 +132,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     return metaParams;
   }
 
-  public make(paper: any, params: any): any {
+  public make(paper: any, params: any): InnerCompletedModel {
     const self = this;
 
     params.debug = false;
@@ -156,12 +156,6 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     }
 
     paths = paths.filter(p => !!p);
-
-    if (params.debug) {
-      return { paths };
-    } else {
-      paths.forEach(p => p.remove());
-    }
 
     if (this.canRound) {
       if (params.smoothingType != "None") {
@@ -329,9 +323,9 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       // outline.simplify({ tolerance: 10 });
     }
 
-    return {
+    return new InnerCompletedModel({
       paths,
       outline
-    };
+    });
   }
 }

@@ -1,10 +1,10 @@
 import {makeSVGData} from '../utils/paperjs-export-utils';
 
-import { OuterPaperModelMaker, PaperModelMaker, CompletedModel } from '../model-maker';
+import { OuterPaperModelMaker, PaperModelMaker, CompletedModel, InnerCompletedModel } from '../model-maker';
 
 export function demoDesign(
   paper: paper.PaperScope, 
-  designClass: PaperModelMaker| OuterPaperModelMaker,
+  designClass: PaperModelMaker | OuterPaperModelMaker,
   elHydrator: (svg) => any) {
   const params = {};
   designClass.metaParameters.forEach((metaParam) =>
@@ -23,8 +23,8 @@ export function demoDesign(
   if (innerDesign instanceof CompletedModel) {
     const pathItem: paper.PathItem = (<CompletedModel>innerDesign).outer
     paths = [(<CompletedModel>innerDesign).outer];
-  } else if (innerDesign instanceof paper.PathItem) {
-    paths = [innerDesign]
+  } else if (innerDesign instanceof InnerCompletedModel) {
+    paths = (<InnerCompletedModel>innerDesign).paths;
   }
 
   // @ts-ignore

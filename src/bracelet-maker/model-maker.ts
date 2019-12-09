@@ -5,8 +5,21 @@ export interface HasMetaParameters {
 
 }
 
+export class InnerCompletedModel {
+  paths: paper.PathItem[];
+  outline: paper.PathItem[];
+
+  constructor({paths, outline}: {
+    paths: paper.PathItem[],
+    outline: paper.PathItem[]
+  }) {
+    this.paths = paths;
+    this.outline = outline;
+  }
+}
+
 export interface PaperModelMaker extends HasMetaParameters {
-  make(scope: paper.PaperScope, params: any): paper.PathItem[];
+  make(scope: paper.PaperScope, params: any): InnerCompletedModel;
   controlInfo: string;
 }
 

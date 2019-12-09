@@ -18,6 +18,7 @@ import { AbstractExpandInnerDesign } from "./abstract-expand-and-subtract-inner-
 
 export class InnerDesignGrid extends AbstractExpandInnerDesign {
   public allowOutline = false;
+  public needSubtraction = true;
 
   public makeInitialPaths({
     paper,
