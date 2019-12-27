@@ -8690,6 +8690,13 @@ postcss@^7.0.0, postcss@^7.0.1, postcss@^7.0.14, postcss@^7.0.16, postcss@^7.0.1
     source-map "^0.6.1"
     supports-color "^6.1.0"
 
+potrace@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/potrace/-/potrace-2.1.2.tgz#61473a326be1e734abac6d14d54e1880eed35471"
+  integrity sha512-dNcUBapRgPkiv3j+70+rSlf0whtJJqEszC04g9a/Ll3p6kA7QVRV1Vsi3jg22voJr2jA9x9fjPbz5MdD+ngbUg==
+  dependencies:
+    jimp "^0.6.4"
+
 "potrace@github:cancerberoSgx/node-potrace":
   version "2.1.1"
   resolved "https://codeload.github.com/cancerberoSgx/node-potrace/tar.gz/043879baa521223ee96d31369eabd482a6eb214a"

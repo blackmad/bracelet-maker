@@ -37,7 +37,7 @@ import { InnerDesignGrid } from './grid';
     InnerDesignSunflower,
     InnerDesignTessagon,
     InnerDesignPerlinDots,
-    // InnerDesignTactile
+    InnerDesignTactile,
     // InnerDesignHingedTesselation,
     InnerDesignGrid
   ];
