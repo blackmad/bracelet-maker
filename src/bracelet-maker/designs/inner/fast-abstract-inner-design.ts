@@ -283,7 +283,6 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
               { cap: "miter" }
             );
             outline = outline.unite(exploded);
-            exploded.remove();
           });
         }
       }
@@ -312,8 +311,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       if (params.debug) {
         outline.strokeColor = "green";
         outline.strokeWidth = 0.05;
-      } else {
-        // outline.remove();
+        // need to insert also
       }
 
       // outline.simplify({ tolerance: 0.2 });

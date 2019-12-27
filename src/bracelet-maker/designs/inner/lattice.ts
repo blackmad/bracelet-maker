@@ -49,11 +49,9 @@ export class InnerDesignLattice extends FastAbstractInnerDesign {
           // }
           // totalPath = totalPath.subtract(new paper.Path.Circle(center, circleSize - borderSize))
 
-          possibleCircle.remove();
           const innerCircle = new paper.Path.Circle(center, shapeWidth - borderSize);
           innerCircle.scale(1, shapeWidth/shapeHeight);
 
-          innerCircle.remove();
           const finalCircle = possibleCircle.subtract(innerCircle, {insert: false});
           if (totalPath == null) {
             totalPath = finalCircle

@@ -38,8 +38,7 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         new paper.Point(0, (boundaryModel.bounds.height - megaBlockSize) / 2)),
       boundaryModel.bounds.bottomRight.subtract(
           new paper.Point(0, (boundaryModel.bounds.height - megaBlockSize) / 2))
-    ) //.fillColor='orange';
-    // megaBlock.remove();
+    )
 
     while (pos <= width) {
       var newNoise1 =
@@ -52,7 +51,6 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         new paper.Point(pos + lastNoise1 + newNoise1, 0),
         new paper.Point(pos + lastNoise2 + newNoise2, height)
       ]);
-      leftLine.remove();
       let leftAnchorPoint = leftLine.getPointAt(leftLine.length * attractorYPercentage)
       leftAnchorPoint = leftAnchorPoint.add(new paper.Point(attractorDistance, 0))
 
@@ -60,7 +58,6 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         new paper.Point(pos + lastNoise1 + newNoise1 + hashWidth, 0),
         new paper.Point(pos + lastNoise2 + newNoise2 + hashWidth, height)
       ]);
-      rightLine.remove();
       let rightAnchorPoint = rightLine.getPointAt(rightLine.length * attractorYPercentage)
       rightAnchorPoint = rightAnchorPoint.add(new paper.Point(attractorDistance, 0))
 
@@ -98,7 +95,6 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         type: 'continuous'
       })
 
-      path.remove();
       // paths.push(path.subtract(megaBlock, {insert: false}));
       paths.push(path);
       lastNoise1 = lastNoise1 + newNoise1;

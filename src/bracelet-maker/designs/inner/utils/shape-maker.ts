@@ -4,21 +4,21 @@ export interface ShapeMakerIface {
   makeShape(paper: paper.PaperScope, width: number, height: number): paper.Path;
 }
 
-class Ellipse implements ShapeMakerIface {
+export class Ellipse implements ShapeMakerIface {
   makeShape(paper: paper.PaperScope, width: number, height: number): paper.Path {
     return new paper.Path.Ellipse(
       new paper.Rectangle(0, 0, width, height)
     );
 }}
 
-class Rectangle implements ShapeMakerIface {
+export class Rectangle implements ShapeMakerIface {
   makeShape(paper: paper.PaperScope, width: number, height: number): paper.Path {
     return new paper.Path.Rectangle(
       new paper.Rectangle(0, 0, width, height)
     );
 }}
 
-class RegularPolygonMaker {
+export class RegularPolygonMaker {
   static makeRegularPolygon(paper: paper.PaperScope, width: number, height: number, sides: number): paper.Path {
     const scale = width / height;
     const shape = new paper.Path.RegularPolygon(new paper.Point(0,0), sides, width);
@@ -26,12 +26,12 @@ class RegularPolygonMaker {
     return shape
 }}
 
-class Triangle implements ShapeMakerIface {
+export class Triangle implements ShapeMakerIface {
   makeShape(paper: paper.PaperScope, width: number, height: number): paper.Path {
     return RegularPolygonMaker.makeRegularPolygon(paper, width, height, 3);
 }}
 
-class RightTriangle implements ShapeMakerIface {
+export class RightTriangle implements ShapeMakerIface {
   makeShape(paper: paper.PaperScope, width: number, height: number): paper.Path {
     return new paper.Path([
       new paper.Point(0, 0),
@@ -43,12 +43,12 @@ class RightTriangle implements ShapeMakerIface {
 }
 
 
-class Pentagon implements ShapeMakerIface {
+export class Pentagon implements ShapeMakerIface {
   makeShape(paper: paper.PaperScope, width: number, height: number): paper.Path {
     return RegularPolygonMaker.makeRegularPolygon(paper, width, height, 5);
 }}
 
-class Hexagon implements ShapeMakerIface {
+export class Hexagon implements ShapeMakerIface {
   makeShape(paper: paper.PaperScope, width: number, height: number): paper.Path {
     return RegularPolygonMaker.makeRegularPolygon(paper, width, height, 6);
 }}

@@ -11,7 +11,7 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
   allowOutline = true;
   canRound = true;
 
-  makeRandomPoints({ paper, boundaryModel, rows, cols, numTotalPoints, mirror }) {
+  makeRandomPoints({ paper, boundaryModel, rows, cols, numTotalPoints, numBorderPoints, mirror }) {
     const numPoints = numTotalPoints // (rows * cols);
 
     const colOffset = boundaryModel.bounds.width / cols;
@@ -21,9 +21,7 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
 
     const seedPoints = [];
 
-    for (let i = 0; i < numPoints; i++) {
-      const testPoint = randomPointInPolygon(paper, partialRect, this.rng);
-
+    const addSeedPoint = (testPoint: paper.Point) => {
       let startR = 0
       let endR = rows
       let startC = 0
@@ -56,6 +54,16 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       }
     }
 
+    for (let i = 0; i < numPoints; i++) {
+      const testPoint = randomPointInPolygon(paper, partialRect, this.rng);
+      addSeedPoint(testPoint);
+    }
+
+    if (numBorderPoints > 0) {
+      console.log(approxShape(paper, boundaryModel, numBorderPoints));
+      approxShape(paper, boundaryModel, numBorderPoints).forEach(addSeedPoint);
+    }
+
     return seedPoints;
   }
 
@@ -63,6 +71,7 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
     ExtendPaperJs(paper);
 
     const { numPoints = 100, rows = 1, cols = 1,
+      numBorderPoints = 0,
       smoothingType = 'None',
       smoothingFactor = 0.5,
       mirror = false
@@ -77,6 +86,7 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       rows,
       cols,
       numTotalPoints: numPoints,
+      numBorderPoints,
       mirror
     })
 
@@ -113,6 +123,14 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
         value: 20,
         step: 1,
         name: 'numPoints'
+      }),
+      new RangeMetaParameter({
+        title: 'Border Points',
+        min: 0,
+        max: 100,
+        value: 0,
+        step: 1,
+        name: 'numBorderPoints'
       }),
       // new RangeMetaParameter({
       //   title: 'Min Cell Size',

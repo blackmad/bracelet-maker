@@ -148,7 +148,6 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
       height,
       width: totalWidth
     });
-    cuffOuterPath.remove();
 
     let cuffOuter: paper.PathItem = cuffOuterPath;
 
@@ -161,15 +160,12 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
     if (debug) {
       safeArea.strokeColor = new paper.Color('green');
       safeArea.strokeWidth = 0.1;
-    } else {
-      safeArea.remove();
     }
 
     const safeCone = new paper.Path.Rectangle(
       new paper.Point(this.bottomPadding, -10),
       new paper.Size(safeAreaLength, 20)
     );
-    safeCone.remove();
 
     const innerOptions = options[this.subModel.constructor.name] || {};
     innerOptions.height = height;
@@ -184,14 +180,8 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
 
       cuffOuter = cuffOuter.unite(innerDesign.outline);
 
-      // cuffOuter.remove();
       // cheap hack to fill in inner holes for some reason
       // cuffOuter = cuffOuter.unite(safeArea);
-
-      oldCuffOuter.remove();
-      if (!debug) {
-        innerDesign.outline.remove();
-      }
     }
 
     return new CompletedModel({

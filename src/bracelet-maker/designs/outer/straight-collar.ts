@@ -153,7 +153,6 @@ export class StraightCollarOuter implements OuterPaperModelMaker {
         height * 4
       )
     );
-    safeCone.remove();
 
     // TODO
     // round belt end
@@ -178,11 +177,6 @@ export class StraightCollarOuter implements OuterPaperModelMaker {
 
       // @ts-ignore
       outerModel = outerModel.unite(innerDesign.outline);
-
-      oldCuffOuter.remove();
-      if (!debug) {
-        innerDesign.outline.remove();
-      }
     }
 
     return new CompletedModel({

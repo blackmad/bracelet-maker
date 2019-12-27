@@ -17,6 +17,7 @@ import { InnerDesignTactile } from './tactile';
 
 import { InnerDesignPerlinDots } from './perlin-dots';
 import { InnerDesignGrid } from './grid';
+import { InnerDesignSnowflake } from './snowflake';
 
 
 
@@ -39,5 +40,6 @@ import { InnerDesignGrid } from './grid';
     InnerDesignPerlinDots,
     InnerDesignTactile,
     // InnerDesignHingedTesselation,
-    InnerDesignGrid
+    InnerDesignGrid,
+    InnerDesignSnowflake
   ];

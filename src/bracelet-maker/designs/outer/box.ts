@@ -69,10 +69,6 @@ export class BoxOuter implements OuterPaperModelMaker {
       // @ts-ignore
       outerModel = outerModel.unite(innerDesign.outline);
 
-      oldCuffOuter.remove();
-      if (!debug) {
-        innerDesign.outline.remove();
-      }
     }
 
     return new CompletedModel({

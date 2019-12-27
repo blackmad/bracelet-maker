@@ -133,7 +133,6 @@ export class DavidsPlayground {
         fillColor: 'lightgrey',
         fillRule: 'evenodd'
       });
-      tmpOuter.remove();
       const outerDesignOnly = makeSVGData(paper, tmpOuter, true, svg => $(svg)[0]);
       const $wholeDesign = $(wholeDesign);
       $wholeDesign.empty();
@@ -229,6 +228,7 @@ export class DavidsPlayground {
     ) as HTMLCanvasElement;
     paper.setup(canvas);
     paper.activate();
+    paper.settings.insertItems = false;
 
     if (paper != null && paper.project != null) {
       paper.project.activeLayer.removeChildren();
@@ -236,13 +236,15 @@ export class DavidsPlayground {
 
     this.currentModel = this.modelMaker.make(paper, modelParams);
 
-    new paper.CompoundPath({
+    const compoundPath = new paper.CompoundPath({
       children: [this.currentModel.outer, ...this.currentModel.holes, ...this.currentModel.design],
       strokeColor: 'red',
       strokeWidth: '0.005',
-      fillColor: 'lightgrey',
+      // fillColor: 'lightgrey',
       fillRule: 'evenodd'
     });
+
+    paper.project.activeLayer.addChild(compoundPath);
 
     $('#svgArea')[0].innerHTML = makeSVGData(paper, paper.project, false, svg => $(svg)[0]);
 

@@ -167,17 +167,9 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
 
       cuffModel.model = cuffModel.model.unite(innerDesign.outline);
 
-      // cuffOuter.remove();
       // cheap hack to fill in inner holes for some reason
       // cuffOuter = cuffOuter.unite(safeArea);
-
-      oldCuffOuter.remove();
-      if (!debug) {
-        innerDesign.outline.remove();
-      }
     }
-
-    cuffModelInner.model.remove();
 
     /***** END DESIGN *****/
 

@@ -43,8 +43,6 @@ export class InnerDesignSunflower extends FastAbstractInnerDesign {
         circle.intersects(boundaryModel)
       ) {
         circles.push(circle);
-      } else {
-        circle.remove();
       }
     }
     return {

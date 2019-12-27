@@ -72,7 +72,6 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
       for (let i = 0; i < triesPerRadius; i++) {
         const center = new paper.Point(this.rng() * width, this.rng() * height);
         const testCircle = new paper.Path.Circle(center, radius);
-        testCircle.remove();
         const simpleTestCircle = new SimpleCircle(center.x, center.y, radius);
         if (
           // this checks that we're at least inside the bounding box around the boundary
@@ -91,10 +90,7 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
           simpleCircles.push(simpleTestCircle);
 
           const outlineCircle = new paper.Path.Circle(center, radius + params.outlineSize);
-          outlineCircle.remove();
           outline.push(outlineCircle);
-        } else {
-          // testCircle.remove();
         }
       }
       radius *= 0.99;
