@@ -305,9 +305,9 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       // console.log(simplify);
       // console.log(simplify(points, 0.01));
 
-      outline.strokeColor = "green";
-      outline.strokeWidth = 0.05;
-      outline.fillColor = 'green';
+      // outline.strokeColor = "green";
+      // outline.strokeWidth = 0.05;
+      // outline.fillColor = 'green';
 
       if (params.debug) {
         outline.strokeColor = "green";
@@ -316,11 +316,16 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         // outline.remove();
       }
 
-      if (this.smoothOutline) {
-        // outline.smooth({ type: 'geometric', factor: 0.5 });
-      }
+      // outline.simplify({ tolerance: 0.2 });
+// 
+      // if (this.smoothOutline) {
+        outline = roundCorners({ paper, path: outline, radius: 0.9 })
+        
 
-      // outline.simplify({ tolerance: 10 });
+
+        // outline.smooth({ type: 'catmull-rom', factor: 0.1 });
+      // }
+
     }
 
     return new InnerCompletedModel({

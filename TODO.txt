@@ -5,7 +5,14 @@
 - add grouping of params and/or hiding of params (curves in hashmarks, outline elsewhere)
 - make a mode that uses clipper.js to explode a bunch of shapes.
 
+- spiral? https://github.com/marcosfparreiras/html5-canvas-archimedean-spiral-polygon
+--> https://github.com/scijs/spiral-2d
 
+- cities
+http://josauder.github.io/procedural_city_generation/#roadmap-creation
+https://github.com/phiresky/procedural-cities
+https://github.com/Coac/basic-procedural-city
+JS https://github.com/t-mw/citygen
 
 - why is wide wrist in design params
 - add outline to conic cuff
