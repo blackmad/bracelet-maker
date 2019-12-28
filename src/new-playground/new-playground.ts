@@ -200,7 +200,7 @@ export class DavidsPlayground {
     $('#gridArea')[0].innerHTML = data;
   }
 
-  public doRender() {
+  public async doRender() {
     const previewDiv = document.getElementById('previewArea');
 
     $('body').addClass('loading');
@@ -234,7 +234,7 @@ export class DavidsPlayground {
       paper.project.activeLayer.removeChildren();
     }
 
-    this.currentModel = this.modelMaker.make(paper, modelParams);
+    this.currentModel = await this.modelMaker.make(paper, modelParams);
 
     const compoundPath = new paper.CompoundPath({
       children: [this.currentModel.outer, ...this.currentModel.holes, ...this.currentModel.design],

@@ -42,7 +42,9 @@ export class BoxOuter implements OuterPaperModelMaker {
 
   constructor(public subModel: any) {}
 
-  public make(paper: paper.PaperScope, options): CompletedModel {
+  public controlInfo = "It's a box"
+
+  public async make(paper: paper.PaperScope, options): Promise<CompletedModel> {
     let { height, width, safeBorderWidth, debug = false } = options[
       this.constructor.name
     ];
@@ -61,7 +63,7 @@ export class BoxOuter implements OuterPaperModelMaker {
     // innerOptions.safeCone = safeCone;
     innerOptions.outerModel = outerModel;
 
-    const innerDesign = this.subModel.make(paper, innerOptions);
+    const innerDesign = await this.subModel.make(paper, innerOptions);
 
     if (innerDesign.outline) {
       const oldCuffOuter = outerModel;

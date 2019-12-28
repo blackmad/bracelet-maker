@@ -124,7 +124,7 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
     return [...holes1, ...holes2];
   }
 
-  public make(paper: paper.PaperScope, options): CompletedModel {
+  public async make(paper: paper.PaperScope, options): Promise<CompletedModel> {
     const { height, wristCircumference, safeBorderWidth, debug } = options.StraightCuffOuter;
 
     const totalWidth = wristCircumference + this.bottomPadding * 2;
@@ -174,7 +174,7 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
     innerOptions.safeCone = safeCone;
     innerOptions.outerModel = cuffOuter;
 
-    const innerDesign = this.subModel.make(paper, innerOptions);
+    const innerDesign = await this.subModel.make(paper, innerOptions);
     if (innerDesign.outline) {
       const oldCuffOuter = cuffOuter;
 

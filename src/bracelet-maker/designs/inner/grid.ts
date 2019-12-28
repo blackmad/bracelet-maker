@@ -48,11 +48,10 @@ export class InnerDesignGrid extends AbstractExpandInnerDesign {
     return lines;
   }
 
-  public makePaths(paper: paper.PaperScope, params: any): paper.Point[][] {
+  public async makePaths(paper: paper.PaperScope, params: any): Promise<paper.Point[][]> {
     const { boundaryModel, numRows, numCols } = params;
 
     const lines: paper.Point[][] = [];
-
 
     const cellSizeX = boundaryModel.bounds.width / numCols;
     const cellSizeY = boundaryModel.bounds.height / numRows;

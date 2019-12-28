@@ -40,11 +40,11 @@ export abstract class AbstractExpandInnerDesign
   }
   abstract pathDesignMetaParameters: MetaParameter[]
 
-  abstract makePaths(scope: paper.PaperScope, params): paper.Point[][];
+  abstract makePaths(scope: paper.PaperScope, params): Promise<paper.Point[][]>;
   
-  makeDesign(paper: paper.PaperScope, params): paper.PathItem[] {
-    const lines = this.makePaths(paper, params);
-    lines.push(paperRectToPoints(params.boundaryModel.bounds));
+  async makeDesign(paper: paper.PaperScope, params): Promise<paper.PathItem[]> {
+    const lines = await this.makePaths(paper, params);
+    // lines.push(paperRectToPoints(params.boundaryModel.bounds));
     return polygonize(paper, lines, -params.lineWidth/2);
   }
 }

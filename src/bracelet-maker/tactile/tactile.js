@@ -8,7 +8,7 @@
 
 'use strict'
 
-const Tactile = (function (window) {
+const Tactile = (function () {
 
 	function buildLibrary() {
 		let tactile_lib = {
@@ -2217,6 +2217,6 @@ const Tactile = (function (window) {
 	}
 
 	return buildLibrary();
-})(window);
+})();
 
 export default Tactile;

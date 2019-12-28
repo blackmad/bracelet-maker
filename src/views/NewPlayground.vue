@@ -16,7 +16,6 @@
           <a class="downloadButton downloadSVG">Download SVG</a>
           <a class="downloadButton downloadPDF">Download PDF</a>
           <a class="downloadButton downloadOutlinePDF">Download Outline PDF</a>
-
         </div>
       </div>
     </div>

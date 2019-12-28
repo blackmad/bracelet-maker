@@ -6,7 +6,6 @@ export const BeltHoleRadius = 3 * MillimeterToInches;
 
 export function makeEvenlySpacedBolts(paper, numBolts, p1, p2) {
   let line = new paper.Path.Line(p1, p2);
-  line.remove();
 
 	const circles = [];
   _.times(numBolts * 3, boltNum => {

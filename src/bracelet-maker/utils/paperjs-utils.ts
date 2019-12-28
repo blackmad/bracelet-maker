@@ -1,6 +1,7 @@
 const Shape = require("@doodle3d/clipper-js");
-import * as jsts from 'jsts';
-import * as _ from 'lodash';
+import * as jsts from "jsts";
+import * as _ from "lodash";
+import GeoJSON from "geojson";
 
 export function randomPointInPolygon(
   paper: paper.PaperScope,
@@ -314,21 +315,47 @@ export function paperRectToPoints(rect: paper.Rectangle) {
   ];
 }
 
-export function jstsGeometryToPaperJsGeometry(paper: paper.PaperScope, geom: jsts.geom.Geometry): paper.Path {
+export function jstsGeometryToPaperJsGeometry(
+  paper: paper.PaperScope,
+  geom: jsts.geom.Geometry
+): paper.Path {
   if (geom) {
     const coords = geom.getCoordinates();
-    const points = coords.map((c) => new paper.Point(c.y, c.x))
+    const points = coords.map(c => new paper.Point(c.y, c.x));
     return new paper.Path(points);
   } else {
     return null;
   }
 }
 
-export function polygonize(paper: paper.PaperScope, shapes: paper.Point[][], buffer?: number): paper.Path[] {
+export function geojsonFeatureToPaperJs(
+  paper: paper.PaperScope,
+  feature: GeoJSON.Feature
+): paper.Path {
+  console.log(feature.geometry.type);
+  if (feature.geometry.type === "Polygon") {
+    const coords = (feature.geometry as GeoJSON.Polygon).coordinates;
+    console.log(coords);
+    const points = coords[0].map(c => {
+      console.log(c);
+      return new paper.Point(c[1], c[0]);
+    })
+    console.log(points);
+    return new paper.Path(points);
+  }
+  return null;
+}
+
+export function polygonize(
+  paper: paper.PaperScope,
+  shapes: paper.Point[][],
+  buffer?: number
+): paper.Path[] {
   // @ts-ignore
-  const polygonizer = new jsts.operation.polygonize.Polygonizer();
   const reader = new jsts.io.GeoJSONReader();
 
+  const polygonizer = new jsts.operation.polygonize.Polygonizer();
+  // polygonizer.setCheckRingsValid(false);
   const geojsonLineStrings = shapes.map(paperPointsToGeoJsonLineString);
   const geoms = geojsonLineStrings.map(l => reader.read(l));
 
@@ -342,8 +369,9 @@ export function polygonize(paper: paper.PaperScope, shapes: paper.Point[][], buf
   });
 
   polygonizer.add(cleaned);
+
   var polygons = polygonizer.getPolygons().array_;
-  
+  console.log(polygons)
 
   const paperPolys = polygons.map((_polygon: jsts.geom.Polygon) => {
     let polygon: jsts.geom.Geometry = _polygon;
@@ -356,6 +384,9 @@ export function polygonize(paper: paper.PaperScope, shapes: paper.Point[][], buf
   return _.compact(paperPolys);
 }
 
-export function translateShapes(shapes: paper.Point[][], to: paper.Point): paper.Point[][] {
-  return shapes.map((shape) => shape.map((p) => p.add(to)))
+export function translateShapes(
+  shapes: paper.Point[][],
+  to: paper.Point
+): paper.Point[][] {
+  return shapes.map(shape => shape.map(p => p.add(to)));
 }

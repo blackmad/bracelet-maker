@@ -1,3 +1,10 @@
+
+- do one from map tiles
+- figure out why example generation is broken
+- migrate kaleidoscope up to root inner design
+- finally figure out grouping params / conditional params
+- see about perlin potrace
+
 12/8
 
 - ellipses / different sized circles in circle packing

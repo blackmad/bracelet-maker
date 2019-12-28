@@ -133,6 +133,9 @@ a.downloadButton:hover{
 .downloadSVG {
   padding-right: 10px;
 }
+.downloadPDF {
+  padding-right: 10px;
+}
 
 .outer-design.design-container .panel-body {
   height: 100px;

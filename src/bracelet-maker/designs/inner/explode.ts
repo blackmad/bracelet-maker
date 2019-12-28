@@ -9,7 +9,7 @@ import { AbstractExpandInnerDesign } from './abstract-expand-and-subtract-inner-
 import { pickPointOnRectEdge } from "../../utils/paperjs-utils";
 
 export class InnerDesignExplode extends AbstractExpandInnerDesign {
-  makePaths(paper, params): paper.Point[][] {
+  async makePaths(paper, params): Promise<paper.Point[][]> {
     const { outerModel, numLines, numCenters } = params;
 
     const paths = [];

@@ -132,7 +132,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     return metaParams;
   }
 
-  public make(paper: any, params: any): InnerCompletedModel {
+  public async make(paper: any, params: any): Promise<InnerCompletedModel> {
     const self = this;
 
     params.debug = false;
@@ -149,7 +149,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       }
     }
 
-    const design = self.makeDesign(paper, params);
+    const design = await self.makeDesign(paper, params);
+
     let paths = design;
     if (design.paths) {
       paths = design.paths;

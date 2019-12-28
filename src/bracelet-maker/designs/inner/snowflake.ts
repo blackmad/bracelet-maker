@@ -8,17 +8,8 @@ import {
   OnOffMetaParameter
 } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
-import { Triangle } from "./utils/shape-maker";
 import { InnerDesignVoronoi } from "./voronoi";
-import { Path } from "paper";
-import { PaperModelMaker } from "@/bracelet-maker/model-maker";
-import { bufferShape } from "@/bracelet-maker/utils/paperjs-utils";
-
-function pairwise(arr, func) {
-  for (var i = 0; i < arr.length; i++) {
-    func(arr[i % arr.length], arr[(i + 1) % arr.length]);
-  }
-}
+import { bufferShape } from "../../utils/paperjs-utils";
 
 function getDistanceToLine(point: paper.Point, line: paper.Path.Line): number {
   return point.getDistance(line.getNearestPoint(point));
@@ -172,9 +163,10 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
     const vs = v.makeDesign(paper, {
       borderSize: 0.05,
       boundaryModel: boundarySegment,
-      numPoints: 15,
+      numPoints: 50,
       numBorderPoints: 20,
-      voronoi: true
+      voronoi: true,
+      omitChance: 0.0,
     });
     vs.forEach(path => {
       const clippedPath = path.intersect(boundarySegment);
@@ -187,12 +179,16 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
         newPath.rotate(s * r, boundaryModel.bounds.center);
 
         if (kaleido) {
-          if (segments % 2 === 0 && s % 2 !== 0 && s % 2 !== 0) {
+          if (segments % 2 === 0 && s % 2 !== 0) {
             newPath.scale(1, -1, boundaryModel.bounds.center);
 
             if (segments % 4 === 0) {
               newPath.rotate(r, boundaryModel.bounds.center);
             }
+          }
+
+          if (segments % 2 !== 0 && s % 2 === 1) {
+            newPath.scale(-1, 1, boundaryModel.bounds.center);
           }
         }
 
@@ -227,7 +223,7 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
         min: 2,
         max: 20,
         value: 2,
-        step: 1,
+        step: 2,
         name: "segments"
       })
     ];

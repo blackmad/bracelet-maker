@@ -5,6 +5,8 @@
 ![public/demo-output/ConicCuffOuter.png](public/demo-output/ConicCuffOuter.png)
 ## StraightCuffOuter
 ![public/demo-output/StraightCuffOuter.png](public/demo-output/StraightCuffOuter.png)
+## BoxOuter
+![public/demo-output/BoxOuter.png](public/demo-output/BoxOuter.png)
 # Inner Designs
 ## InnerDesignVoronoi
 ![public/demo-output/InnerDesignVoronoi.png](public/demo-output/InnerDesignVoronoi.png)
@@ -34,5 +36,9 @@
 ![public/demo-output/InnerDesignTessagon.png](public/demo-output/InnerDesignTessagon.png)
 ## InnerDesignPerlinDots
 ![public/demo-output/InnerDesignPerlinDots.png](public/demo-output/InnerDesignPerlinDots.png)
+## InnerDesignTactile
+![public/demo-output/InnerDesignTactile.png](public/demo-output/InnerDesignTactile.png)
 ## InnerDesignGrid
 ![public/demo-output/InnerDesignGrid.png](public/demo-output/InnerDesignGrid.png)
+## InnerDesignSnowflake
+![public/demo-output/InnerDesignSnowflake.png](public/demo-output/InnerDesignSnowflake.png)

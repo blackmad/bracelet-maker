@@ -70,7 +70,7 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
     model.translate(new paper.Point(-toTranslateX2, -toTranslateY2));
   }
 
-  public make(paper: paper.PaperScope, options) {
+  public async make(paper: paper.PaperScope, options) {
     const {
       height,
       wristCircumference,
@@ -161,7 +161,7 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
     innerOptions.boundaryModel = cuffModelInner.model;
     innerOptions.outerModel = cuffModel.model;
 
-    const innerDesign = this.subModel.make(paper, innerOptions);
+    const innerDesign = await this.subModel.make(paper, innerOptions);
     if (innerDesign.outline) {
       const oldCuffOuter = cuffModel.model;
 

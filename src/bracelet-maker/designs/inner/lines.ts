@@ -38,7 +38,7 @@ export class InnerDesignLines extends AbstractExpandInnerDesign {
     return lines;
   }
 
-  public makePaths(paper: paper.PaperScope, params: any): paper.Point[][] {
+  public async makePaths(paper: paper.PaperScope, params: any): Promise<paper.Point[][]> {
     const { boundaryModel, outerModel, numLines } = params;
 
     const numRows = 1;

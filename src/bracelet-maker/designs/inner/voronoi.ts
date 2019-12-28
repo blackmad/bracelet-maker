@@ -74,7 +74,8 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       numBorderPoints = 0,
       smoothingType = 'None',
       smoothingFactor = 0.5,
-      mirror = false
+      mirror = false,
+      omitChance = 0.0,
     } = params;
 
 
@@ -107,8 +108,10 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
     for (const cellPolygon of cellPolygonIterator) {
       const points = cellPolygon.map(p => new paper.Point(p[0], p[1]));
       points.pop();
-      const bufferedShape = bufferShape(paper, -params.borderSize, points)
-      polys.push(bufferedShape);
+      const bufferedShape = bufferShape(paper, -params.borderSize, points);
+      if (this.rng() > omitChance) {
+        polys.push(bufferedShape);
+      }
     }
 
     return polys;
@@ -140,6 +143,14 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       //   step: 0.01,
       //   name: 'minPathLength'
       // }),
+      new RangeMetaParameter({
+        title: 'Omit Chance',
+        min: 0.00,
+        max: 1.0,
+        value: 0.0,
+        step: 0.01,
+        name: 'omitChance'
+      }),
       new RangeMetaParameter({
         title: 'Border Size',
         min: 0.01,

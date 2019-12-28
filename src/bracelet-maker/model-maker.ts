@@ -19,7 +19,8 @@ export class InnerCompletedModel {
 }
 
 export interface PaperModelMaker extends HasMetaParameters {
-  make(scope: paper.PaperScope, params: any): InnerCompletedModel;
+  make(scope: paper.PaperScope, params: any): Promise<InnerCompletedModel>;
+
   controlInfo: string;
 }
 
@@ -41,6 +42,6 @@ export class CompletedModel {
 
 export interface OuterPaperModelMaker extends HasMetaParameters {
   subModel: PaperModelMaker;
-  make(scope: paper.PaperScope, params: any): CompletedModel;
+  make(scope: paper.PaperScope, params: any): Promise<CompletedModel>;
   controlInfo: string;
 }

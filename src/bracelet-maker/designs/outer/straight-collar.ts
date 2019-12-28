@@ -44,7 +44,7 @@ export class StraightCollarOuter implements OuterPaperModelMaker {
   public controlInfo = 'Measure your neck with a sewing tape measure.<br/>If you don\'t have one handy, 13.5 inches is usually a good size for a cis woman, and 15 inches for a cis man. Don\'t worry, this pattern generates extra length.<br/>Note that a straight collar taller than about 2 inches will not be very comfortable.'
   constructor(public subModel: any) {}
 
-  public make(paper: paper.PaperScope, options): CompletedModel {
+  public async make(paper: paper.PaperScope, options): Promise<CompletedModel> {
     let { height, neckSize, safeBorderWidth, debug = false } = options[
       this.constructor.name
     ];
@@ -166,7 +166,7 @@ export class StraightCollarOuter implements OuterPaperModelMaker {
     innerOptions.safeCone = safeCone;
     innerOptions.outerModel = outerModel;
 
-    const innerDesign = this.subModel.make(paper, innerOptions);
+    const innerDesign = await this.subModel.make(paper, innerOptions);
 
     let allHoles = [];
     _.forEach(models, (v, k) => allHoles.push(v));
