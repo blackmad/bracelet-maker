@@ -1,5 +1,6 @@
 import * as topojson from "topojson-client";
 import * as _ from 'lodash';
+const {fetch, Request, Response, Headers} = require('fetch-ponyfill')();
 
 export function lng2tile(lon, zoom) {
   return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
@@ -54,22 +55,28 @@ export function getTilePaths(params: MapExtent): string[] {
 
 export function fetchTopoJsonTile(path: string): Promise<Response> {
   const url = `https://a.tile.nextzen.org/tilezen/vector/v1/512/all/${path}.topojson?api_key=x_E7exs2TOm0lNb-raBgLA&`;
-  return fetch(url);
+  const myHeaders = new Headers();
+  myHeaders.set('origin', 'http://localhost:8080');
+  const myRequest = new Request(url, {
+    method: 'GET',
+    headers: myHeaders,
+    mode: 'cors',
+    cache: 'default',
+  });
+  return fetch(myRequest);
 }
 
 export async function fetchTopoJsonTiles(extent: MapExtent) {
   const paths = getTilePaths(extent);
-  console.log(paths);
-  const features = [];
+  // console.log(paths);
 
   const fetchers = paths.map(async (path) => {
     const response = await fetchTopoJsonTile(path);
-    // console.log(response);
-  // console.log(response.json());
     const json = await response.json();
-    console.log(json);
+    
+    // @ts-ignore
     const featureCollection = topojson.feature(json, 'roads');
-    console.log(featureCollection);
+    // console.log(topojson.feature(json, 'water'));
     return featureCollection.features;
   });
 

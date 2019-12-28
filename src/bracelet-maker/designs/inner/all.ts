@@ -1,4 +1,3 @@
-// import { InnerDesignCircles } from "../designs/inner-design-circles";
 import { InnerDesignCirclePacking } from "./circle-packing";
 import { InnerDesignVera } from "./vera";
 import { InnerDesignHashmarks } from "./hashmarks";
@@ -9,7 +8,6 @@ import { InnerDesignHexes } from "./hexes";
 import { InnerDesignLines } from "./lines";
 import { InnerDesignMondrian } from "./mondrian";
 import { InnerDesignExplode } from "./explode";
-// import { InnerDesignGrid } from './grid';
 import { InnerDesignEmpty } from "./empty";
 import { InnerDesignSunflower } from "./sunflower";
 import { InnerDesignTessagon } from "./tessagon";
@@ -22,24 +20,21 @@ import { InnerDesignMap } from "./map";
 
 export const AllInnerDesigns = [
   InnerDesignVoronoi,
+  InnerDesignTessagon,
   InnerDesignHashmarks,
-  InnerDesignLattice,
-  // InnerDesignCircles,
   InnerDesignVera,
+  InnerDesignHexes,
+  InnerDesignSnowflake,
+  InnerDesignMap,
+  InnerDesignSunflower,
+  InnerDesignGrid,
+  InnerDesignLattice,
   InnerDesignCirclesXVera,
   InnerDesignCirclePacking,
-  InnerDesignHexes,
-  InnerDesignLines,
+  InnerDesignLines, // - KINDA BROKEN
   InnerDesignMondrian,
-  InnerDesignExplode,
-  // InnerDesignGrid,
-  InnerDesignEmpty,
-  InnerDesignSunflower,
-  InnerDesignTessagon,
   InnerDesignPerlinDots,
-  InnerDesignTactile,
-  // InnerDesignHingedTesselation,
-  InnerDesignGrid,
-  InnerDesignSnowflake,
-  InnerDesignMap
+  // InnerDesignTactile, - UNFINISHED
+  // InnerDesignExplode, - BROKEN
+  InnerDesignEmpty,
 ];

@@ -7,7 +7,7 @@ import {
 } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 import { InnerDesignVoronoi } from "./voronoi";
-import { bufferShape } from "../../utils/paperjs-utils";
+import { bufferShape, cascadedUnion } from "../../utils/paperjs-utils";
 
 function getDistanceToLine(point: paper.Point, line: paper.Path.Line): number {
   return point.getDistance(line.getNearestPoint(point));
@@ -53,7 +53,7 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
       line.rotate(r * i, boundaryModel.bounds.center);
       axes.push(line);
       if (drawAxes) {
-        line.strokeColor = "blue";
+        line.strokeColor = new paper.Color("blue");
         line.strokeWidth = 0.05;
         paper.project.activeLayer.addChild(line);
       }
@@ -86,7 +86,7 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
     boundarySegment.closePath();
 
     if (debug) {
-      boundarySegment.strokeColor = "purple";
+      boundarySegment.strokeColor = new paper.Color("purple");
       boundarySegment.strokeWidth = 0.1;
       paper.project.activeLayer.addChild(boundarySegment);
     }
@@ -130,6 +130,7 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
     }
 
     if (segmentBuffer == 0) {
+      // @ts-ignore
       return cascadedUnion(allPaths);
     }
 

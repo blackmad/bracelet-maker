@@ -356,6 +356,7 @@ export function polygonize(
   // @ts-ignore
   const reader = new jsts.io.GeoJSONReader();
 
+  // @ts-ignore
   const polygonizer = new jsts.operation.polygonize.Polygonizer();
   // polygonizer.setCheckRingsValid(false);
   const geojsonLineStrings = shapes.map(paperPointsToGeoJsonLineString);
@@ -440,17 +441,13 @@ function uniteTouchingPathsOnePass(paths: paper.Path[]) {
         didJoin = true;
       }
     });
-    // if (currentPath.children && currentPath.children.length) {
-    //   console.log(currentPath.children)
-    //   currentPath.children.forEach((p) => joinedPaths.push(p))
-    // } else {
-      joinedPaths.push(currentPath);
-    // }
+
+    joinedPaths.push(currentPath);
   });
   return { didJoin, joinedPaths };
 }
 
-export function cascadedUnion(_paths: paper.Path[]) {
+export function cascadedUnion(_paths: paper.Path[]): paper.Path[] {
   let shouldStop = false;
   let paths = _paths;
   while (!shouldStop) {
@@ -460,4 +457,19 @@ export function cascadedUnion(_paths: paper.Path[]) {
     paths = joinedPaths;
   }
   return paths;
+}
+
+export function flattenArrayOfPolygonsToPolygons(paper: paper.PaperScope, paths: paper.Path[]): paper.Item[] {
+  const ret: paper.Item[] = [];
+  paths.forEach(path => {
+    if (path instanceof paper.CompoundPath) {
+
+      console.log(path.children);
+      console.log(path.children.forEach);
+      path.children.forEach((c) => ret.push(c));
+    } else if (path instanceof paper.Path) {
+      ret.push(path);
+    }
+  });
+  return ret;
 }

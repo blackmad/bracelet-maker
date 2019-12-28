@@ -3,6 +3,8 @@ import {
   RangeMetaParameter
 } from '../../meta-parameter';
 import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
+import { cascadedUnion } from "../../utils/paperjs-utils";
+
 
 export class InnerDesignSunflower extends FastAbstractInnerDesign {
   allowOutline = false;
@@ -45,8 +47,10 @@ export class InnerDesignSunflower extends FastAbstractInnerDesign {
         circles.push(circle);
       }
     }
+
+
     return {
-      paths: circles
+      paths: cascadedUnion(circles)
     };
   }
 

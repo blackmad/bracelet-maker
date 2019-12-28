@@ -1,7 +1,8 @@
 export enum MetaParameterType {
     Range,
     Select,
-    OnOff
+    OnOff,
+    Geocode
 }
 
 export interface MetaParameter {
@@ -88,6 +89,28 @@ export class OnOffMetaParameter implements MetaParameter {
         this.type = MetaParameterType.OnOff;
         this.title = params.title;
         this.value = params.value;
+        this.group = params.group;
+    }
+}
+
+export interface GeocodeMetaParameterParams extends MetaParameterBaseParams {
+    text: string;
+}
+export class GeocodeMetaParameter implements MetaParameter {
+    public name: string;
+    public type: MetaParameterType;
+    public title: string;
+    public value: string;
+    public text: string;
+    public target: string | null = null;
+    public group: string | null;
+
+    constructor(params: GeocodeMetaParameterParams) {
+        this.name = params.name;
+        this.type = MetaParameterType.Geocode;
+        this.title = params.title;
+        this.value = params.value;
+        this.text = params.text;
         this.group = params.group;
     }
 }

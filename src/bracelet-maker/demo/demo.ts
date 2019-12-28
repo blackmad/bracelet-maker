@@ -14,7 +14,9 @@ export async function demoDesign(
   const outerRect = new paper.Path.Rectangle(
     new paper.Rectangle(0, 0, 3, 3)
   )
-  params['boundaryModel'] = outerRect;
+  const boundaryRect = outerRect.clone();
+  boundaryRect.scale(0.85)
+  params['boundaryModel'] = boundaryRect;
   params['outerModel'] = outerRect;
   params[designClass.constructor.name] = params;
 
@@ -25,8 +27,9 @@ export async function demoDesign(
     const pathItem: paper.PathItem = (<CompletedModel>innerDesign).outer
     paths = [(<CompletedModel>innerDesign).outer];
   } else if (innerDesign instanceof InnerCompletedModel) {
-    paths = (<InnerCompletedModel>innerDesign).paths;
+    paths = [outerRect, ...(<InnerCompletedModel>innerDesign).paths];
   }
+  console.log(paths);
 
   // @ts-ignore
   const path = new paper.CompoundPath({
@@ -37,6 +40,8 @@ export async function demoDesign(
     fillColor: 'lightgrey',
     fillRule: 'evenodd'
   });
+
+  paper.project.activeLayer.addChild(path);
 
   return makeSVGData(paper, paper.project, false, elHydrator);
 }

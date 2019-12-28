@@ -12,7 +12,7 @@ import {
 import { PaperModelMaker, InnerCompletedModel } from "../../model-maker";
 
 import concaveman from "concaveman";
-import { roundCorners, cascadedUnion } from "../../utils/paperjs-utils";
+import { roundCorners } from "../../utils/paperjs-utils";
 
 export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   public rng: () => number;
@@ -158,9 +158,6 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
     paths = paths.filter(p => !!p);
 
-    console.log(cascadedUnion);
-    paths = cascadedUnion(paths);
-
     if (this.canRound) {
       if (params.smoothingType != "None") {
         if (params.smoothingType == "Homegrown") {
@@ -189,7 +186,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     if (this.needSubtraction && (!this.allowOutline || !shouldMakeOutline)) {
       // console.log('clamping sub');
       paths = paths.map(m => {
-        return m.intersect(params.boundaryModel);
+        return m.intersect(params.boundaryModel, {insert: false});
       });
     }
     ExtendPaperJs(paper);

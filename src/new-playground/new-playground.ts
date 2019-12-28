@@ -226,9 +226,11 @@ export class DavidsPlayground {
     const canvas: HTMLCanvasElement = document.getElementById(
       'myCanvas'
     ) as HTMLCanvasElement;
+    var paper1 = new paper.PaperScope();
     paper.setup(canvas);
-    paper.activate();
     paper.settings.insertItems = false;
+    paper.activate();
+    
 
     if (paper != null && paper.project != null) {
       paper.project.activeLayer.removeChildren();
@@ -240,9 +242,11 @@ export class DavidsPlayground {
       children: [this.currentModel.outer, ...this.currentModel.holes, ...this.currentModel.design],
       strokeColor: 'red',
       strokeWidth: '0.005',
-      // fillColor: 'lightgrey',
+      fillColor: 'lightgrey',
       fillRule: 'evenodd'
     });
+
+    compoundPath.rotate(180)
 
     paper.project.activeLayer.addChild(compoundPath);
 
