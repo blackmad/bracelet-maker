@@ -4,6 +4,7 @@ import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 import { fetchTopoJsonTiles } from "./map-utils";
 import { AbstractExpandInnerDesign } from "./abstract-expand-and-subtract-inner-design";
 import * as _ from 'lodash';
+import { bufferShapeToPoints } from '@/bracelet-maker/utils/paperjs-utils';
 var randomColor = require('randomcolor');
 
 
@@ -14,11 +15,11 @@ function pairwise(arr, func) {
   }
 }
 
-export class InnerDesignMap extends AbstractExpandInnerDesign {
-  async makePaths(
+export class InnerDesignMap extends FastAbstractInnerDesign {
+  async makeDesign(
     paper: paper.PaperScope,
     params: any
-  ): Promise<paper.Point[][]> {
+  ): Promise<paper.Path[]> {
     const {boundaryModel} = params;
     const invertLatLng = false;
 
@@ -109,6 +110,8 @@ export class InnerDesignMap extends AbstractExpandInnerDesign {
       ).add(boundaryModel.bounds.center);
     }
 
+    let totalUnion = boundaryModel;
+
     const newPaths = [];
     paths.forEach((path) => {
       const points = path.map(transformPoint);
@@ -116,19 +119,51 @@ export class InnerDesignMap extends AbstractExpandInnerDesign {
       const line = new paper.Path(points);
       line.strokeWidth = 0.05;
       line.strokeColor = randomColor();
-      paper.project.activeLayer.addChild(line);
+      // paper.project.activeLayer.addChild(line);
       
 
       // if (line.isInside(boundaryModel.bounds) || boundaryModel.intersects(line)) {
-      newPaths.push(points);
-      // }
+        // newPaths.push(line);
+        let hackedPoints = [...points]
+        hackedPoints.reverse()
+        if (hackedPoints.length == 2) {
+          const tmpLine = new paper.Path(hackedPoints)
+          hackedPoints = [
+            hackedPoints[0],
+            tmpLine.getPointAt(tmpLine.length*0.5),
+            hackedPoints[1]
+          ]
+        }
+        hackedPoints = hackedPoints.concat(points);
+
+        const fatLinePoints = bufferShapeToPoints(paper, 0.05, hackedPoints);
+        if(fatLinePoints) {
+          const fatLine = new paper.Path(fatLinePoints);
+          fatLine.strokeWidth = 0.05;
+          fatLine.strokeColor = line.strokeColor;
+          fatLine.closePath();
+          newPaths.push(fatLine);
+        } else {
+          console.log('could not buffer line', points, hackedPoints)
+        }
     });
+
+    // let totalUnion = boundaryModel;
+    // newPaths.forEach((p) => {
+    //   totalUnion = totalUnion.subtract(p)
+    // })
+    // console.log(totalUnion.subtract(newPaths[0]))
+
+    // const sub = boundaryModel.subtract(totalUnion)
+    // sub.strokeWidth = 0.05;
+    // sub.strokeColor = randomColor();
+    // paper.project.activeLayer.addChild(sub);
+
 
     const circle = new paper.Path.Circle(transformPoint(new paper.Point(minlat, minlng)), 0.5);
     circle.fillColor = 'red';
     paper.project.activeLayer.addChild(circle);
 
-    console.log(boundaryModel.segments.map((s) => s.point));
 
     return newPaths;
 
@@ -136,7 +171,7 @@ export class InnerDesignMap extends AbstractExpandInnerDesign {
     // return [params.boundaryModel];
   }
 
-  get pathDesignMetaParameters(): Array<MetaParameter> {
+  get designMetaParameters(): Array<MetaParameter> {
     return [];
   }
 }
