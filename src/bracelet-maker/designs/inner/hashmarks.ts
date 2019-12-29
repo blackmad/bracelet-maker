@@ -4,7 +4,6 @@
 import { MetaParameter, RangeMetaParameter } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 export class InnerDesignHashmarks extends FastAbstractInnerDesign {
-  needSubtraction = true;
   makeDesign(paper: paper.PaperScope, params: any) {
     const {
       boundaryModel,

@@ -7,7 +7,7 @@ import {
 } from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 import { InnerDesignVoronoi } from "./voronoi";
-import { bufferShape, cascadedUnion } from "../../utils/paperjs-utils";
+import { bufferShape } from "../../utils/paperjs-utils";
 
 function getDistanceToLine(point: paper.Point, line: paper.Path.Line): number {
   return point.getDistance(line.getNearestPoint(point));

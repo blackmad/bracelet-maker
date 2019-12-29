@@ -11,6 +11,7 @@ export class InnerDesignHexes extends FastAbstractInnerDesign {
   needSubtraction = false;
   requiresSafeConeClamp = false;
   needSeed = false;
+  canRound = false;
 
   makeDesign(paper: paper.PaperScope, params) {
     const {

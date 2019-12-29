@@ -3,7 +3,7 @@ import { Delaunay, Voronoi } from 'd3-delaunay';
 
 import { RangeMetaParameter, MetaParameter, OnOffMetaParameter, SelectMetaParameter } from '../../meta-parameter';
 import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
-import { randomPointInPolygon, bufferShape, bufferShapeToPoints, roundCorners, approxShape } from '../../utils/paperjs-utils';
+import { randomPointInPolygon, bufferShape, approxShape } from '../../utils/paperjs-utils';
 import ExtendPaperJs from 'paperjs-offset';
 
 export class InnerDesignVoronoi extends FastAbstractInnerDesign {

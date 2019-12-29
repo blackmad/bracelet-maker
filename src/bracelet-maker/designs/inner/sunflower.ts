@@ -3,7 +3,7 @@ import {
   RangeMetaParameter
 } from '../../meta-parameter';
 import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
-import { cascadedUnion } from "../../utils/paperjs-utils";
+import { cascadedUnion } from "../../utils/cascaded-union";
 
 
 export class InnerDesignSunflower extends FastAbstractInnerDesign {

@@ -7,26 +7,57 @@ import {
 } from "../../meta-parameter";
 
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
-import { fetchTopoJsonTiles } from "./map-utils";
-import { AbstractExpandInnerDesign } from "./abstract-expand-and-subtract-inner-design";
+import {
+  fetchTopoJsonTiles,
+  lineStringCoordinatesToPaperLine,
+  multiLneStringCoordinatesToPaperLines
+} from "./map-utils";
 import * as _ from "lodash";
 import {
-  bufferShapeToPoints,
-  cascadedUnion,
-  flattenArrayOfPolygonsToPolygons
+  flattenArrayOfPolygonsToPolygons,
+  bufferLine
 } from "../../utils/paperjs-utils";
+import { cascadedUnion } from '../../utils/cascaded-union';
 var randomColor = require("randomcolor");
-
-function pairwise(arr, func) {
-  const end = arr.length == 2 ? 1 : arr.length;
-  for (var i = 0; i < end; i++) {
-    func(arr[i % arr.length], arr[(i + 1) % arr.length]);
-  }
-}
 
 export class InnerDesignMap extends FastAbstractInnerDesign {
   needSubtraction = false;
   needSeed = false;
+
+  extractPointPathsFromFeatures(features: GeoJSON.Feature[], invertLatLng: boolean): paper.Point[][] {
+    const paths: paper.Point[][] = [];
+    features.map(f => {
+      if (f.geometry.type === "LineString") {
+        paths.push(
+          lineStringCoordinatesToPaperLine(
+            paper,
+            f.geometry.coordinates,
+            invertLatLng
+          )
+        );
+      } else if (f.geometry.type === "MultiLineString") {
+        multiLneStringCoordinatesToPaperLines(
+          paper,
+          f.geometry.coordinates,
+          invertLatLng
+        ).forEach(l => paths.push(l));
+      } else {
+        console.log(`cannot understand ${f.geometry.type}`);
+      }
+    });
+    return paths;
+  }
+
+  filterFeatures(features: GeoJSON.Feature[]): GeoJSON.Feature[] {
+    return features.filter(f => {
+      return (
+        ["road", "major_road", "minor_road"].includes(f.properties.kind) &&
+        f.properties.kind_detail != "service" // these seem to very often be parking lot outlines;
+        // these are cool but break parks
+        // (f.properties.kind == "path" && f.properties.kind_detail == "footway")
+      );
+    });
+  }
 
   async makeDesign(
     paper: paper.PaperScope,
@@ -74,129 +105,60 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
       zoom
     });
 
-    function lineStringCoordinatesToPaperLine(
-      paper: paper.PaperScope,
-      coordinates: number[][]
-    ): paper.Point[] {
-      return coordinates.map(point => {
-        const p = invertLatLng
-          ? new paper.Point(point[1], point[0])
-          : new paper.Point(point[0], point[1]);
-        return p;
+  
+    const filteredFeatures = this.filterFeatures(features);
+    const paths: paper.Point[][] = this.extractPointPathsFromFeatures(filteredFeatures, invertLatLng);
+
+    const bufferedPaths: paper.PathItem[] = paths.map(path => {
+      // translate map coordinates to our coordinate system, center on our center and scale
+      const points = path.map(point => {
+        return new paper.Point(
+          (point.x - centerX) * scaleX,
+          (point.y - centerY) * scaleY
+        ).add(boundaryModel.bounds.center);
       });
-    }
-
-    function multiLneStringCoordinatesToPaperLines(
-      paper: paper.PaperScope,
-      coordinates: number[][][]
-    ): paper.Point[][] {
-      return coordinates.map(g => lineStringCoordinatesToPaperLine(paper, g));
-    }
-
-    const paths: paper.Point[][] = [];
-    let filteredFeatures = features.filter(f => {
-      return (
-        (["road", "major_road", "minor_road"].includes(f.properties.kind) &&
-          f.properties.kind_detail != "service") // these seem to very often be parking lot outlines;
-        // these are cool but break parks
-        // (f.properties.kind == "path" && f.properties.kind_detail == "footway")
-      );
-    });
-    filteredFeatures.forEach(console.log);
-
-
-    // if (zoom < 14) {
-    //   filteredFeatures = features.filter(f =>
-    //     ["major_road"].includes(f.properties.kind));
-    // }
-
-    filteredFeatures.map(f => {
-      if (f.geometry.type === "LineString") {
-        paths.push(
-          lineStringCoordinatesToPaperLine(paper, f.geometry.coordinates)
-        );
-      } else if (f.geometry.type === "MultiLineString") {
-        multiLneStringCoordinatesToPaperLines(
-          paper,
-          f.geometry.coordinates
-        ).forEach(l => paths.push(l));
-      } else {
-        console.log(`cannot understand ${f.geometry.type}`);
-      }
-    });
-
-    const transformPoint = point => {
-      return new paper.Point(
-        (point.x - centerX) * scaleX,
-        (point.y - centerY) * scaleY
-      ).add(boundaryModel.bounds.center);
-    };
-
-    const newPaths = [];
-    paths.forEach(path => {
-      const points = path.map(transformPoint);
 
       const line = new paper.Path(points);
+
       if (debug) {
         line.strokeWidth = 0.05;
         line.strokeColor = randomColor();
         paper.project.activeLayer.addChild(line);
       }
 
+      // Only consider line segments that are inside or touching our boundaries
       if (
         line.isInside(boundaryModel.bounds) ||
         boundaryModel.intersects(line)
       ) {
-        // newPaths.push(line);
-        let hackedPoints = [...points];
-        hackedPoints.reverse();
-        if (hackedPoints.length == 2) {
-          const tmpLine = new paper.Path(hackedPoints);
-          hackedPoints = [
-            hackedPoints[0],
-            tmpLine.getPointAt(tmpLine.length * 0.5),
-            hackedPoints[1]
-          ];
-        }
-        hackedPoints = hackedPoints.concat(points);
-
-        const fatLinePoints = bufferShapeToPoints(
-          paper,
-          lineWidth / 2,
-          hackedPoints
-        );
-        if (fatLinePoints) {
-          const fatLine = new paper.Path(fatLinePoints);
-          fatLine.strokeWidth = 0.05;
-          fatLine.strokeColor = line.strokeColor;
-          fatLine.closePath();
-          newPaths.push(fatLine.intersect(boundaryModel));
+        const fatLine = bufferLine(points, lineWidth);
+        if (fatLine) {
+          return fatLine.intersect(boundaryModel);
         } else {
-          console.log("could not buffer line", points, hackedPoints);
+          return null;
         }
       }
     });
 
-    if (debug) {
-      const circle = new paper.Path.Circle(
-        transformPoint(new paper.Point(centerX, centerY)),
-        0.5
-      );
-      circle.fillColor = new paper.Color("red");
-      paper.project.activeLayer.addChild(circle);
-    }
-
-    // const boundarySegs = [];// pairwise(boundaryModel.segments, (A, B) => newPaths.push([A, B]));
-    const unionedPaths = cascadedUnion(newPaths);
-    const lastPaths = flattenArrayOfPolygonsToPolygons(paper, unionedPaths);
-    const insidePaths = lastPaths.filter(p => p.isInside(boundaryModel.bounds));
-    const outsidePaths = lastPaths.filter(
+    // Now union all the buffered lines together
+    const unionedPaths = cascadedUnion(bufferedPaths.filter((b) => b != null));
+    // Explode all the compound paths because that way we can isolate the ones that touch the edge
+    const explodedUnionedPaths = flattenArrayOfPolygonsToPolygons(paper, unionedPaths);
+    // After unioning, we end up with a set of cuts that will cause the inside of the design to drop out,
+    // so we carefully invert it ...
+    // find the inside paths, these are good holes
+    const insidePaths = explodedUnionedPaths.filter(p => p.isInside(boundaryModel.bounds));
+    // find the paths that touch the edge
+    const outsidePaths = explodedUnionedPaths.filter(
       p => !p.isInside(boundaryModel.bounds)
     );
+    // Invert those
     let invertedPath = boundaryModel;
     outsidePaths.forEach(path => (invertedPath = invertedPath.subtract(path)));
+
     const ret = [invertedPath, ...insidePaths];
     ret.forEach(r => {
+      /// Also, mirror everything because I was working in the wrong coordinate space and didn't want to redo anything
       if (invertLatLng) {
         r.scale(1, -1, boundaryModel.bounds.center);
       } else {
@@ -204,17 +166,6 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
       }
     });
     return ret;
-    // console.log(lastPaths);
-    // return lastPaths;
-
-    // console.log(unionedPaths)
-    // return unionedPaths.filter((p) => p.isInside(boundaryModel.scale(0.8).bounds))
-    // return [boundaryModel.subtract(unionedPaths)];
-
-    // return newPaths;
-
-    // return paths;
-    // return [params.boundaryModel];
   }
 
   get designMetaParameters(): Array<MetaParameter> {

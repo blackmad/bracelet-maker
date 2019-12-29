@@ -14,15 +14,7 @@ import {
   MetaParameter,
   MetaParameterType
 } from '../bracelet-maker/meta-parameter';
-
-function parseParamsString(paramsString: string): Map<string, string> {
-  const params = new Map<string, string>();
-  paramsString.split('&').forEach((p: string) => {
-    const parts: string[] = p.split('=');
-    params[parts[0]] = decodeURIComponent(parts[1]);
-  });
-  return params;
-}
+import { getDebugLayers } from '../bracelet-maker/utils/debug-layers';
 
 export class DavidsPlayground {
   private params: Map<string, any>;
@@ -226,7 +218,7 @@ export class DavidsPlayground {
     const canvas: HTMLCanvasElement = document.getElementById(
       'myCanvas'
     ) as HTMLCanvasElement;
-    var paper1 = new paper.PaperScope();
+    var paper1= new paper.PaperScope();
     paper.setup(canvas);
     paper.settings.insertItems = false;
     paper.activate();
@@ -234,6 +226,9 @@ export class DavidsPlayground {
 
     if (paper != null && paper.project != null) {
       paper.project.activeLayer.removeChildren();
+      _.forEach(getDebugLayers(), (v: paper.Group, k) => {
+        v.removeChildren();
+      })
     }
 
     this.currentModel = await this.modelMaker.make(paper, modelParams);
@@ -249,6 +244,11 @@ export class DavidsPlayground {
     compoundPath.rotate(180)
 
     paper.project.activeLayer.addChild(compoundPath);
+
+    _.forEach(getDebugLayers(), (v: paper.Group, k: string) => {
+      v.rotate(180, compoundPath.bounds.center);
+      paper.project.activeLayer.addChild(v);
+    });
 
     $('#svgArea')[0].innerHTML = makeSVGData(paper, paper.project, false, svg => $(svg)[0]);
 

@@ -83,3 +83,23 @@ export async function fetchTopoJsonTiles(extent: MapExtent) {
   const allFeatures = await Promise.all(fetchers);
   return _.flatten(allFeatures);
 }
+
+export function lineStringCoordinatesToPaperLine(
+  paper: paper.PaperScope,
+  coordinates: number[][],
+  invertLatLng: boolean
+): paper.Point[] {
+  return coordinates.map(point => {
+    const p = invertLatLng
+      ? new paper.Point(point[1], point[0])
+      : new paper.Point(point[0], point[1]);
+    return p;
+  });
+}
+
+export function multiLneStringCoordinatesToPaperLines(
+  paper: paper.PaperScope,
+  coordinates: number[][][], invertLatLng: boolean
+): paper.Point[][] {
+  return coordinates.map(g => lineStringCoordinatesToPaperLine(paper, g, invertLatLng));
+}

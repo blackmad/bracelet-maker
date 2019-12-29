@@ -1,11 +1,6 @@
 import { RangeMetaParameter, MetaParameter } from "../../meta-parameter";
 import {
   randomLineEndpointsOnRectangle,
-  paperRectToGeoJsonLineString,
-  paperPointsToGeoJsonLineString,
-  paperRectToPoints,
-  polygonize,
-  translateShapes
 } from "../../utils/paperjs-utils";
 import * as _ from "lodash";
 import { SimplexNoiseUtils } from '../../utils/simplex-noise-utils';
@@ -85,7 +80,7 @@ export class InnerDesignGrid extends AbstractExpandInnerDesign {
     }
 
     console.log(lines);
-    return translateShapes(lines, boundaryModel.bounds.topLeft);
+    return lines.map(shape => shape.map(p => p.add(boundaryModel.bounds.topLeft)));
   }
 
   get pathDesignMetaParameters(): MetaParameter[] {

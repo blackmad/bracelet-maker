@@ -2,8 +2,6 @@ const Shape = require("@doodle3d/clipper-js");
 import * as jsts from "jsts";
 import * as _ from "lodash";
 import GeoJSON from "geojson";
-const uuidv1 = require("uuid/v1");
-import RBush from "rbush";
 
 export function randomPointInPolygon(
   paper: paper.PaperScope,
@@ -139,103 +137,6 @@ export function checkCircleCircleIntersection(
   return distanceSquared < sumOfRadii * sumOfRadii;
 }
 
-export function roundCorners({ paper, path, radius }) {
-  let segments = path.segments;
-
-  const segmentsToRemove = [];
-
-  for (let i = 0; i < segments.length; i++) {
-    const p1 = segments[i];
-    const p2 = segments[(i + 1) % segments.length];
-
-    if (p1.point.getDistance(p2.point) < 0.1) {
-      segmentsToRemove.push(i);
-      // console.log(`removing segment ${i} from ${p1.point} to ${p2.point}`)
-    }
-  }
-
-  if (segments.length - segmentsToRemove.length > 4) {
-    segmentsToRemove.forEach(i => path.removeSegment(i));
-  }
-
-  segments = path.segments;
-
-  const fraction = 0.5 + 0.5 * (1 - radius);
-  const fractionOffset = (1 - fraction) * 0.95;
-
-  const newPath = new paper.Path();
-  for (let i = 0; i < segments.length; i++) {
-    // for (let i = 0; i < 1; i++) {
-    const p1 = segments[i];
-    const p2 = segments[(i + 1) % segments.length];
-    const p3 = segments[(i + 2) % segments.length];
-
-    const line1 = new paper.Path([p1, p2]);
-    const c1 = line1.getPointAt(line1.length * fraction);
-    var handleOut = line1.getPointAt(
-      line1.length * (fraction + fractionOffset)
-    );
-
-    const line2 = new paper.Path([p2, p3]);
-    const c2 = line2.getPointAt(line2.length * (1 - fraction));
-    var handleIn = line2.getPointAt(
-      line2.length * (1 - (fraction + fractionOffset))
-    );
-
-    // if (Math.abs(c1.getDistance(c2)) < 0.2) {
-    //   continue;
-    // }
-
-    // new paper.Path.Circle(c1, 0.01).fillColor = 'blue'
-    // new paper.Path.Circle(c2, 0.01).fillColor = 'red'
-
-    // new paper.Path.Circle(handleIn, 0.01).fillColor = 'orange'
-    // new paper.Path.Circle(handleOut, 0.01).fillColor = 'green'
-
-    newPath.add(
-      new paper.Segment({
-        point: c1,
-        handleOut: handleOut.subtract(c1)
-      })
-    );
-
-    newPath.add(
-      new paper.Segment({
-        point: c2,
-        handleIn: handleIn.subtract(c2)
-      })
-    );
-  }
-  newPath.closePath();
-  return newPath;
-}
-
-export function roundCornersOld({ paper, path, radius }) {
-  var segments = path.segments.slice(0);
-  path.removeSegments();
-
-  for (var i = 0, l = segments.length; i < l; i++) {
-    var curPoint = segments[i].point;
-    var nextPoint = segments[i + 1 == l ? 0 : i + 1].point;
-    var prevPoint = segments[i - 1 < 0 ? segments.length - 1 : i - 1].point;
-    var nextDelta = curPoint.subtract(nextPoint);
-    var prevDelta = curPoint.subtract(prevPoint);
-
-    nextDelta.length = radius;
-    prevDelta.length = radius;
-
-    path.add(
-      new paper.Segment(curPoint.subtract(prevDelta), null, prevDelta.divide(2))
-    );
-
-    path.add(
-      new paper.Segment(curPoint.subtract(nextDelta), nextDelta.divide(2), null)
-    );
-  }
-  path.closed = true;
-  return path;
-}
-
 export function approxShape(paper, shape, numPointsToGet = 200) {
   // console.log('in appro: ', shape);
   let points = [];
@@ -255,48 +156,7 @@ export function approxShape(paper, shape, numPointsToGet = 200) {
   return points.map(point => shapeToUse.localToGlobal(point));
 }
 
-export function intersectShapes(shapes: paper.Point[][]) {
-  const scaleFactor = 100;
-  const clipperShapes = shapes.map(shape =>
-    shape.map(p => {
-      return { X: p.x * scaleFactor + 0.0001, Y: p.y * scaleFactor + 0.0001 };
-    })
-  );
-}
-
-// var BORDER_RADIUS = 20;
-
-// function roundedPath( /* x1, y1, x2, y2, ..., xN, yN */ ){
-//     context.beginPath();
-//     if (!arguments.length) return;
-
-//     //compute the middle of the first line as start-stop-point:
-//     var deltaY = (arguments[3] - arguments[1]);
-//     var deltaX = (arguments[2] - arguments[0]);
-//     var xPerY = deltaY / deltaX;
-//     var startX = arguments[0] + deltaX / 2;
-//     var startY = arguments[1] + xPerY * deltaX / 2;
-
-//     //walk around using arcTo:
-//     context.moveTo(startX, startY);
-//     var x1, y1, x2, y2;
-//     x2 = arguments[2];
-//     y2 = arguments[3];
-//     for (var i = 4; i < arguments.length; i += 2) {
-//         x1 = x2;
-//         y1 = y2;
-//         x2 = arguments[i];
-//         y2 = arguments[i + 1];
-//         context.arcTo(x1, y1, x2, y2, BORDER_RADIUS);
-//     }
-
-//     //finally, close the path:
-//     context.arcTo(x2, y2, arguments[0], arguments[1], BORDER_RADIUS);
-//     context.arcTo(arguments[0], arguments[1], startX, startY, BORDER_RADIUS);
-//     context.closePath();
-// }
-
-export function paperPointsToGeoJsonLineString(points: paper.Point[]) {
+export function paperPointsToGeoJsonLineString(points: paper.Point[]): GeoJSON.LineString {
   return {
     type: "LineString",
     coordinates: points.map(point => [point.y, point.x])
@@ -387,83 +247,10 @@ export function polygonize(
   return _.compact(paperPolys);
 }
 
-export function translateShapes(
-  shapes: paper.Point[][],
-  to: paper.Point
-): paper.Point[][] {
-  return shapes.map(shape => shape.map(p => p.add(to)));
-}
-
-function uniteTouchingPathsOnePass(paths: paper.Path[]) {
-  const toTreeEntry = (path: paper.Path): any => {
-    return {
-      minX: path.bounds.topLeft.x - 0.01,
-      minY: path.bounds.topLeft.y - 0.01,
-      maxX: path.bounds.bottomRight.x + 0.01,
-      maxY: path.bounds.bottomRight.y + 0.01
-    };
-  };
-
-  const tree = new RBush();
-  const pathDict = {};
-  paths.forEach(path => {
-    const id = uuidv1();
-    pathDict[id] = path;
-    tree.insert({
-      id,
-      ...toTreeEntry(path)
-    });
-  });
-
-  const joinedPaths = [];
-  const deleted = {};
-  let didJoin = false;
-  _.forEach(pathDict, (path: paper.Path, id) => {
-    // console.log(`looking at ${id}`);
-    if (deleted[id]) {
-      return;
-    }
-    let currentPath: paper.PathItem = path;
-    const maybeIntersects = tree.search(toTreeEntry(path));
-    maybeIntersects.forEach((maybeIntersectTreeEntry: any) => {
-      const otherId = maybeIntersectTreeEntry.id;
-      // console.log(`maybe intersects ${otherId}`)
-      if (deleted[otherId] || otherId == id) {
-        // console.log('otherId was deleted or is identity, skipping')
-        return;
-      }
-      const otherPath: paper.Path = pathDict[otherId];
-      if (currentPath.intersects(otherPath)) {
-        // console.log(`${otherId} does intersect ${id}`)
-        currentPath = currentPath.unite(otherPath);
-        // console.log('intersected and deleted otherId')
-        deleted[otherId] = true;
-        didJoin = true;
-      }
-    });
-
-    joinedPaths.push(currentPath);
-  });
-  return { didJoin, joinedPaths };
-}
-
-export function cascadedUnion(_paths: paper.Path[]): paper.Path[] {
-  let shouldStop = false;
-  let paths = _paths;
-  while (!shouldStop) {
-    console.log("trying to join paths pass");
-    const { didJoin, joinedPaths } = uniteTouchingPathsOnePass(paths);
-    shouldStop = !didJoin;
-    paths = joinedPaths;
-  }
-  return paths;
-}
-
-export function flattenArrayOfPolygonsToPolygons(paper: paper.PaperScope, paths: paper.Path[]): paper.Item[] {
+export function flattenArrayOfPolygonsToPolygons(paper: paper.PaperScope, paths: paper.PathItem[]): paper.Item[] {
   const ret: paper.Item[] = [];
   paths.forEach(path => {
     if (path instanceof paper.CompoundPath) {
-
       // console.log(path.children);
       // console.log(path.children.forEach);
       path.children.forEach((c) => ret.push(c));
@@ -472,4 +259,33 @@ export function flattenArrayOfPolygonsToPolygons(paper: paper.PaperScope, paths:
     }
   });
   return ret;
+}
+
+export function bufferLine(points: paper.Point[], lineWidth: number): paper.Path {
+  let hackedPoints = [...points];
+  hackedPoints.reverse();
+  if (hackedPoints.length == 2) {
+    const tmpLine = new paper.Path(hackedPoints);
+    hackedPoints = [
+      hackedPoints[0],
+      tmpLine.getPointAt(tmpLine.length * 0.5),
+      hackedPoints[1]
+    ];
+  }
+  hackedPoints = hackedPoints.concat(points);
+
+  const fatLinePoints = bufferShapeToPoints(
+    paper,
+    lineWidth / 2,
+    hackedPoints
+  );
+
+  if (fatLinePoints) {
+    const path =  new paper.Path(fatLinePoints);
+    path.closePath();
+    return path;
+  } else {
+    console.log("could not buffer line", points, hackedPoints);
+    return null;
+  }
 }

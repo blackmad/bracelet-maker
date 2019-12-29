@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <div id="previewArea">
@@ -42,8 +41,24 @@
           <div id="innerParameterDiv" class="row design-params-row"></div>
         </div>
 
+        <div id="parameterSection" class="m-3">
+          <h1 class="title">Debug Layers</h1>
+
+          <div v-for="name in debugLayerNames" :key="name">
+            <label :style="{ color: cssColor(name) }">
+              <input type="checkbox" @click="toggleVisibility(name)" />
+              {{ name }}
+            </label>
+          </div>
+        </div>
+
         <div class="row justify-content-center">
-          <button class="btn btn-primary m-1 changeDesign" @click="changeDesign">Change Design</button>
+          <button
+            class="btn btn-primary m-1 changeDesign"
+            @click="changeDesign"
+          >
+            Change Design
+          </button>
         </div>
       </div>
     </div>
@@ -57,6 +72,7 @@ import { AllOuterDesigns } from "@/bracelet-maker/designs/outer/all";
 import { OuterPaperModelMaker } from "../bracelet-maker/model-maker";
 import { DavidsPlayground } from "@/new-playground/new-playground";
 import * as $ from "jquery";
+import { getDebugLayers, getDebugLayerNames } from "@/bracelet-maker/utils/debug-layers";
 
 @Component({})
 export default class NewPlaygroundView extends Vue {
@@ -64,6 +80,21 @@ export default class NewPlaygroundView extends Vue {
   @Prop(String) outerDesign: string;
   @Prop(String) innerDesign: string;
   isFirstQueryReplace = true;
+  debugLayers = getDebugLayers();
+  debugLayerNames = getDebugLayerNames();
+  playground: DavidsPlayground = null;
+
+  toggleVisibility(name) {
+    const value = this.debugLayers[name];
+    value.visible = !value.visible;
+    this.playground.rerender();
+  }
+
+  cssColor(name) {
+    const value = this.debugLayers[name];
+    console.log(value.style.strokeColor.toCSS());
+    return value.style.strokeColor.toCSS();
+  }
 
   mounted() {
     const innerDesignClass = AllInnerDesigns.find(
@@ -76,15 +107,14 @@ export default class NewPlaygroundView extends Vue {
     const innerDesign = new innerDesignClass();
     const modelMaker: OuterPaperModelMaker = new outerDesignClass(innerDesign);
     $(".clear-on-reinit").empty();
-    new DavidsPlayground(modelMaker,
-      this.$route.query,
-        params => {
-        if (!this.isFirstQueryReplace || !this.$route.query ) {
-          this.$router.replace({ query: params })
-        }
-        this.isFirstQueryReplace = false;
+    console.log(this.debugLayers);
+    this.playground = new DavidsPlayground(modelMaker, this.$route.query, params => {
+      if (!this.isFirstQueryReplace || !this.$route.query) {
+        this.$router.replace({ query: params });
       }
-    ).rerender();
+      this.isFirstQueryReplace = false;
+    })
+    this.playground.rerender();
   }
 
   changeDesign() {

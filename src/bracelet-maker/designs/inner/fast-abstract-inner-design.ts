@@ -2,17 +2,17 @@ import * as _ from "lodash";
 import * as SimplexNoise from "simplex-noise";
 const seedrandom = require("seedrandom");
 import ExtendPaperJs from "paperjs-offset";
-import * as simplify from "simplify-js";
 
 import {
   MetaParameter,
   RangeMetaParameter,
-  SelectMetaParameter
+  OnOffMetaParameter
 } from "../../meta-parameter";
 import { PaperModelMaker, InnerCompletedModel } from "../../model-maker";
 
 import concaveman from "concaveman";
-import { roundCorners } from "../../utils/paperjs-utils";
+import { addToDebugLayer } from "../../utils/debug-layers";
+import { roundCorners } from '../../utils/round-corners';
 
 export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   public rng: () => number;
@@ -33,11 +33,11 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
   get metaParameters(): MetaParameter[] {
     let metaParams: MetaParameter[] = [
-      // new OnOffMetaParameter({
-      //   title: 'Debug',
-      //   name: 'debug',
-      //   value: false
-      // })
+      new OnOffMetaParameter({
+        title: 'Debug',
+        name: 'debug',
+        value: false
+      })
     ];
 
     if (this.needSeed) {
@@ -57,17 +57,10 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
     if (this.canRound) {
       metaParams.push(
-        new SelectMetaParameter({
-          title: "Smoothing Type",
-          value: "Homegrown",
-          options: [
-            "None",
-            "Homegrown",
-            "continuous",
-            "Catmull-Rom",
-            "Geometric"
-          ],
-          name: "smoothingType"
+        new OnOffMetaParameter({
+          title: "Round paths",
+          value: "true",
+          name: "shouldSmooth"
         })
       );
       metaParams.push(
@@ -95,7 +88,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           title: "Outline Concavity",
           min: 0.1,
           max: 3,
-          value: 1.5,
+          value: 0.4,
           step: 0.01,
           name: "concavity"
         })
@@ -105,7 +98,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           title: "Outline Length Threshold",
           min: 0.01,
           max: 3,
-          value: 0.2,
+          value: 0.01,
           step: 0.01,
           name: "lengthThreshold"
         })
@@ -115,7 +108,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           title: "Outline Size (inches)",
           min: 0.01,
           max: 3,
-          value: 0.1,
+          value: 0.15,
           step: 0.01,
           name: "outlineSize"
         })
@@ -134,8 +127,6 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
   public async make(paper: any, params: any): Promise<InnerCompletedModel> {
     const self = this;
-
-    params.debug = false;
 
     if (params.seed) {
       this.rng = seedrandom(params.seed.toString());
@@ -158,26 +149,10 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
     paths = paths.filter(p => !!p);
 
-    if (this.canRound) {
-      if (params.smoothingType != "None") {
-        if (params.smoothingType == "Homegrown") {
-          paths = paths.map(path =>
-            roundCorners({ paper, path: path, radius: params.smoothingFactor })
-          );
-        } else {
-          try {
-            paths.forEach(path =>
-              path.smooth({
-                type: params.smoothingType.toLowerCase(),
-                from: -1,
-                to: 0
-              })
-            );
-          } catch (e) {
-            // console.error(e);
-          }
-        }
-      }
+    if (params.shouldSmooth) {
+      paths = paths.map(path =>
+        roundCorners({ paper, path: path, radius: params.smoothingFactor })
+      );
     }
 
     const shouldMakeOutline =
@@ -226,16 +201,17 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
       if (design.outlinePaths) {
         outline = new paper.CompoundPath(design.outlinePaths);
-        // outline = outline.intersect(params.safeCone);
       } else {
+        console.log('need to make outline')
         // @ts-ignore
         outline = params.outerModel;
         // TODO: this is wrong
         const hasCurves = !_.some(paths, p =>
           _.some(p.curves, c => !!c.handle1)
         );
+        console.log(hasCurves)
+        console.log(params.debug)
 
-        // params.debug = true;
         if (!hasCurves) {
           const allPoints = [];
           paths.forEach((path: paper.Path) => {
@@ -243,6 +219,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
             for (let offset = 0; offset < 1; offset += 0.01) {
               const point = path.getPointAt(path.length * offset);
               allPoints.push([point.x, point.y]);
+              // addToDebugLayer(paper, "points", new paper.Path.Rectangle(point, 0.01));
             }
           });
           const concaveHull = concaveman(
@@ -253,10 +230,9 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           outline = new paper.Path(
             concaveHull.map(p => new paper.Point(p[0], p[1]))
           );
-          // outline.simplify(0.0001);
+
           if (params.debug) {
-            outline.strokeColor = "green";
-            outline.strokeWidth = 0.05;
+            addToDebugLayer(paper, 'outlinePoints', outline);
           }
 
           outline = paper.Path.prototype.offset.call(
@@ -269,11 +245,6 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
             outline = _.sortBy(outline.children, (c) => -c.area)[0];
           }
 
-          if (params.debug) {
-            outline.strokeColor = "pink";
-            outline.strokeWidth = 0.05;
-            outline.fillColor = "blue";
-          }
           outline.closePath();
           //  outline = outline.children[0];
         } else {
@@ -288,43 +259,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         }
       }
 
-      // console.log(outline);
-      // const points = outline.segments.map(s => {
-      //   return {
-      //     x: s.point.x,
-      //     y: s.point.y
-      //   };
-      // });
-      // const simplifiedPoints = simplify(points, 0.03);
-      // console.log(points.map((p) => [p.x, p.y]));
-      // const newOutlinePoints = simplifiedPoints.map((p) => new paper.Point(p.x, p.y));
-      // console.log(newOutlinePoints)
-      // outline = new paper.Path(newOutlinePoints);
-      // outline.closePath();
-      // console.log(points);
-      // console.log(simplify);
-      // console.log(simplify(points, 0.01));
-
-      // outline.strokeColor = "green";
-      // outline.strokeWidth = 0.05;
-      // outline.fillColor = 'green';
-
-      if (params.debug) {
-        outline.strokeColor = "green";
-        outline.strokeWidth = 0.05;
-        // need to insert also
-      }
-
-      // outline.simplify({ tolerance: 0.2 });
-// 
-      // if (this.smoothOutline) {
         outline = roundCorners({ paper, path: outline, radius: 0.9 })
-        
-
-
-        // outline.smooth({ type: 'catmull-rom', factor: 0.1 });
-      // }
-
     }
 
     return new InnerCompletedModel({
