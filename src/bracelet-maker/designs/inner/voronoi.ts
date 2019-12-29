@@ -117,7 +117,7 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
     return polys;
   }
 
-  get designMetaParameters(): Array<MetaParameter> {
+  get designMetaParameters() {
     return [
       new RangeMetaParameter({
         title: 'Num Points',

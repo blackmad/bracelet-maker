@@ -25,7 +25,7 @@ function yIntercept(point, slope) {
 export abstract class AbstractExpandInnerDesign
   extends FastAbstractInnerDesign {
 
-  get designMetaParameters(): MetaParameter[] {
+  get designMetaParameters(): MetaParameter<any>[] {
     return [
       new RangeMetaParameter({
         title: "Line Width",
@@ -38,7 +38,7 @@ export abstract class AbstractExpandInnerDesign
       ...this.pathDesignMetaParameters
     ];
   }
-  abstract pathDesignMetaParameters: MetaParameter[]
+  abstract pathDesignMetaParameters: MetaParameter<any>[]
 
   abstract makePaths(scope: paper.PaperScope, params): Promise<paper.Point[][]>;
   

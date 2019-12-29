@@ -108,7 +108,7 @@ export class InnerDesignLines extends AbstractExpandInnerDesign {
     return lines;
   }
 
-  get pathDesignMetaParameters(): MetaParameter[] {
+  get pathDesignMetaParameters() {
     return [
       new RangeMetaParameter({
         title: 'Num Lines',

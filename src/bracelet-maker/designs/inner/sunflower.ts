@@ -54,7 +54,7 @@ export class InnerDesignSunflower extends FastAbstractInnerDesign {
     };
   }
 
-  get designMetaParameters(): Array<MetaParameter> {
+  get designMetaParameters() {
     return [
       // new RangeMetaParameter({
       //   title: "Circle Size",

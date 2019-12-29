@@ -1,9 +1,9 @@
-- break up & comment map
 - break up & comment abstract inner
 - migrate kaleidoscope up to root inner design
 - finally figure out grouping params / conditional params
 - see about perlin potrace
 - look into posture collar 
+- http://haptic-data.com/toxiclibsjs/
 
 12/8
 

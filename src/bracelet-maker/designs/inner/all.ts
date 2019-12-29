@@ -14,11 +14,13 @@ import { InnerDesignTessagon } from "./tessagon";
 import { InnerDesignTactile } from "./tactile";
 
 import { InnerDesignPerlinDots } from "./perlin-dots";
+import { InnerDesignPerlinBlobs } from "./perlin-blobs";
 import { InnerDesignGrid } from "./grid";
 import { InnerDesignSnowflake } from "./snowflake";
 import { InnerDesignMap } from "./map";
 
 export const AllInnerDesigns = [
+  InnerDesignPerlinBlobs,
   InnerDesignVoronoi,
   InnerDesignTessagon,
   InnerDesignHashmarks,

@@ -1,7 +1,7 @@
 import { MetaParameter } from "./meta-parameter";
 
 export interface HasMetaParameters { 
-  readonly metaParameters: Array<MetaParameter>;
+  readonly metaParameters: MetaParameter<any>[];
 
 }
 

@@ -21,6 +21,7 @@
     "fetch-ponyfill": "^6.1.0",
     "geocomplete": "^1.7.0",
     "geojson": "^0.5.0",
+    "jimp": "^0.9.3",
     "jsts": "^2.1.0",
     "node-fetch": "^2.6.0",
     "polygonize": "^1.0.4",

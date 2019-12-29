@@ -1,7 +1,9 @@
 import {
   MetaParameter,
-  MetaParameterType,
-  RangeMetaParameter
+  RangeMetaParameter,
+  SelectMetaParameter,
+  OnOffMetaParameter,
+  MetaParameterType
 } from "@/bracelet-maker/meta-parameter";
 import { HasMetaParameters } from "@/bracelet-maker/model-maker";
 
@@ -198,13 +200,8 @@ export class MetaParameterBuilder {
 
     const self = this;
 
-    console.log('el', latInputEl);
     latInputEl.addEventListener("change", function(event) {
       const value = event.target.value;
-      console.log('h2', event);
-      console.log(value)
-      console.log( metaParameter.value.split(",")[0]);
-      console.log('setting', `${value},${lngInputEl.value}`);
       if (value != metaParameter.value.split(",")[0]) {
         self.onParamChange({
           metaParameter,
@@ -215,9 +212,7 @@ export class MetaParameterBuilder {
 
     lngInputEl.addEventListener("change", function(event) {
       const value = event.target.value;
-      console.log('here', event);
       if (value != metaParameter.value.split(",")[1]) {
-        console.log(`${latInputEl.value},${value}`)
         self.onParamChange({
           metaParameter,
           value: `${latInputEl.value},${value}`
@@ -230,10 +225,8 @@ export class MetaParameterBuilder {
 
     autocomplete.addListener("place_changed", function() {
       var place = autocomplete.getPlace();
-      console.log(place);
       const lat = place.geometry.location.lat();
       const lng = place.geometry.location.lng();
-      console.log(lat, lng);
       lngInputEl.value = lat;
       latInputEl.value = lng;
       self.onParamChange({ metaParameter, value: `${lat},${lng}` });
@@ -242,7 +235,7 @@ export class MetaParameterBuilder {
     return parentDiv;
   }
 
-  public buildMetaParameterWidget(metaParam: MetaParameter) {
+  public buildMetaParameterWidget(metaParam: MetaParameter<any>) {
     switch (metaParam.type) {
       case MetaParameterType.Range:
         return this.makeMetaParameterSlider(metaParam as RangeMetaParameter);

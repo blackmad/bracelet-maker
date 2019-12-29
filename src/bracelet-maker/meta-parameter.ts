@@ -1,117 +1,106 @@
 export enum MetaParameterType {
-    Range,
-    Select,
-    OnOff,
-    Geocode
+  Range,
+  Select,
+  OnOff,
+  Geocode
 }
 
-export interface MetaParameter {
-    name: string;
-    type: MetaParameterType;
-    title: string;
-    value: any;
-    target: string | null;
-    group: string | null;
-}
-
-export interface MetaParameterBaseParams {
+export interface MetaParameterBaseParams<T> {
   name: string;
   title: string;
-  value: any;
+  value: T;
   target?: string | null;
   group?: string | null;
+  help?: string | null;
 }
 
-export interface RangeMetaParameterParams extends MetaParameterBaseParams {
+export class MetaParameter<T> {
+  public name: string;
+  public title: string;
+  public target: string | null = null;
+  public group: string | null;
+  public help: string | null;
+  public value: T;
+  public type: MetaParameterType;
+
+  valueFromString(value: string) {
+    if (typeof this.value == "number") {
+      return Number(value);
+    } else if (typeof this.value == "boolean") {
+      return value == "true";
+    } else {
+      return value;
+    }
+  }
+
+  constructor(params: MetaParameterBaseParams<T>) {
+    this.name = params.name;
+    this.title = params.title;
+    this.target = params.target;
+    this.group = params.group;
+    this.help = params.help;
+    this.value = params.value;
+  }
+}
+
+export interface RangeMetaParameterParams
+  extends MetaParameterBaseParams<number> {
   min: number;
   max: number;
-  value: number;
   step: number;
 }
 
-export class RangeMetaParameter implements MetaParameter {
-    public name: string;
-    public type: MetaParameterType;
-    public title: string;
-    public min: number;
-    public max: number;
-    public value: number;
-    public step: number;
-    public target: string | null = null;
-    public group: string | null;
+export class RangeMetaParameter extends MetaParameter<number> {
+  public min: number;
+  public max: number;
+  public step: number;
+  public type = MetaParameterType.Range;
 
-    constructor(params: RangeMetaParameterParams) {
-        this.name = params.name;
-        this.type = MetaParameterType.Range;
-        this.title = params.title;
-        this.min = params.min;
-        this.max = params.max;
-        this.value = params.value;
-        this.step = params.step;
-        this.target = params.target;
-        this.group = params.group;
-    }
+  constructor(params: RangeMetaParameterParams) {
+    super(params);
+    this.min = params.min;
+    this.max = params.max;
+    this.step = params.step;
+  }
 }
 
-export interface SelectMetaParameterParams extends MetaParameterBaseParams {
+export interface SelectMetaParameterParams
+  extends MetaParameterBaseParams<string> {
   options: string[];
 }
 
-export class SelectMetaParameter implements MetaParameter {
-    public name: string;
-    public type: MetaParameterType;
-    public title: string;
-    public options: string[];
-    public value: string;
-    public target: string | null = null;
-    public group: string | null;
+export class SelectMetaParameter extends MetaParameter<string> {
+  public options: string[];
+  public type = MetaParameterType.Select;
 
-    constructor(params: SelectMetaParameterParams) {
-        this.name = params.name;
-        this.type = MetaParameterType.Select;
-        this.title = params.title;
-        this.options = params.options;
-        this.value = params.value;
-        this.group = params.group;
-    }
+  constructor(params: SelectMetaParameterParams) {
+    super(params);
+    this.options = params.options;
+  }
 }
 
-export class OnOffMetaParameter implements MetaParameter {
-    public name: string;
-    public type: MetaParameterType;
-    public title: string;
-    public value: boolean;
-    public target: string | null = null;
-    public group: string | null;
+export interface OnOffMetaParameterParams
+  extends MetaParameterBaseParams<boolean> {}
 
-    constructor(params: MetaParameterBaseParams) {
-        this.name = params.name;
-        this.type = MetaParameterType.OnOff;
-        this.title = params.title;
-        this.value = params.value;
-        this.group = params.group;
-    }
+export class OnOffMetaParameter extends MetaParameter<boolean> {
+public type = MetaParameterType.OnOff;
+  constructor(params: OnOffMetaParameterParams) {
+    super(params);
+  }
 }
 
-export interface GeocodeMetaParameterParams extends MetaParameterBaseParams {
-    text: string;
+export interface GeocodeMetaParameterParams
+  extends MetaParameterBaseParams<string> {
+  text: string;
 }
-export class GeocodeMetaParameter implements MetaParameter {
-    public name: string;
-    public type: MetaParameterType;
-    public title: string;
-    public value: string;
-    public text: string;
-    public target: string | null = null;
-    public group: string | null;
+export class GeocodeMetaParameter extends MetaParameter<string> {
+  public text: string;
+  public value: string;
+  public type = MetaParameterType.Geocode;
 
-    constructor(params: GeocodeMetaParameterParams) {
-        this.name = params.name;
-        this.type = MetaParameterType.Geocode;
-        this.title = params.title;
-        this.value = params.value;
-        this.text = params.text;
-        this.group = params.group;
-    }
+  constructor(params: GeocodeMetaParameterParams) {
+    super(params);
+    this.value = params.value;
+    this.text = params.text;
+  }
 }
-

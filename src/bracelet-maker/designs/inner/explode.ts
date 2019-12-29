@@ -43,7 +43,7 @@ export class InnerDesignExplode extends AbstractExpandInnerDesign {
     return paths;
   }
 
-  get pathDesignMetaParameters(): Array<MetaParameter> {
+  get pathDesignMetaParameters() {
     return [
       new RangeMetaParameter({
         title: "Num Lines",

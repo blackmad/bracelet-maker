@@ -163,7 +163,7 @@ export function paperPointsToGeoJsonLineString(points: paper.Point[]): GeoJSON.L
   };
 }
 
-export function paperRectToGeoJsonLineString(rect: paper.Rectangle) {
+export function paperRectToGeoJsonLineString(rect: paper.Rectangle): GeoJSON.LineString {
   return paperPointsToGeoJsonLineString(paperRectToPoints(rect));
 }
 
@@ -247,13 +247,11 @@ export function polygonize(
   return _.compact(paperPolys);
 }
 
-export function flattenArrayOfPolygonsToPolygons(paper: paper.PaperScope, paths: paper.PathItem[]): paper.Item[] {
-  const ret: paper.Item[] = [];
+export function flattenArrayOfPathItems(paper: paper.PaperScope, paths: paper.Item[]): paper.Path[] {
+  const ret: paper.Path[] = [];
   paths.forEach(path => {
     if (path instanceof paper.CompoundPath) {
-      // console.log(path.children);
-      // console.log(path.children.forEach);
-      path.children.forEach((c) => ret.push(c));
+      flattenArrayOfPathItems(paper, path.children).forEach((c) => ret.push(c));
     } else if (path instanceof paper.Path) {
       ret.push(path);
     }

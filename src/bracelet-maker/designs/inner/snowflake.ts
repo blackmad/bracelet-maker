@@ -137,7 +137,7 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
     return allPaths;
   }
 
-  get designMetaParameters(): Array<MetaParameter> {
+  get designMetaParameters() {
     return [
       new OnOffMetaParameter({
         title: "kaleidoscope",

@@ -96,7 +96,7 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
     }
   }
 
-  get designMetaParameters(): Array<MetaParameter> {
+  get designMetaParameters() {
     return [
       new RangeMetaParameter({
         title: "Border Size",

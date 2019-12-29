@@ -83,7 +83,7 @@ export class InnerDesignGrid extends AbstractExpandInnerDesign {
     return lines.map(shape => shape.map(p => p.add(boundaryModel.bounds.topLeft)));
   }
 
-  get pathDesignMetaParameters(): MetaParameter[] {
+  get pathDesignMetaParameters() {
     return [
       new RangeMetaParameter({
         title: "Num Rows",

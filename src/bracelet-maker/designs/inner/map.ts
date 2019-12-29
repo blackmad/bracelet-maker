@@ -14,7 +14,7 @@ import {
 } from "./map-utils";
 import * as _ from "lodash";
 import {
-  flattenArrayOfPolygonsToPolygons,
+  flattenArrayOfPathItems,
   bufferLine
 } from "../../utils/paperjs-utils";
 import { cascadedUnion } from '../../utils/cascaded-union';
@@ -143,7 +143,7 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
     // Now union all the buffered lines together
     const unionedPaths = cascadedUnion(bufferedPaths.filter((b) => b != null));
     // Explode all the compound paths because that way we can isolate the ones that touch the edge
-    const explodedUnionedPaths = flattenArrayOfPolygonsToPolygons(paper, unionedPaths);
+    const explodedUnionedPaths = flattenArrayOfPathItems(paper, unionedPaths);
     // After unioning, we end up with a set of cuts that will cause the inside of the design to drop out,
     // so we carefully invert it ...
     // find the inside paths, these are good holes
@@ -168,7 +168,7 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
     return ret;
   }
 
-  get designMetaParameters(): Array<MetaParameter> {
+  get designMetaParameters() {
     return [
       new GeocodeMetaParameter({
         title: "Center",

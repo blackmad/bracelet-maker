@@ -102,7 +102,7 @@ export class InnerDesignPerlinDots extends FastAbstractInnerDesign {
     return models;
   }
 
-  get designMetaParameters(): Array<MetaParameter> {
+  get designMetaParameters() {
     return [
       new SelectMetaParameter({
         title: 'Shape',

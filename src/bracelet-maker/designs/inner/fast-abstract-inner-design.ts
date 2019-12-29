@@ -29,10 +29,10 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   public controlInfo = "";
 
   public abstract makeDesign(scope: any, params: any): any;
-  abstract get designMetaParameters(): MetaParameter[];
+  abstract get designMetaParameters(): MetaParameter<any>[];
 
-  get metaParameters(): MetaParameter[] {
-    let metaParams: MetaParameter[] = [
+  get metaParameters() {
+    let metaParams: MetaParameter<any>[] = [
       new OnOffMetaParameter({
         title: 'Debug',
         name: 'debug',
@@ -59,7 +59,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       metaParams.push(
         new OnOffMetaParameter({
           title: "Round paths",
-          value: "true",
+          value: true,
           name: "shouldSmooth"
         })
       );

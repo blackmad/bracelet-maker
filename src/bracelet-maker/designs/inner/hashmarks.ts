@@ -104,7 +104,7 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
     return paths;
   }
 
-  get designMetaParameters(): Array<MetaParameter> {
+  get designMetaParameters() {
     return [
       new RangeMetaParameter({
         title: "Buffer Width",

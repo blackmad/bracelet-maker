@@ -71,7 +71,7 @@ export class InnerDesignHexes extends FastAbstractInnerDesign {
     return paths;
   }
 
-  get designMetaParameters(): Array<MetaParameter> {
+  get designMetaParameters() {
     return [
       new RangeMetaParameter({
         title: "Rows",

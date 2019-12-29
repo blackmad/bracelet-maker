@@ -41,7 +41,7 @@
           <div id="innerParameterDiv" class="row design-params-row"></div>
         </div>
 
-        <div id="parameterSection" class="m-3">
+        <div id="parameterSection" class="m-3" v-if="debugLayerNames.length > 0">
           <h1 class="title">Debug Layers</h1>
 
           <div v-for="name in debugLayerNames" :key="name">
@@ -50,6 +50,9 @@
               {{ name }}
             </label>
           </div>
+        </div>
+
+        <div id="designScratchArea">
         </div>
 
         <div class="row justify-content-center">

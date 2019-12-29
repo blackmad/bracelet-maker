@@ -12,7 +12,6 @@ import blobStream from 'blob-stream';
 
 import {
   MetaParameter,
-  MetaParameterType
 } from '../bracelet-maker/meta-parameter';
 import { getDebugLayers } from '../bracelet-maker/utils/debug-layers';
 
@@ -59,16 +58,8 @@ export class DavidsPlayground {
     this.queryParamUpdateCb(this.params);
     this.doRender();
   }
-  public metaParamRequiresNumber(metaParameter: MetaParameter) {
-    return metaParameter.type == MetaParameterType.Range;
-  }
-
   public onParamChange({ metaParameter, value }) {
-    if (this.metaParamRequiresNumber(metaParameter)) {
-      this.params[metaParameter.name] = Number(value);
-    } else {
-      this.params[metaParameter.name] = value;
-    }
+    this.params[metaParameter.name] = metaParameter.valueFromString(value)
     this.rerender();
   }
 

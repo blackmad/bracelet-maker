@@ -7,7 +7,7 @@ export class InnerDesignEmpty extends FastAbstractInnerDesign {
     return [params.boundaryModel];
   }
 
-  get designMetaParameters(): Array<MetaParameter> {
+  get designMetaParameters() {
     return [];
   }
 }
