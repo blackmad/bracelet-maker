@@ -1,9 +1,7 @@
 <template>
   <div>
-
-
     <b-container class="p-xs-3 p-sm-3 p-md-4 p-lg-5">
-            <div class="row">
+      <div class="row">
         <h2>Pick an outer shape</h2>
       </div>
       <div class="row">
