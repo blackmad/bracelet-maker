@@ -102,6 +102,7 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
         // (f.properties.kind == "path" && f.properties.kind_detail == "footway")
       );
     });
+    filteredFeatures.forEach(console.log);
 
 
     // if (zoom < 14) {

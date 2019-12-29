@@ -1,9 +1,8 @@
 
-- do one from map tiles
-- figure out why example generation is broken
 - migrate kaleidoscope up to root inner design
 - finally figure out grouping params / conditional params
 - see about perlin potrace
+- look into posture collar 
 
 12/8
 

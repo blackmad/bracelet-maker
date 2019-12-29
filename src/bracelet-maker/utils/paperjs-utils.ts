@@ -374,7 +374,7 @@ export function polygonize(
   polygonizer.add(cleaned);
 
   var polygons = polygonizer.getPolygons().array_;
-  console.log(polygons);
+  // console.log(polygons);
 
   const paperPolys = polygons.map((_polygon: jsts.geom.Polygon) => {
     let polygon: jsts.geom.Geometry = _polygon;
@@ -464,8 +464,8 @@ export function flattenArrayOfPolygonsToPolygons(paper: paper.PaperScope, paths:
   paths.forEach(path => {
     if (path instanceof paper.CompoundPath) {
 
-      console.log(path.children);
-      console.log(path.children.forEach);
+      // console.log(path.children);
+      // console.log(path.children.forEach);
       path.children.forEach((c) => ret.push(c));
     } else if (path instanceof paper.Path) {
       ret.push(path);
