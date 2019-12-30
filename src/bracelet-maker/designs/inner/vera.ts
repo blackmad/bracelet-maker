@@ -98,7 +98,7 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
       models = models.concat(rowModels);
     }
 
-    return models;
+    return Promise.resolve({paths: models}); 
   }
 
   get designMetaParameters(): Array<MetaParameter<any>> {

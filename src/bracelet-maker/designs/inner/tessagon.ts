@@ -63,9 +63,9 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
       // return new paper.Path(points);
     });
 
-    return {
+    return Promise.resolve({
       paths
-    }
+    });
   }
 
   get designMetaParameters(): Array<MetaParameter<any>> {

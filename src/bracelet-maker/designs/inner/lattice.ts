@@ -1,4 +1,8 @@
-import { OnOffMetaParameter, MetaParameter, RangeMetaParameter } from "../../meta-parameter";
+import {
+  OnOffMetaParameter,
+  MetaParameter,
+  RangeMetaParameter
+} from "../../meta-parameter";
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 
 export class InnerDesignLattice extends FastAbstractInnerDesign {
@@ -6,7 +10,7 @@ export class InnerDesignLattice extends FastAbstractInnerDesign {
   needSubtraction = true;
   needSeed = false;
 
-  makeDesign(paper: paper.PaperScope, params): paper.PathItem[] {
+  makeDesign(paper: paper.PaperScope, params) {
     const {
       boundaryModel,
       shapeHeight,
@@ -18,7 +22,7 @@ export class InnerDesignLattice extends FastAbstractInnerDesign {
     } = params;
 
     const cols = boundaryModel.bounds.width / shapeWidth;
-    const rows = (boundaryModel.bounds.height / shapeHeight) + 1
+    const rows = boundaryModel.bounds.height / shapeHeight + 1;
 
     let paths: paper.PathItem[] = [];
     let totalPath = null;
@@ -26,21 +30,23 @@ export class InnerDesignLattice extends FastAbstractInnerDesign {
     for (var r = 0; r < rows; r++) {
       for (var c = 0; c <= cols; c++) {
         const center = new paper.Point(
-          ((r % 2) * rowOffset * shapeWidth) + boundaryModel.bounds.x +
-            (c * shapeWidth),
-          yOffset + boundaryModel.bounds.y +
+          (r % 2) * rowOffset * shapeWidth +
+            boundaryModel.bounds.x +
+            c * shapeWidth,
+          yOffset +
+            boundaryModel.bounds.y +
             (c % 2) * colOffset +
-            (r * shapeHeight)
+            r * shapeHeight
         );
 
         const possibleCircle = new paper.Path.Circle(center, shapeWidth);
-        possibleCircle.scale(1, shapeWidth/shapeHeight);
+        possibleCircle.scale(1, shapeWidth / shapeHeight);
 
-        const shouldUseCircle = 
-          possibleCircle.isInside(boundaryModel.bounds) || 
+        const shouldUseCircle =
+          possibleCircle.isInside(boundaryModel.bounds) ||
           possibleCircle.intersects(boundaryModel);
 
-          if (shouldUseCircle) {
+        if (shouldUseCircle) {
           // this makes a nice layered look
           // if (totalPath == null) {
           //   totalPath = possibleCircle;
@@ -49,15 +55,20 @@ export class InnerDesignLattice extends FastAbstractInnerDesign {
           // }
           // totalPath = totalPath.subtract(new paper.Path.Circle(center, circleSize - borderSize))
 
-          const innerCircle = new paper.Path.Circle(center, shapeWidth - borderSize);
-          innerCircle.scale(1, shapeWidth/shapeHeight);
+          const innerCircle = new paper.Path.Circle(
+            center,
+            shapeWidth - borderSize
+          );
+          innerCircle.scale(1, shapeWidth / shapeHeight);
 
-          const finalCircle = possibleCircle.subtract(innerCircle, {insert: false});
+          const finalCircle = possibleCircle.subtract(innerCircle, {
+            insert: false
+          });
           if (totalPath == null) {
-            totalPath = finalCircle
+            totalPath = finalCircle;
           } else {
-            totalPath = totalPath.unite(finalCircle, {insert: false});
-          }          
+            totalPath = totalPath.unite(finalCircle, { insert: false });
+          }
         }
       }
     }
@@ -65,7 +76,9 @@ export class InnerDesignLattice extends FastAbstractInnerDesign {
     // if (params.invert) {
     //   return [totalPath]
     // } else {
-    return [boundaryModel.subtract(totalPath, {insert: false})];
+    return Promise.resolve({
+      paths: [boundaryModel.subtract(totalPath, { insert: false })]
+    });
     // }
   }
 
@@ -118,7 +131,7 @@ export class InnerDesignLattice extends FastAbstractInnerDesign {
         value: 0.0,
         step: 0.01,
         name: "colOffset"
-      }),
+      })
       // new OnOffMetaParameter({
       //   title: "Invert",
       //   value: false,

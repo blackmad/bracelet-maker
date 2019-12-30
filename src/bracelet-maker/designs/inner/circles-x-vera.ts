@@ -6,7 +6,7 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
   allowOutline = false;
   needSubtraction = true;
 
-  makeDesign(paper, params): paper.PathItem[] {
+  makeDesign(paper, params) {
     const {
       boundaryModel,
       cols,
@@ -28,7 +28,6 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
     const rowCellSize = boundaryModel.bounds.width / cols;
     const widthCellSize = boundaryModel.bounds.height / rows;
 
-    let paths: paper.PathItem[] = [];
     let totalPath = null;
 
     for (var r = 0; r <= rows; r++) {
@@ -90,9 +89,9 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
     }
 
     if (params.invert) {
-      return [totalPath]
+      return Promise.resolve({paths: totalPath})
     } else {
-      return [boundaryModel.subtract(totalPath, {insert: false})];
+      return Promise.resolve({paths: boundaryModel.subtract(totalPath, {insert: false})})
     }
   }
 

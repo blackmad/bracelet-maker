@@ -12,7 +12,7 @@ import { PaperModelMaker, InnerCompletedModel } from "../../model-maker";
 
 import concaveman from "concaveman";
 import { addToDebugLayer } from "../../utils/debug-layers";
-import { roundCorners } from '../../utils/round-corners';
+import { roundCorners } from "../../utils/round-corners";
 
 export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   public rng: () => number;
@@ -28,14 +28,20 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
   public controlInfo = "";
 
-  public abstract makeDesign(scope: any, params: any): any;
+  public abstract makeDesign(
+    scope: any,
+    params: any
+  ): Promise<{
+    paths: paper.PathItem[];
+    outlinePaths?: paper.PathItem[];
+  }>;
   abstract get designMetaParameters(): MetaParameter<any>[];
 
   get metaParameters() {
     let metaParams: MetaParameter<any>[] = [
       new OnOffMetaParameter({
-        title: 'Debug',
-        name: 'debug',
+        title: "Debug",
+        name: "debug",
         value: false
       })
     ];
@@ -125,9 +131,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     return metaParams;
   }
 
-  public async make(paper: any, params: any): Promise<InnerCompletedModel> {
-    const self = this;
-
+  private initRNGs(params: any) {
     if (params.seed) {
       this.rng = seedrandom(params.seed.toString());
       // @ts-ignore
@@ -139,21 +143,32 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         this.simplex = new SimplexNoise(params.seed.toString());
       }
     }
+  }
 
-    const design = await self.makeDesign(paper, params);
-
-    let paths = design;
-    if (design.paths) {
-      paths = design.paths;
-    }
-
-    paths = paths.filter(p => !!p);
-
+  private maybeSmooth(
+    paper: paper.PaperScope,
+    params: any,
+    paths: paper.PathItem[]
+  ) {
     if (params.shouldSmooth) {
-      paths = paths.map(path =>
+      return paths.map(path =>
         roundCorners({ paper, path: path, radius: params.smoothingFactor })
       );
     }
+    return paths;
+  }
+
+  public async make(paper: any, params: any): Promise<InnerCompletedModel> {
+    const self = this;
+
+    this.initRNGs(params);
+
+    const design = await self.makeDesign(paper, params);
+
+    // filter out possibly null paths for ease of designs
+    let paths = design.paths.filter(p => !!p);
+
+    paths = this.maybeSmooth(paper, params, paths);
 
     const shouldMakeOutline =
       params.boundaryModel.bounds.height > params.outerModel.bounds.height;
@@ -161,7 +176,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     if (this.needSubtraction && (!this.allowOutline || !shouldMakeOutline)) {
       // console.log('clamping sub');
       paths = paths.map(m => {
-        return m.intersect(params.boundaryModel, {insert: false});
+        return m.intersect(params.boundaryModel, { insert: false });
       });
     }
     ExtendPaperJs(paper);
@@ -202,15 +217,13 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       if (design.outlinePaths) {
         outline = new paper.CompoundPath(design.outlinePaths);
       } else {
-        console.log('need to make outline')
+        console.log("need to make outline");
         // @ts-ignore
         outline = params.outerModel;
         // TODO: this is wrong
-        const hasCurves = !_.some(paths, p =>
-          _.some(p.curves, c => !!c.handle1)
-        );
-        console.log(hasCurves)
-        console.log(params.debug)
+        const hasCurves = false;
+        console.log(hasCurves);
+        console.log(params.debug);
 
         if (!hasCurves) {
           const allPoints = [];
@@ -232,7 +245,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           );
 
           if (params.debug) {
-            addToDebugLayer(paper, 'outlinePoints', outline);
+            addToDebugLayer(paper, "outlinePoints", outline);
           }
 
           outline = paper.Path.prototype.offset.call(
@@ -242,7 +255,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           );
 
           if (outline instanceof paper.CompoundPath) {
-            outline = _.sortBy(outline.children, (c) => -c.area)[0];
+            outline = _.sortBy(outline.children, c => -c.area)[0];
           }
 
           outline.closePath();
@@ -259,7 +272,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         }
       }
 
-        outline = roundCorners({ paper, path: outline, radius: 0.9 })
+      outline = roundCorners({ paper, path: outline, radius: 0.9 });
     }
 
     return new InnerCompletedModel({

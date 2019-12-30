@@ -96,10 +96,10 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
       radius *= 0.99;
     }
 
-    return {
+    return Promise.resolve({
       paths: circles,
       outlinePaths: outline
-    };
+    });
   }
 
   get designMetaParameters() {

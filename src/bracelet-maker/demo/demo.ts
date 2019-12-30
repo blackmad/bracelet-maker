@@ -19,6 +19,7 @@ export async function demoDesign(
   params['boundaryModel'] = boundaryRect;
   params['outerModel'] = outerRect;
   params[designClass.constructor.name] = params;
+  params[designClass.constructor.name].seed = 1;
 
   let innerDesign = await designClass.make(paper, params)
 

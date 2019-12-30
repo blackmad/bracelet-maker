@@ -101,7 +101,7 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
       lastNoise2 = lastNoise2 + newNoise2;
       pos += hashWidth + bufferWidth;
     }
-    return paths;
+    return Promise.resolve({paths});
   }
 
   get designMetaParameters() {

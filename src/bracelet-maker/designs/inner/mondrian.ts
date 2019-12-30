@@ -106,7 +106,7 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
       0
     )
 
-    return this.rects;
+    return Promise.resolve({paths: this.rects});
   }
 
   get designMetaParameters() {

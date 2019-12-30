@@ -114,7 +114,7 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       }
     }
 
-    return polys;
+    return Promise.resolve({paths: polys})
   }
 
   get designMetaParameters() {

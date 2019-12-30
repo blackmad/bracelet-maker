@@ -48,10 +48,9 @@ export class InnerDesignSunflower extends FastAbstractInnerDesign {
       }
     }
 
-
-    return {
+    return Promise.resolve({
       paths: cascadedUnion(circles)
-    };
+    });
   }
 
   get designMetaParameters() {

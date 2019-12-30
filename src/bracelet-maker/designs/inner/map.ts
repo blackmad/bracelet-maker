@@ -63,7 +63,7 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
   async makeDesign(
     paper: paper.PaperScope,
     params: any
-  ): Promise<paper.Path[]> {
+  ) {
     const {
       boundaryModel,
       center,
@@ -166,7 +166,7 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
         r.scale(-1, 1, boundaryModel.bounds.center);
       }
     });
-    return ret;
+    return {paths: ret};
   }
 
   get designMetaParameters() {

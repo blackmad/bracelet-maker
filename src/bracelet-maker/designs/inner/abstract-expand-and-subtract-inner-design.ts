@@ -42,9 +42,9 @@ export abstract class AbstractExpandInnerDesign
 
   abstract makePaths(scope: paper.PaperScope, params): Promise<paper.Point[][]>;
   
-  async makeDesign(paper: paper.PaperScope, params): Promise<paper.PathItem[]> {
+  async makeDesign(paper: paper.PaperScope, params): Promise<{paths: paper.PathItem[]}> {
     const lines = await this.makePaths(paper, params);
     // lines.push(paperRectToPoints(params.boundaryModel.bounds));
-    return polygonize(paper, lines, -params.lineWidth/2);
+    return {paths: polygonize(paper, lines, -params.lineWidth/2)};
   }
 }

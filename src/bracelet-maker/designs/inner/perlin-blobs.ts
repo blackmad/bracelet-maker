@@ -20,7 +20,7 @@ export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
   requiresSafeConeClamp = false;
   needSubtraction = true;
 
-  async makeDesign(paper: paper.PaperScope, params): Promise<paper.Path[]> {
+  async makeDesign(paper: paper.PaperScope, params: any) {
     const {
       xNoiseDivisor,
       yNoiseDivisor,
@@ -86,15 +86,15 @@ export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
     }
 
     var trace = new potrace.Potrace();
-    return await new Promise((resolve, reject) => {
+    return await new Promise<{paths: paper.Path[]}>((resolve, reject) => {
       trace.loadImage(buffer, function(err) {
         if (err) {
           console.log('error', err);
-          reject();
+          reject({paths:[]});
         }
         const svg = trace.getSVG();
         const item = paper.project.importSVG(svg, {expandShapes:true});
-        const paths = flattenArrayOfPathItems(paper, item.children);
+        const paths: paper.Path[] = flattenArrayOfPathItems(paper, item.children);
         item.remove();
         item.translate(new paper.Point(
           -item.bounds.width/2,
@@ -114,7 +114,7 @@ export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
           }
         });
 
-        return resolve(paths);
+        resolve({paths});
       });
     })
 

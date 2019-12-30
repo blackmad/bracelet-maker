@@ -4,7 +4,7 @@ import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
 
 export class InnerDesignEmpty extends FastAbstractInnerDesign {
   makeDesign(scope, params) {
-    return [params.boundaryModel];
+    return Promise.resolve({paths: params.boundaryModel});
   }
 
   get designMetaParameters() {

@@ -68,7 +68,7 @@ export class InnerDesignHexes extends FastAbstractInnerDesign {
     // console.log(minX, maxX, usedX, whitespace);
     // paths.forEach(p => new paper.Point(p.translate(whitespace/4, 0)))
 
-    return paths;
+    return Promise.resolve({paths: paths});
   }
 
   get designMetaParameters() {

@@ -80,7 +80,7 @@ export class InnerDesignTactile extends FastAbstractInnerDesign {
       paths.push(new paper.Path(points));
     }
 
-    return paths;
+    return Promise.resolve({paths});
   }
 
   get designMetaParameters(): Array<MetaParameter<any>> {

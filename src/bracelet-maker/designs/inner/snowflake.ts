@@ -12,7 +12,7 @@ import { cascadedUnion } from "../../utils/cascaded-union";
 import { addToDebugLayer } from "@/bracelet-maker/utils/debug-layers";
 
 export class InnerDesignSnowflake extends FastAbstractInnerDesign {
-  makeDesign(paper: paper.PaperScope, params: any) {
+  async makeDesign(paper: paper.PaperScope, params: any) {
     const {
       boundaryModel,
       segments,
@@ -30,7 +30,7 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
     var r = 360 / segments;
 
     let paths: paper.Path[] = [];
-    const allPaths = [];
+    const allPaths: paper.Path[] = [];
 
     const boundarySegmentDistance = Math.max(
       boundaryModel.bounds.width / 2,
@@ -86,7 +86,7 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
 
     const v = new InnerDesignVoronoi();
     v.rng = this.rng;
-    const vs = v.makeDesign(paper, {
+    const vs = await v.makeDesign(paper, {
       borderSize: 0.05,
       boundaryModel: boundarySegment,
       numPoints: 50,
@@ -94,14 +94,14 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
       voronoi: true,
       omitChance: 0.0
     });
-    vs.forEach(path => {
+    vs.paths.forEach(path => {
       const clippedPath = path.intersect(boundarySegment);
       paths.push(clippedPath);
     });
 
     for (let s = 0; s < segments; s++) {
       paths.forEach((p: paper.Path) => {
-        let newPath = p.clone();
+        let newPath: paper.Path = p.clone() as paper.Path;
         newPath.rotate(s * r, boundaryModel.bounds.center);
 
         if (kaleido) {
@@ -123,10 +123,10 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
     }
 
     if (segmentBuffer == 0) {
-      return cascadedUnion(allPaths);
+      return {paths: cascadedUnion(allPaths)};
     }
 
-    return allPaths;
+    return {paths: allPaths};
   }
 
   get designMetaParameters() {
