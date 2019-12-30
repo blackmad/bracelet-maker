@@ -68,7 +68,7 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
     }
   }
 
-  get designMetaParameters(): Array<MetaParameter> {
+  get designMetaParameters(): Array<MetaParameter<any>> {
     return [
       // new RangeMetaParameter({
       //   title: "Circle Size",

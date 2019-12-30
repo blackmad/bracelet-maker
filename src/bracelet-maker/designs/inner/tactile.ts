@@ -83,7 +83,7 @@ export class InnerDesignTactile extends FastAbstractInnerDesign {
     return paths;
   }
 
-  get designMetaParameters(): Array<MetaParameter> {
+  get designMetaParameters(): Array<MetaParameter<any>> {
     const makeTilingParam = (index) => {
       return new RangeMetaParameter({
         title: `Tiling Param ${index+1}`,

@@ -57,7 +57,7 @@ export class MetaParameterBuilder {
       function(event) {
         const value = event.target.value;
         textInput.value = value;
-        this.onParamChange({ metaParameter, value });
+        this.onParamChange({ metaParameter, value: Number(value) });
       }.bind(this)
     );
 
@@ -65,7 +65,7 @@ export class MetaParameterBuilder {
       "change",
       function(event) {
         rangeInput.value = event.target.value;
-        this.onParamChange({ metaParameter, value: event.target.value });
+        this.onParamChange({ metaParameter, value: Number(event.target.value) });
       }.bind(this)
     );
 

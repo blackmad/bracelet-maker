@@ -23,8 +23,9 @@ var randomColor = require("randomcolor");
 export class InnerDesignMap extends FastAbstractInnerDesign {
   needSubtraction = false;
   needSeed = false;
+  // allowOutline = true;
 
-  extractPointPathsFromFeatures(features: GeoJSON.Feature[], invertLatLng: boolean): paper.Point[][] {
+  extractPointPathsFromFeatures(paper: paper.PaperScope, features: GeoJSON.Feature[], invertLatLng: boolean): paper.Point[][] {
     const paths: paper.Point[][] = [];
     features.map(f => {
       if (f.geometry.type === "LineString") {
@@ -107,7 +108,7 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
 
   
     const filteredFeatures = this.filterFeatures(features);
-    const paths: paper.Point[][] = this.extractPointPathsFromFeatures(filteredFeatures, invertLatLng);
+    const paths: paper.Point[][] = this.extractPointPathsFromFeatures(paper, filteredFeatures, invertLatLng);
 
     const bufferedPaths: paper.PathItem[] = paths.map(path => {
       // translate map coordinates to our coordinate system, center on our center and scale
@@ -131,7 +132,7 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
         line.isInside(boundaryModel.bounds) ||
         boundaryModel.intersects(line)
       ) {
-        const fatLine = bufferLine(points, lineWidth);
+        const fatLine = bufferLine(paper, points, lineWidth);
         if (fatLine) {
           return fatLine.intersect(boundaryModel);
         } else {

@@ -156,14 +156,18 @@ export function approxShape(paper, shape, numPointsToGet = 200) {
   return points.map(point => shapeToUse.localToGlobal(point));
 }
 
-export function paperPointsToGeoJsonLineString(points: paper.Point[]): GeoJSON.LineString {
+export function paperPointsToGeoJsonLineString(
+  points: paper.Point[]
+): GeoJSON.LineString {
   return {
     type: "LineString",
     coordinates: points.map(point => [point.y, point.x])
   };
 }
 
-export function paperRectToGeoJsonLineString(rect: paper.Rectangle): GeoJSON.LineString {
+export function paperRectToGeoJsonLineString(
+  rect: paper.Rectangle
+): GeoJSON.LineString {
   return paperPointsToGeoJsonLineString(paperRectToPoints(rect));
 }
 
@@ -247,11 +251,14 @@ export function polygonize(
   return _.compact(paperPolys);
 }
 
-export function flattenArrayOfPathItems(paper: paper.PaperScope, paths: paper.Item[]): paper.Path[] {
+export function flattenArrayOfPathItems(
+  paper: paper.PaperScope,
+  paths: paper.Item[]
+): paper.Path[] {
   const ret: paper.Path[] = [];
   paths.forEach(path => {
     if (path instanceof paper.CompoundPath) {
-      flattenArrayOfPathItems(paper, path.children).forEach((c) => ret.push(c));
+      flattenArrayOfPathItems(paper, path.children).forEach(c => ret.push(c));
     } else if (path instanceof paper.Path) {
       ret.push(path);
     }
@@ -259,7 +266,11 @@ export function flattenArrayOfPathItems(paper: paper.PaperScope, paths: paper.It
   return ret;
 }
 
-export function bufferLine(points: paper.Point[], lineWidth: number): paper.Path {
+export function bufferLine(
+  paper: paper.PaperScope,
+  points: paper.Point[],
+  lineWidth: number
+): paper.Path {
   let hackedPoints = [...points];
   hackedPoints.reverse();
   if (hackedPoints.length == 2) {
@@ -272,18 +283,18 @@ export function bufferLine(points: paper.Point[], lineWidth: number): paper.Path
   }
   hackedPoints = hackedPoints.concat(points);
 
-  const fatLinePoints = bufferShapeToPoints(
-    paper,
-    lineWidth / 2,
-    hackedPoints
-  );
+  const fatLinePoints = bufferShapeToPoints(paper, lineWidth / 2, hackedPoints);
 
   if (fatLinePoints) {
-    const path =  new paper.Path(fatLinePoints);
+    const path = new paper.Path(fatLinePoints);
     path.closePath();
     return path;
   } else {
     console.log("could not buffer line", points, hackedPoints);
     return null;
   }
+}
+
+function getDistanceToLine(point: paper.Point, line: paper.Path.Line): number {
+  return point.getDistance(line.getNearestPoint(point));
 }

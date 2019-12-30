@@ -1,18 +1,18 @@
-import { ShapeMaker } from './utils/shape-maker';
+import * as _ from 'lodash';
+import Jimp from 'jimp';
+import potrace from 'potrace';
+import * as $ from 'jquery';
 
 import { SimplexNoiseUtils } from '../../utils/simplex-noise-utils';
 import {
-  MetaParameter,
   OnOffMetaParameter,
   RangeMetaParameter,
   SelectMetaParameter
 } from '../../meta-parameter';
 import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
-import * as _ from 'lodash';
-import Jimp from 'jimp';
-import potrace from 'potrace';
-import * as $ from 'jquery';
-import { addToDebugLayer } from '@/bracelet-maker/utils/debug-layers';
+
+import { addToDebugLayer } from '../../utils/debug-layers';
+import { flattenArrayOfPathItems } from '../../utils/paperjs-utils';
 
 
 export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
@@ -27,7 +27,9 @@ export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
       boundaryModel,
       scale,
       chanceProbability,
-      useNoiseInBitmap
+      useNoiseInBitmap,
+      smooth,
+      simplificationTolerance
     } = params;
 
     const imageSizeX = boundaryModel.bounds.width * scale;
@@ -69,17 +71,19 @@ export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
     console.log(image.bitmap.data.length)
     const buffer = await image.getBufferAsync('image/bmp');
 
-    image.getBase64(Jimp.MIME_JPEG, function (err, src) {
-      let img = $('#designScratchArea img');
-      console.log(img)
-      if (img.length == 0) {
+    if (params.debug) {
+      image.getBase64(Jimp.MIME_JPEG, function (err, src) {
+        let img = $('#designScratchArea img');
         console.log(img)
-        img = $('<img style="width:100%"/>')
-        console.log(img)
-        $('#designScratchArea').append(img[0]);
-      }
-      img[0].src = src;
-    })
+        if (img.length == 0) {
+          console.log(img)
+          img = $('<img style="width:100%"/>')
+          console.log(img)
+          $('#designScratchArea').append(img[0]);
+        }
+        img[0].src = src;
+      })
+    }
 
     var trace = new potrace.Potrace();
     return await new Promise((resolve, reject) => {
@@ -89,27 +93,28 @@ export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
           reject();
         }
         const svg = trace.getSVG();
-        // $('#svg').append($(svg));
         const item = paper.project.importSVG(svg, {expandShapes:true});
-        console.log(item);
-        console.log(item.children);
-        
-        item.children[1].children.forEach((c) => c.closePath());
+        const paths = flattenArrayOfPathItems(paper, item.children);
         item.remove();
         item.translate(new paper.Point(
           -item.bounds.width/2,
           -item.bounds.height/2));
-        console.log(item.children[1]);
-        console.log(item.children[1].children);
-        // addToDebugLayer(paper, 'blobs', item.children[1].children[2]);
-        
-        const blobs = item.children[1]
-        blobs.rotate(180);
-        blobs.scale(1/scale, boundaryModel.bounds.center)
-        blobs.children.forEach((b) => b.smooth({type: 'continuous'}))
-        // item.children[1].children.forEach((c) => c.scale(1/100));
-        // return resolve([item.children[1]]);
-        return resolve([item.children[1]]);
+        item.rotate(180);
+        item.scale(1/scale, boundaryModel.bounds.center);
+
+        paths.forEach((path) => {
+          path.closePath();
+  
+          if (smooth) {
+            path.smooth({type: 'continuous'})
+          }
+
+          if (simplificationTolerance > 0) {
+            path.simplify(simplificationTolerance/50000)
+          }
+        });
+
+        return resolve(paths);
       });
     })
 
@@ -135,7 +140,7 @@ export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
         min: 10.0,
         max: 250,
         step: 1,
-        value: 20,
+        value: 70,
         name: 'scale'
       }),
       new RangeMetaParameter({
@@ -143,7 +148,7 @@ export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
         min: 1.0,
         max: 5000.0,
         step: 1,
-        value: 30,
+        value: 150,
         name: 'xNoiseDivisor'
       }),
       new RangeMetaParameter({
@@ -151,16 +156,29 @@ export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
         min: 1.0,
         max: 5000.0,
         step: 1,
-        value: 30,
+        value: 150,
         name: 'yNoiseDivisor'
       }),
       new RangeMetaParameter({
         title: 'Chance inclusion',
         min: 0.01,
         max: 1.0,
-        value: 0.5,
+        value: 0.7,
         step: 0.01,
         name: 'chanceProbability'
+      }),
+      new OnOffMetaParameter({
+        title: 'Smooth blobs',
+        value: false,
+        name: 'smooth'
+      }),
+      new RangeMetaParameter({
+        title: 'Simplification Tolerance',
+        min: 0,
+        max: 1000,
+        value: 0.0,
+        step: 1,
+        name: 'simplificationTolerance'
       }),
     ];
   }

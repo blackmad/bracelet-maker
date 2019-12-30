@@ -87,6 +87,11 @@ export default class NewPlaygroundView extends Vue {
   debugLayerNames = getDebugLayerNames();
   playground: DavidsPlayground = null;
 
+  isVisible(name) {
+    console.log(this.debugLayers[name].visible);
+    return this.debugLayers[name].visible;
+  }
+
   toggleVisibility(name) {
     const value = this.debugLayers[name];
     value.visible = !value.visible;

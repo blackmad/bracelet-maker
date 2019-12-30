@@ -109,7 +109,7 @@ export class InnerDesignMondrian extends FastAbstractInnerDesign {
     return this.rects;
   }
 
-  get designMetaParameters(): Array<MetaParameter> {
+  get designMetaParameters() {
     return [
       new RangeMetaParameter({
         title: "Border Size",

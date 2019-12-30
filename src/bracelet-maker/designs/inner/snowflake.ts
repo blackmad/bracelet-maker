@@ -8,17 +8,8 @@ import {
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 import { InnerDesignVoronoi } from "./voronoi";
 import { bufferShape } from "../../utils/paperjs-utils";
-
-function getDistanceToLine(point: paper.Point, line: paper.Path.Line): number {
-  return point.getDistance(line.getNearestPoint(point));
-}
-
-function notTooClose(line1: paper.Path.Line, line2: paper.Path.Line): boolean {
-  return (
-    getDistanceToLine(line1.segments[0].point, line2) < 0.01 &&
-    getDistanceToLine(line1.segments[1].point, line2) < 0.01
-  );
-}
+import { cascadedUnion } from "../../utils/cascaded-union";
+import { addToDebugLayer } from "@/bracelet-maker/utils/debug-layers";
 
 export class InnerDesignSnowflake extends FastAbstractInnerDesign {
   makeDesign(paper: paper.PaperScope, params: any) {
@@ -26,46 +17,50 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
       boundaryModel,
       segments,
       kaleido,
-      segmentBuffer
+      segmentBuffer,
+      debug
     }: {
       boundaryModel: paper.Path.Rectangle;
       segments: number;
       kaleido: boolean;
       segmentBuffer: number;
+      debug: boolean;
     } = params;
-
-    const debug = false;
 
     var r = 360 / segments;
 
     let paths: paper.Path[] = [];
     const allPaths = [];
 
-    // draw reflection axes
-    const drawAxes = debug;
-    const axes: paper.Path.Line[] = [];
-    for (var i = 0; i < segments; ++i) {
-      const line = new paper.Path.Line(
-        boundaryModel.bounds.center,
-        new paper.Point(boundaryModel.bounds.center.x, -1)
-      );
+    const boundarySegmentDistance = Math.max(
+      boundaryModel.bounds.width / 2,
+      boundaryModel.bounds.height / 2
+    );
 
-      line.rotate(r * i, boundaryModel.bounds.center);
-      axes.push(line);
-      if (drawAxes) {
-        line.strokeColor = new paper.Color("blue");
-        line.strokeWidth = 0.05;
-        paper.project.activeLayer.addChild(line);
+    // draw reflection axes
+    if (debug) {
+      for (var i = 0; i < segments; ++i) {
+        const line = new paper.Path.Line(
+          boundaryModel.bounds.center,
+          new paper.Point(
+            boundaryModel.bounds.center.x,
+            -boundarySegmentDistance
+          )
+        );
+
+        line.rotate(r * i, boundaryModel.bounds.center);
+
+        addToDebugLayer(paper, "axes", line);
       }
     }
 
-    const p3 = new paper.Point(boundaryModel.bounds.center.x, -5).rotate(
-      r,
-      boundaryModel.bounds.center
-    );
+    const p3 = new paper.Point(
+      boundaryModel.bounds.center.x,
+      -boundarySegmentDistance
+    ).rotate(r, boundaryModel.bounds.center);
     let segmentPoints = [
       boundaryModel.bounds.center,
-      new paper.Point(boundaryModel.bounds.center.x, -5),
+      new paper.Point(boundaryModel.bounds.center.x, -boundarySegmentDistance),
       p3
     ];
     let boundarySegment: paper.PathItem = new paper.Path(segmentPoints);
@@ -86,9 +81,7 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
     boundarySegment.closePath();
 
     if (debug) {
-      boundarySegment.strokeColor = new paper.Color("purple");
-      boundarySegment.strokeWidth = 0.1;
-      paper.project.activeLayer.addChild(boundarySegment);
+      addToDebugLayer(paper, "boundarySegment", boundarySegment);
     }
 
     const v = new InnerDesignVoronoi();
@@ -99,7 +92,7 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
       numPoints: 50,
       numBorderPoints: 20,
       voronoi: true,
-      omitChance: 0.0,
+      omitChance: 0.0
     });
     vs.forEach(path => {
       const clippedPath = path.intersect(boundarySegment);
@@ -130,7 +123,6 @@ export class InnerDesignSnowflake extends FastAbstractInnerDesign {
     }
 
     if (segmentBuffer == 0) {
-      // @ts-ignore
       return cascadedUnion(allPaths);
     }
 

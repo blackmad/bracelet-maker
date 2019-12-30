@@ -59,7 +59,8 @@ export class DavidsPlayground {
     this.doRender();
   }
   public onParamChange({ metaParameter, value }) {
-    this.params[metaParameter.name] = metaParameter.valueFromString(value)
+    console.log(metaParameter)
+    this.params[metaParameter.name] = value; // metaParameter.valueFromString(value)
     this.rerender();
   }
 
@@ -237,8 +238,11 @@ export class DavidsPlayground {
     paper.project.activeLayer.addChild(compoundPath);
 
     _.forEach(getDebugLayers(), (v: paper.Group, k: string) => {
-      v.rotate(180, compoundPath.bounds.center);
-      paper.project.activeLayer.addChild(v);
+      console.log(v.visible)
+      if (v.visible) {
+        v.rotate(180, compoundPath.bounds.center);
+        paper.project.activeLayer.addChild(v);
+      }
     });
 
     $('#svgArea')[0].innerHTML = makeSVGData(paper, paper.project, false, svg => $(svg)[0]);

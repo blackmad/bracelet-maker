@@ -101,7 +101,7 @@ export class InnerDesignVera extends FastAbstractInnerDesign {
     return models;
   }
 
-  get designMetaParameters(): Array<MetaParameter> {
+  get designMetaParameters(): Array<MetaParameter<any>> {
     return [
       new SelectMetaParameter({
         title: 'Shape',

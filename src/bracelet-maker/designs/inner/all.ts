@@ -20,7 +20,6 @@ import { InnerDesignSnowflake } from "./snowflake";
 import { InnerDesignMap } from "./map";
 
 export const AllInnerDesigns = [
-  InnerDesignPerlinBlobs,
   InnerDesignVoronoi,
   InnerDesignTessagon,
   InnerDesignHashmarks,
@@ -30,6 +29,7 @@ export const AllInnerDesigns = [
   InnerDesignMap,
   InnerDesignSunflower,
   InnerDesignGrid,
+  InnerDesignPerlinBlobs,
   InnerDesignLattice,
   InnerDesignCirclesXVera,
   InnerDesignCirclePacking,
