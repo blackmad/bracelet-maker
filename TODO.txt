@@ -1,4 +1,8 @@
-- break up & comment abstract inner
+- in circle packing, shrink bondary model by width (in outline)
+- in circle packing, force constrain if outlining
+- snowflakes don't touch two rays
+- try snowflakes again with random paths
+
 - migrate kaleidoscope up to root inner design
 - finally figure out grouping params / conditional params
 - see about perlin potrace

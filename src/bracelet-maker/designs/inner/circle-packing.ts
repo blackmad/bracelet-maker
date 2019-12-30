@@ -2,14 +2,14 @@ import {
   RangeMetaParameter,
   OnOffMetaParameter,
   MetaParameter
-} from '../../meta-parameter';
-import * as _ from 'lodash';
-import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
+} from "../../meta-parameter";
+import * as _ from "lodash";
+import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 import {
   SimpleCircle,
   randomLineOnRectangle,
   checkCircleCircleIntersection
-} from '../../utils/paperjs-utils';
+} from "../../utils/paperjs-utils";
 
 export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
   allowOutline = true;
@@ -52,10 +52,24 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
       borderSize,
       numLines
     } = params;
-    const constrainCircles =
-      params.constrainCircles || !params.forceContainment;
 
-    const boundaryRect = boundaryModel.bounds;
+    const goingOutside =
+      params.boundaryModel.bounds.height > params.outerModel.bounds.height;
+
+    let boundaryRect = boundaryModel.bounds;
+    if (goingOutside) {
+      // doesn't work without whole circles
+      params.constrainCircles = true;
+
+      // looks dumb if circles at the left/right edges have a sharp edge with the outside
+      // so fix it such that they can always have a full outline
+      const offsetPoint = new paper.Point(params.outlineSize, 0);
+      boundaryRect = new paper.Rectangle(
+        boundaryRect.topLeft.add(offsetPoint),
+        boundaryRect.bottomRight.subtract(offsetPoint)
+      );
+      console.log(boundaryRect);
+    }
 
     const circles: paper.Path.Circle[] = [];
     const simpleCircles: SimpleCircle[] = [];
@@ -89,7 +103,10 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
           circles.push(testCircle);
           simpleCircles.push(simpleTestCircle);
 
-          const outlineCircle = new paper.Path.Circle(center, radius + params.outlineSize);
+          const outlineCircle = new paper.Path.Circle(
+            center,
+            radius + params.outlineSize
+          );
           outline.push(outlineCircle);
         }
       }
@@ -105,50 +122,50 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
   get designMetaParameters() {
     return [
       new RangeMetaParameter({
-        title: 'Border Size',
+        title: "Border Size",
         min: 0.1,
         max: 0.25,
         value: 0.1,
         step: 0.01,
-        name: 'borderSize'
+        name: "borderSize"
       }),
 
       new RangeMetaParameter({
-        title: 'Outline size (in)',
+        title: "Outline size (in)",
         min: 0.05,
         max: 0.4,
         value: 0.1,
         step: 0.01,
-        name: 'outlineSize'
+        name: "outlineSize"
       }),
       new RangeMetaParameter({
-        title: 'Min Circle Size',
+        title: "Min Circle Size",
         min: 0.02,
         max: 2.0,
         value: 0.02,
         step: 0.01,
-        name: 'minCircleSize'
+        name: "minCircleSize"
       }),
       new RangeMetaParameter({
-        title: 'Max Circle Size',
+        title: "Max Circle Size",
         min: 0.05,
         max: 3.0,
         value: 0.75,
         step: 0.01,
-        name: 'maxCircleSize'
+        name: "maxCircleSize"
       }),
       new RangeMetaParameter({
-        title: 'Num Invisible Lines',
+        title: "Num Invisible Lines",
         min: 0,
         max: 10,
         value: 1,
         step: 1,
-        name: 'numLines'
+        name: "numLines"
       }),
       new OnOffMetaParameter({
-        title: 'ConstrainCircles',
+        title: "ConstrainCircles",
         value: false,
-        name: 'constrainCircles'
+        name: "constrainCircles"
       })
     ];
   }

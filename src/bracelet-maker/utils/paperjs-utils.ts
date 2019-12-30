@@ -295,6 +295,10 @@ export function bufferLine(
   }
 }
 
-function getDistanceToLine(point: paper.Point, line: paper.Path.Line): number {
+export function getDistanceToLine(point: paper.Point, line: paper.Path.Line): number {
   return point.getDistance(line.getNearestPoint(point));
+}
+
+export function containsOrIntersects({needle, haystack}: {needle: paper.PathItem, haystack: paper.Path}): boolean {
+  return needle.isInside(haystack.bounds) || needle.intersects(haystack);
 }

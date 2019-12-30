@@ -10,9 +10,15 @@ import {
 } from "../../meta-parameter";
 import { PaperModelMaker, InnerCompletedModel } from "../../model-maker";
 
-import concaveman from "concaveman";
 import { addToDebugLayer } from "../../utils/debug-layers";
+import { makeConcaveOutline } from "../../utils/outline";
 import { roundCorners } from "../../utils/round-corners";
+import { containsOrIntersects } from "../../utils/paperjs-utils";
+
+export interface InnerDesignModel {
+  paths: paper.PathItem[];
+  outlinePaths?: paper.PathItem[];
+}
 
 export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   public rng: () => number;
@@ -31,10 +37,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   public abstract makeDesign(
     scope: any,
     params: any
-  ): Promise<{
-    paths: paper.PathItem[];
-    outlinePaths?: paper.PathItem[];
-  }>;
+  ): Promise<InnerDesignModel>;
   abstract get designMetaParameters(): MetaParameter<any>[];
 
   get metaParameters() {
@@ -158,6 +161,103 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     return paths;
   }
 
+  private clampPathsToBoundary(
+    paths: paper.PathItem[],
+    boundary: paper.Path,
+  ) {
+    return paths.map(m => {
+      return m.intersect(boundary, { insert: false });
+    });
+  }
+
+  private makeOutline(
+    paper: paper.PaperScope,
+    params: any,
+    paths: paper.PathItem[],
+  ) {
+    console.log("need to make outline");
+    // Make the outline
+    let outline = makeConcaveOutline({
+      paper,
+      paths,
+      concavity: params.concavity,
+      lengthThreshold: params.lengthThreshold
+    });
+
+    // Expand it to our outline border
+    outline = paper.Path.prototype.offset.call(outline, params.outlineSize, {
+      cap: "miter"
+    });
+
+    // If we ended up with an outline that's a compound path,
+    // just take the child path that's the biggest
+    if (outline instanceof paper.CompoundPath) {
+      outline = _.sortBy(
+        outline.children,
+        (c: paper.Path) => -c.area
+      )[0] as paper.Path;
+    }
+
+    outline.closePath();
+    outline = roundCorners({ paper, path: outline, radius: 0.9 });
+
+    return outline;
+
+    // This logic is supposed to be for if we have a design that feeds us circles or curves
+    // point sampling concave outline isn't going to give us nice curves
+    // but I don't have a great way right now to detect if I want that logic - like
+    // I probably don't want to do this version for rounded shapes?
+    // } else {
+    //   paths.map(p => {
+    //     const exploded = paper.Path.prototype.offset.call(
+    //       p,
+    //       params.outlineSize,
+    //       { cap: "miter" }
+    //     );
+    //     outline = outline.unite(exploded);
+    //   });
+    // }
+  }
+
+  private maybeMakeOutline(
+    paper: paper.PaperScope,
+    params: any,
+    _paths: paper.PathItem[],
+    design: InnerDesignModel
+  ) {
+    let outline: paper.PathItem = null;
+    let paths: paper.PathItem[] = _paths;
+
+    const shouldMakeOutline =
+      params.boundaryModel.bounds.height > params.outerModel.bounds.height;
+
+    if (this.allowOutline && shouldMakeOutline) {
+      addToDebugLayer(paper, 'safeCone', params.safeCone);
+
+      if (design.outlinePaths) {
+        console.log('but using outline paths')
+        // if an inner design has been nice to us by making its own outline, just use that
+        let outlinePaths = design.outlinePaths;
+        if (this.requiresSafeConeClamp) {
+          outlinePaths = this.clampPathsToBoundary(outlinePaths, params.safeCone);
+        }
+        outline = new paper.CompoundPath(outlinePaths);
+      } else {
+        ExtendPaperJs(paper);
+  
+        // only look at paths that are inside the model to make into the outline
+        // NOTE(blackmad): why?????
+        paths = paths.filter(p =>
+          p.intersects(params.outerModel)
+          // containsOrIntersects({ needle: p, haystack: params.outerModel })
+        );
+
+        outline = this.makeOutline(paper, params, paths);
+      }
+    }
+    return outline;
+  }
+
   public async make(paper: any, params: any): Promise<InnerCompletedModel> {
     const self = this;
 
@@ -168,112 +268,21 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     // filter out possibly null paths for ease of designs
     let paths = design.paths.filter(p => !!p);
 
+    // maybe smooth paths
     paths = this.maybeSmooth(paper, params, paths);
 
     const shouldMakeOutline =
       params.boundaryModel.bounds.height > params.outerModel.bounds.height;
-
-    if (this.needSubtraction && (!this.allowOutline || !shouldMakeOutline)) {
-      // console.log('clamping sub');
-      paths = paths.map(m => {
-        return m.intersect(params.boundaryModel, { insert: false });
-      });
+    if (this.needSubtraction && !shouldMakeOutline) {
+      paths = this.clampPathsToBoundary(paths, params.boundaryModel);
     }
-    ExtendPaperJs(paper);
 
-    let outline = null;
-    if (this.allowOutline && shouldMakeOutline) {
-      if (this.requiresSafeConeClamp) {
-        // console.log('clamping cone');
-
-        const handles = params.outerModel.subtract(params.safeCone, {
-          insert: false
-        });
-        // paths = paths.map(m => {
-        //   if (m.intersects(handles)) {
-        //     return null;
-        //   } else {
-        //     return m;
-        //   }
-        // });
-        // paths = paths.filter((p) => !!p);
-
-        paths = paths.map(m => {
-          if (m.intersects(params.outerModel)) {
-            // return null;
-          }
-          return m.intersect(params.boundaryModel);
-        });
-        paths = paths.filter(p => !!p);
-      }
-
-      // console.log('making outline');
-      paths = paths.filter(
-        m =>
-          params.outerModel.contains(m.bounds) ||
-          m.intersects(params.outerModel)
-      );
-
-      if (design.outlinePaths) {
-        outline = new paper.CompoundPath(design.outlinePaths);
-      } else {
-        console.log("need to make outline");
-        // @ts-ignore
-        outline = params.outerModel;
-        // TODO: this is wrong
-        const hasCurves = false;
-        console.log(hasCurves);
-        console.log(params.debug);
-
-        if (!hasCurves) {
-          const allPoints = [];
-          paths.forEach((path: paper.Path) => {
-            path.segments.forEach(s => allPoints.push([s.point.x, s.point.y]));
-            for (let offset = 0; offset < 1; offset += 0.01) {
-              const point = path.getPointAt(path.length * offset);
-              allPoints.push([point.x, point.y]);
-              // addToDebugLayer(paper, "points", new paper.Path.Rectangle(point, 0.01));
-            }
-          });
-          const concaveHull = concaveman(
-            allPoints,
-            params.concavity,
-            params.lengthThreshold
-          );
-          outline = new paper.Path(
-            concaveHull.map(p => new paper.Point(p[0], p[1]))
-          );
-
-          if (params.debug) {
-            addToDebugLayer(paper, "outlinePoints", outline);
-          }
-
-          outline = paper.Path.prototype.offset.call(
-            outline,
-            params.outlineSize,
-            { cap: "miter" }
-          );
-
-          if (outline instanceof paper.CompoundPath) {
-            outline = _.sortBy(outline.children, c => -c.area)[0];
-          }
-
-          outline.closePath();
-          //  outline = outline.children[0];
-        } else {
-          paths.map(p => {
-            const exploded = paper.Path.prototype.offset.call(
-              p,
-              params.outlineSize,
-              { cap: "miter" }
-            );
-            outline = outline.unite(exploded);
-          });
-        }
-      }
-
-      outline = roundCorners({ paper, path: outline, radius: 0.9 });
+    if (this.requiresSafeConeClamp) {
+      console.log('clamping to cone')
+      paths = this.clampPathsToBoundary(paths, params.safeCone);
     }
+
+    let outline = this.maybeMakeOutline(paper, params, paths, design);
 
     return new InnerCompletedModel({
       paths,

@@ -9,7 +9,7 @@ import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 import { InnerDesignVoronoi } from "./voronoi";
 import { bufferShape } from "../../utils/paperjs-utils";
 import { cascadedUnion } from "../../utils/cascaded-union";
-import { addToDebugLayer } from "@/bracelet-maker/utils/debug-layers";
+import { addToDebugLayer } from "../../utils/debug-layers";
 
 export class InnerDesignSnowflake extends FastAbstractInnerDesign {
   async makeDesign(paper: paper.PaperScope, params: any) {

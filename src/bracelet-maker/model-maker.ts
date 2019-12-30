@@ -7,11 +7,11 @@ export interface HasMetaParameters {
 
 export class InnerCompletedModel {
   paths: paper.PathItem[];
-  outline: paper.PathItem[];
+  outline: paper.PathItem;
 
   constructor({paths, outline}: {
     paths: paper.PathItem[],
-    outline: paper.PathItem[]
+    outline: paper.PathItem
   }) {
     this.paths = paths;
     this.outline = outline;
