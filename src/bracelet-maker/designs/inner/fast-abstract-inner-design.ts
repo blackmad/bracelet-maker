@@ -107,7 +107,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           title: "Outline Length Threshold",
           min: 0.01,
           max: 3,
-          value: 0.01,
+          value: 0.25,
           step: 0.01,
           name: "lengthThreshold"
         })
@@ -255,7 +255,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         outline = this.makeOutline(paper, params, paths);
       }
     }
-    return outline;
+    return {outline, paths};
   }
 
   public async make(paper: any, params: any): Promise<InnerCompletedModel> {
@@ -282,7 +282,9 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       paths = this.clampPathsToBoundary(paths, params.safeCone);
     }
 
-    let outline = this.maybeMakeOutline(paper, params, paths, design);
+    const maybeOutline = this.maybeMakeOutline(paper, params, paths, design);
+    paths = maybeOutline.paths;
+    const outline = maybeOutline.outline;
 
     return new InnerCompletedModel({
       paths,
