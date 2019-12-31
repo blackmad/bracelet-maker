@@ -1,9 +1,15 @@
-- in circle packing, shrink bondary model by width (in outline)
-- in circle packing, force constrain if outlining
-- snowflakes don't touch two rays
-- try snowflakes again with random paths
 
-- migrate kaleidoscope up to root inner design
+- map - is it correctly centered?
+- map - why does it sometimes break on kaleido
+
+- params, generally - do these correctly persist?
+- geocode - default value is wrong
+- DEBUG - not persisting on reload?
+- DEBUG - clear debug on reload / make toggling work
+
+- snowflakes don't allows paths to touch two lines 
+- try snowflakes again with random paths???
+
 - finally figure out grouping params / conditional params
 - see about perlin potrace
 - look into posture collar 

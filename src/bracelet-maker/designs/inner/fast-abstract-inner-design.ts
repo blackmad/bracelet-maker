@@ -13,6 +13,7 @@ import { PaperModelMaker, InnerCompletedModel } from "../../model-maker";
 import { addToDebugLayer } from "../../utils/debug-layers";
 import { makeConcaveOutline } from "../../utils/outline";
 import { roundCorners } from "../../utils/round-corners";
+import { KaleidoscopeMaker } from './utils/kaleidosope'
 import { containsOrIntersects } from "../../utils/paperjs-utils";
 
 export interface InnerDesignModel {
@@ -31,6 +32,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   public forceContainmentDefault: boolean = true;
   public needSeed: boolean = true;
   public canRound: boolean = false;
+  public canKaleido: boolean = false;
+  public defaultKaleido: boolean = false;
 
   public controlInfo = "";
 
@@ -63,6 +66,10 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     }
 
     metaParams = metaParams.concat(this.designMetaParameters);
+
+    if (this.canKaleido) {
+      KaleidoscopeMaker.designMetaParameters(this.defaultKaleido).forEach(m => metaParams.push(m));
+    }
 
     if (this.canRound) {
       metaParams.push(
@@ -245,11 +252,15 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       } else {
         ExtendPaperJs(paper);
   
-        // only look at paths that are inside the model to make into the outline
-        // NOTE(blackmad): why?????
+        // only look at paths that are inside or touching the model to make into the outline
+        // and to use for the final design
+        // Otherwise our inner design might have made shapes that are well outside the primary area
+        // and not connected to anything
+        // note that we could also include EVERYTHING but this version tends to lead to more interesting outlines
+        // also maybe we can't because turning this off breaks things?
         paths = paths.filter(p =>
-          p.intersects(params.outerModel)
-          // containsOrIntersects({ needle: p, haystack: params.outerModel })
+          // p.intersects(params.outerModel)
+          containsOrIntersects({ needle: p, haystack: params.outerModel })
         );
 
         outline = this.makeOutline(paper, params, paths);
@@ -263,17 +274,31 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
     this.initRNGs(params);
 
+    let kaleidoscopeMaker = null;
+    let originalBoundaryModel = null;
+    if (this.canKaleido && params.segments > 1) {
+      kaleidoscopeMaker = new KaleidoscopeMaker(paper, params);
+      originalBoundaryModel = params.boundaryModel.clone();
+      params.boundaryModel = kaleidoscopeMaker.getBoundarySegment();
+    }
+
     const design = await self.makeDesign(paper, params);
 
     // filter out possibly null paths for ease of designs
     let paths = design.paths.filter(p => !!p);
+
+    if (kaleidoscopeMaker) {
+      // eslint-disable-next-line require-atomic-updates
+      params.boundaryModel = originalBoundaryModel;
+      paths = kaleidoscopeMaker.reflectPaths(paths);
+    }
 
     // maybe smooth paths
     paths = this.maybeSmooth(paper, params, paths);
 
     const shouldMakeOutline =
       params.boundaryModel.bounds.height > params.outerModel.bounds.height;
-    if (this.needSubtraction && !shouldMakeOutline) {
+    if ((this.needSubtraction || kaleidoscopeMaker) && !shouldMakeOutline) {
       paths = this.clampPathsToBoundary(paths, params.boundaryModel);
     }
 

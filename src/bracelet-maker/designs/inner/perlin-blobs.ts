@@ -99,7 +99,6 @@ export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
         item.translate(new paper.Point(
           -item.bounds.width/2,
           -item.bounds.height/2));
-        item.rotate(180);
         item.scale(1/scale, boundaryModel.bounds.center);
 
         paths.forEach((path) => {

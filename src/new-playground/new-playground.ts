@@ -175,7 +175,7 @@ export class DavidsPlayground {
       10}" fill="none" stroke="gray" stroke-width="0.5" />
         </pattern>
         <pattern id="grid" width="${xPixelsPerInch}" height="${yPixelsPerInch}" patternUnits="userSpaceOnUse">
-            <rect width="${xPixelsPerInch}" height="${yPixelsPerInch}" fill="url(#smallGrid)" />
+              <rect width="${xPixelsPerInch}" height="${yPixelsPerInch}" fill="url(#smallGrid)" />
             <path d="M ${xPixelsPerInch} 0 L 0 0 0 ${yPixelsPerInch}" fill="none" stroke="gray" stroke-width="1" />
         </pattern>
     </defs>
@@ -233,14 +233,11 @@ export class DavidsPlayground {
       fillRule: 'evenodd'
     });
 
-    compoundPath.rotate(180)
-
     paper.project.activeLayer.addChild(compoundPath);
 
     _.forEach(getDebugLayers(), (v: paper.Group, k: string) => {
       console.log(v.visible)
       if (v.visible) {
-        v.rotate(180, compoundPath.bounds.center);
         paper.project.activeLayer.addChild(v);
       }
     });
