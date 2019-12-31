@@ -18,6 +18,7 @@ export async function demoDesign(
   boundaryRect.scale(0.85)
   params['boundaryModel'] = boundaryRect;
   params['outerModel'] = outerRect;
+  params['safeCone'] = boundaryRect;
   params[designClass.constructor.name] = params;
   params[designClass.constructor.name].seed = 1;
 
@@ -27,10 +28,9 @@ export async function demoDesign(
   if (innerDesign instanceof CompletedModel) {
     const pathItem: paper.PathItem = (<CompletedModel>innerDesign).outer
     paths = [(<CompletedModel>innerDesign).outer];
-  } else if (innerDesign instanceof InnerCompletedModel) {
+  } else {
     paths = [outerRect, ...(<InnerCompletedModel>innerDesign).paths];
   }
-  console.log(paths);
 
   // @ts-ignore
   const path = new paper.CompoundPath({

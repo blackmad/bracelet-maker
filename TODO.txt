@@ -1,17 +1,12 @@
+- fix generate examples
 
-- map - is it correctly centered?
-- map - why does it sometimes break on kaleido
-
-- params, generally - do these correctly persist?
-- geocode - default value is wrong
-- DEBUG - not persisting on reload?
+- DEBUG - not persisting on reload? - kaleido is always so weird
 - DEBUG - clear debug on reload / make toggling work
 
 - snowflakes don't allows paths to touch two lines 
 - try snowflakes again with random paths???
 
 - finally figure out grouping params / conditional params
-- see about perlin potrace
 - look into posture collar 
 - http://haptic-data.com/toxiclibsjs/
 

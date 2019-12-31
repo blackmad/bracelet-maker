@@ -79,7 +79,6 @@ export class InnerDesignGrid extends AbstractExpandInnerDesign {
       ])
     }
 
-    console.log(lines);
     return lines.map(shape => shape.map(p => p.add(boundaryModel.bounds.topLeft)));
   }
 

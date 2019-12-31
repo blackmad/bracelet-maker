@@ -88,7 +88,6 @@ export default class NewPlaygroundView extends Vue {
   playground: DavidsPlayground = null;
 
   isVisible(name) {
-    console.log(this.debugLayers[name].visible);
     return this.debugLayers[name].visible;
   }
 
@@ -100,7 +99,6 @@ export default class NewPlaygroundView extends Vue {
 
   cssColor(name) {
     const value = this.debugLayers[name];
-    console.log(value.style.strokeColor.toCSS());
     return value.style.strokeColor.toCSS();
   }
 
@@ -115,7 +113,6 @@ export default class NewPlaygroundView extends Vue {
     const innerDesign = new innerDesignClass();
     const modelMaker: OuterPaperModelMaker = new outerDesignClass(innerDesign);
     $(".clear-on-reinit").empty();
-    console.log(this.debugLayers);
     this.playground = new DavidsPlayground(modelMaker, this.$route.query, params => {
       if (!this.isFirstQueryReplace || !this.$route.query) {
         this.$router.replace({ query: params });

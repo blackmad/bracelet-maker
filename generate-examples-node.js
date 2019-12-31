@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import fs from 'fs';
 // import { svg2png } from 'svg-png-converter';
 import { InnerDesignEmpty } from './built/designs/inner/empty.js';
+import { InnerDesignVoronoi } from './built/designs/inner/voronoi.js';
 const child_process = require('child_process');
 
 var SegfaultHandler = require('segfault-handler');

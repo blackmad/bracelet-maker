@@ -2,7 +2,7 @@ import { MetaParameter, RangeMetaParameter, SelectMetaParameter, OnOffMetaParame
 import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
 import * as _ from 'lodash';
 
-import { bufferShape } from '../../utils/paperjs-utils';
+import { bufferPointstoPathItem } from '../../utils/paperjs-utils';
 
 import { makeTesselationFromName, makeTesselationFromNameAndOptions, getAllTesselationNames } from '../../tessagon/js-entry';
 import { plane } from '../..//tessagon/tessagon.misc.shapes';
@@ -14,6 +14,7 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
   needSubtraction = true;
   needSeed = false;
   canRound = true;
+  canKaleido = true;
 
   makeDesign(paper: paper.PaperScope, params) {
     const { outerModel, boundaryModel, tesselation, x_num, y_num, borderSize, x_cyclic, y_cyclic, rot_factor} = params;
@@ -58,7 +59,7 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
           vertices[vertIndex][1]
         )
       })
-      const bufferedShape = bufferShape(paper, -borderSize, points)
+      const bufferedShape = bufferPointstoPathItem(paper, -borderSize, points)
       return bufferedShape
       // return new paper.Path(points);
     });

@@ -3,7 +3,8 @@ import {
   MetaParameter,
   RangeMetaParameter,
   OnOffMetaParameter,
-  GeocodeMetaParameter
+  GeocodeMetaParameter,
+  SelectMetaParameter
 } from "../../meta-parameter";
 
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
@@ -13,12 +14,9 @@ import {
   multiLneStringCoordinatesToPaperLines
 } from "./map-utils";
 import * as _ from "lodash";
-import {
-  flattenArrayOfPathItems,
-  bufferLine
-} from "../../utils/paperjs-utils";
-import { cascadedUnion } from '../../utils/cascaded-union';
-import { addToDebugLayer } from '../../utils/debug-layers';
+import { flattenArrayOfPathItems, bufferLine } from "../../utils/paperjs-utils";
+import { cascadedUnion } from "../../utils/cascaded-union";
+import { addToDebugLayer } from "../../utils/debug-layers";
 var randomColor = require("randomcolor");
 
 export class InnerDesignMap extends FastAbstractInnerDesign {
@@ -28,7 +26,11 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
   defaultKaleido = false;
   // allowOutline = true;
 
-  extractPointPathsFromFeatures(paper: paper.PaperScope, features: GeoJSON.Feature[], invertLatLng: boolean): paper.Point[][] {
+  extractPointPathsFromFeatures(
+    paper: paper.PaperScope,
+    features: GeoJSON.Feature[],
+    invertLatLng: boolean
+  ): paper.Point[][] {
     const paths: paper.Point[][] = [];
     features.map(f => {
       if (f.geometry.type === "LineString") {
@@ -63,18 +65,8 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
     });
   }
 
-  async makeDesign(
-    paper: paper.PaperScope,
-    params: any
-  ) {
-    const {
-      center,
-      scaleX,
-      xyRatio,
-      invertLatLng,
-      lineWidth,
-      debug,
-    } = params;
+  async makeDesign(paper: paper.PaperScope, params: any) {
+    const { center, scaleX, xyRatio, invertLatLng, lineWidth, debug } = params;
 
     const boundaryModel = params.boundaryModel.clone();
 
@@ -110,22 +102,37 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
     });
 
     const filteredFeatures = this.filterFeatures(features);
-    const paths: paper.Point[][] = this.extractPointPathsFromFeatures(paper, filteredFeatures, invertLatLng);
+    const paths: paper.Point[][] = this.extractPointPathsFromFeatures(
+      paper,
+      filteredFeatures,
+      invertLatLng
+    );
 
     const bufferedPaths: paper.PathItem[] = paths.map(path => {
+      const centerAt = (function(centerAt) {
+        switch (centerAt) {
+          case "topLeft":
+            return boundaryModel.bounds.topLeft;
+          case "bottomLeft":
+            return boundaryModel.bounds.bottomLeft;
+          case "center":
+            return boundaryModel.bounds.center;
+        }
+      })(params.centerAt);
+
       // translate map coordinates to our coordinate system, center on our center and scale
       const points = path.map(point => {
         return new paper.Point(
           (point.x - centerX) * scaleX,
           // make this second one negative so north is "up" in our coordinate system
           (point.y - centerY) * -scaleY
-        ).add(boundaryModel.bounds.center);
+        ).add(centerAt);
       });
 
       const line = new paper.Path(points);
 
       if (debug) {
-        addToDebugLayer(paper, 'lines', line);
+        addToDebugLayer(paper, "lines", line);
       }
 
       // Only consider line segments that are inside or touching our boundaries
@@ -145,13 +152,15 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
     });
 
     // Now union all the buffered lines together
-    const unionedPaths = cascadedUnion(bufferedPaths.filter((b) => b != null));
+    const unionedPaths = cascadedUnion(bufferedPaths.filter(b => b != null));
     // Explode all the compound paths because that way we can isolate the ones that touch the edge
     const explodedUnionedPaths = flattenArrayOfPathItems(paper, unionedPaths);
     // After unioning, we end up with a set of cuts that will cause the inside of the design to drop out,
     // so we carefully invert it ...
     // find the inside paths, these are good holes
-    const insidePaths = explodedUnionedPaths.filter(p => p.isInside(boundaryModel.bounds));
+    const insidePaths = explodedUnionedPaths.filter(p =>
+      p.isInside(boundaryModel.bounds)
+    );
     // find the paths that touch the edge
     const outsidePaths = explodedUnionedPaths.filter(
       p => !p.isInside(boundaryModel.bounds)
@@ -162,7 +171,7 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
 
     const ret = [invertedPath, ...insidePaths];
 
-    return {paths: ret};
+    return { paths: ret };
   }
 
   get designMetaParameters() {
@@ -201,6 +210,13 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
         title: "Invert Lat/Lng",
         value: false,
         name: "invertLatLng"
+      }),
+      new SelectMetaParameter({
+        title: "Center At",
+        options: ["topLeft", "bottomLeft", "center"],
+        value: "center",
+        name: "centerAt",
+        help: 'bottomLeft is probably what you want for kaleido mode'
       })
     ];
   }

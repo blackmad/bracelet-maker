@@ -16,7 +16,10 @@ function uniteTouchingPathsOnePass(paths: paper.PathItem[]) {
   const pathDict = {};
   paths.forEach(path => {
     const id = uuidv1();
-    pathDict[id] = path;
+    const scaledUpPath = path.clone();
+    scaledUpPath.scale(1.001);
+    pathDict[id] = scaledUpPath;
+
     tree.insert({
       id,
       ...toTreeEntry(path)
@@ -32,6 +35,7 @@ function uniteTouchingPathsOnePass(paths: paper.PathItem[]) {
       return;
     }
     let currentPath: paper.PathItem = path;
+    
     const maybeIntersects = tree.search(toTreeEntry(path));
     maybeIntersects.forEach((maybeIntersectTreeEntry: any) => {
       const otherId = maybeIntersectTreeEntry.id;
@@ -41,8 +45,10 @@ function uniteTouchingPathsOnePass(paths: paper.PathItem[]) {
         return;
       }
       const otherPath: paper.Path = pathDict[otherId];
+      
       if (currentPath.intersects(otherPath)) {
         // console.log(`${otherId} does intersect ${id}`)
+        // @ts-ignore
         currentPath = currentPath.unite(otherPath);
         // console.log('intersected and deleted otherId')
         deleted[otherId] = true;

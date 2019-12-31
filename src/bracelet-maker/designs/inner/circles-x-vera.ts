@@ -89,9 +89,9 @@ export class InnerDesignCirclesXVera extends FastAbstractInnerDesign {
     }
 
     if (params.invert) {
-      return Promise.resolve({paths: totalPath})
+      return Promise.resolve({paths: [totalPath]})
     } else {
-      return Promise.resolve({paths: boundaryModel.subtract(totalPath, {insert: false})})
+      return Promise.resolve({paths: [boundaryModel.subtract(totalPath, {insert: false})]})
     }
   }
 

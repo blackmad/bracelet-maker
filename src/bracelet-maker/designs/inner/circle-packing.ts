@@ -68,7 +68,6 @@ export class InnerDesignCirclePacking extends FastAbstractInnerDesign {
         boundaryRect.topLeft.add(offsetPoint),
         boundaryRect.bottomRight.subtract(offsetPoint)
       );
-      console.log(boundaryRect);
     }
 
     const circles: paper.Path.Circle[] = [];

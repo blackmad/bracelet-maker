@@ -31,7 +31,8 @@ export function randomPointInPolygon(
   }
 }
 
-export function bufferShapeToPoints(
+
+export function bufferPoints(
   paper: paper.PaperScope,
   buffer: number,
   points: paper.Point[]
@@ -58,17 +59,25 @@ export function bufferShapeToPoints(
   });
 }
 
-export function bufferShape(
+export function bufferPointstoPathItem(
   paper: paper.PaperScope,
   buffer: number,
   points: paper.Point[]
 ): paper.PathItem {
-  const newPoints = bufferShapeToPoints(paper, buffer, points);
+  const newPoints = bufferPoints(paper, buffer, points);
 
   const roundedPolygon = new paper.Path(newPoints);
   roundedPolygon.closePath();
 
   return roundedPolygon;
+}
+
+export function bufferPath(
+  paper: paper.PaperScope,
+  buffer: number,
+  shape: paper.Path
+): paper.PathItem {
+  return bufferPointstoPathItem(paper, this.segmentBuffer, shape.segments.map((s) => s.point));
 }
 
 export function pickPointOnRectEdge(
@@ -283,7 +292,7 @@ export function bufferLine(
   }
   hackedPoints = hackedPoints.concat(points);
 
-  const fatLinePoints = bufferShapeToPoints(paper, lineWidth / 2, hackedPoints);
+  const fatLinePoints = bufferPoints(paper, lineWidth / 2, hackedPoints);
 
   if (fatLinePoints) {
     const path = new paper.Path(fatLinePoints);

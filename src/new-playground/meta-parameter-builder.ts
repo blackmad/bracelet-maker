@@ -189,8 +189,8 @@ export class MetaParameterBuilder {
     )[0];
     const latInputEl = $('<input type="text" size="7" autocomplete="off">')[0];
     const lngInputEl = $('<input type="text" size="7" autocomplete="off">')[0];
-    latInputEl.value = metaParameter.value.split(",")[0];
-    lngInputEl.value = metaParameter.value.split(",")[1];
+    latInputEl.value = this.params[metaParameter.name].split(",")[0];
+    lngInputEl.value = this.params[metaParameter.name].split(",")[1];
 
     const switchDiv = $(`<div class="col-7 leftInputContainer"></div>`);
     switchDiv.append(lngInputEl);
@@ -267,7 +267,7 @@ export class MetaParameterBuilder {
         } else if (metaParam.group) {
           if (!groupDivs[metaParam.group]) {
             const groupDiv = $(
-              '<div class="meta-parameter-container col-md-12 col-lg-12 small border-top border-bottom py-1 row"></div>'
+              '<div class="meta-parameter-container col-md-12 col-lg-12 small py-1 row"></div>'
             );
             groupDiv.append(
               $(

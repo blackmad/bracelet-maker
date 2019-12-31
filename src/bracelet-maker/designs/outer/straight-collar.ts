@@ -154,11 +154,6 @@ export class StraightCollarOuter implements OuterPaperModelMaker {
       )
     );
 
-    // TODO
-    // round belt end
-    // round other belt end more
-    // get it to work with outlines
-
     const innerOptions = options[this.subModel.constructor.name] || {};
     innerOptions.height = height;
     innerOptions.width = totalLength;
@@ -173,8 +168,6 @@ export class StraightCollarOuter implements OuterPaperModelMaker {
     allHoles = _.flatten(allHoles);
 
     if (innerDesign.outline) {
-      const oldCuffOuter = outerModel;
-
       // @ts-ignore
       outerModel = outerModel.unite(innerDesign.outline);
     }

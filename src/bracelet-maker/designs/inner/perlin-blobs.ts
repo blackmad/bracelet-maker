@@ -19,6 +19,7 @@ export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
   allowOutline = false;
   requiresSafeConeClamp = false;
   needSubtraction = true;
+  canKaleido = true;
 
   async makeDesign(paper: paper.PaperScope, params: any) {
     const {
@@ -144,7 +145,7 @@ export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
       }),
       new RangeMetaParameter({
         title: 'X Noise Divisor',
-        min: 1.0,
+        min: 10.0,
         max: 5000.0,
         step: 1,
         value: 150,
@@ -152,7 +153,7 @@ export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
       }),
       new RangeMetaParameter({
         title: 'Y Noise Divisor',
-        min: 1.0,
+        min: 10.0,
         max: 5000.0,
         step: 1,
         value: 150,
