@@ -1,4 +1,4 @@
-- fix generate examples
+- why does voronoi not mirrored cause visible linebreaks
 
 - DEBUG - not persisting on reload? - kaleido is always so weird
 - DEBUG - clear debug on reload / make toggling work
@@ -9,6 +9,7 @@
 - finally figure out grouping params / conditional params
 - look into posture collar 
 - http://haptic-data.com/toxiclibsjs/
+- optimesh / CVT:  https://github.com/nschloe/optimesh
 
 12/8
 

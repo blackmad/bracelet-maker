@@ -16,13 +16,11 @@ export function makeConcaveOutline({
     path.segments.forEach(s => allPoints.push([s.point.x, s.point.y]));
     for (let offset = 0; offset < 1; offset += 0.01) {
       const point = path.getPointAt(path.length * offset);
-      allPoints.push([point.x, point.y]);
+      if (point) {
+        allPoints.push([point.x, point.y]);
       }
+    }
   });
-  const concaveHull = concaveman(
-    allPoints,
-    concavity,
-    lengthThreshold
-  );
+  const concaveHull = concaveman(allPoints, concavity, lengthThreshold);
   return new paper.Path(concaveHull.map(p => new paper.Point(p[0], p[1])));
 }

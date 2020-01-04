@@ -77,7 +77,7 @@ export function bufferPath(
   buffer: number,
   shape: paper.Path
 ): paper.PathItem {
-  return bufferPointstoPathItem(paper, this.segmentBuffer, shape.segments.map((s) => s.point));
+  return bufferPointstoPathItem(paper, buffer, shape.segments.map((s) => s.point));
 }
 
 export function pickPointOnRectEdge(

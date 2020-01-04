@@ -1,67 +1,95 @@
-import * as _ from 'lodash';
-import { Delaunay, Voronoi } from 'd3-delaunay';
+import * as _ from "lodash";
+import { Delaunay, Voronoi } from "d3-delaunay";
 
-import { RangeMetaParameter, MetaParameter, OnOffMetaParameter, SelectMetaParameter } from '../../meta-parameter';
-import { FastAbstractInnerDesign } from './fast-abstract-inner-design';
-import { randomPointInPolygon, bufferPointstoPathItem, approxShape } from '../../utils/paperjs-utils';
-import ExtendPaperJs from 'paperjs-offset';
+import {
+  RangeMetaParameter,
+  MetaParameter,
+  OnOffMetaParameter,
+  SelectMetaParameter
+} from "../../meta-parameter";
+import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
+import {
+  randomPointInPolygon,
+  bufferPointstoPathItem,
+  approxShape
+} from "../../utils/paperjs-utils";
+import ExtendPaperJs from "paperjs-offset";
+import { addToDebugLayer } from '../../utils/debug-layers';
 
 export class InnerDesignVoronoi extends FastAbstractInnerDesign {
   needSubtraction = true;
   allowOutline = true;
   canRound = true;
 
-  makeRandomPoints({ paper, boundaryModel, rows, cols, numTotalPoints, numBorderPoints, mirror }) {
-    const numPoints = numTotalPoints // (rows * cols);
+  makeRandomPoints({
+    paper,
+    boundaryModel,
+    rows,
+    cols,
+    numTotalPoints,
+    numBorderPoints,
+    mirror,
+    borderSize
+  }) {
+    const numPoints = numTotalPoints; // (rows * cols);
 
     const colOffset = boundaryModel.bounds.width / cols;
     const rowOffset = boundaryModel.bounds.height / rows;
 
-    const partialRect = new paper.Rectangle(boundaryModel.bounds.topLeft, new paper.Size(colOffset, rowOffset));
+    const partialRect = new paper.Rectangle(
+      boundaryModel.bounds.topLeft,
+      new paper.Size(colOffset, rowOffset)
+    );
+
+    addToDebugLayer(paper, 'boundaryModel', boundaryModel.bounds.topLeft);
+    addToDebugLayer(paper, 'boundaryModel', boundaryModel);
+    addToDebugLayer(paper, 'partialRect', new paper.Path.Rectangle(partialRect));
 
     const seedPoints = [];
 
-    const addSeedPoint = (testPoint: paper.Point) => {
-      let startR = 0
-      let endR = rows
-      let startC = 0
-      let endC = cols
+    const addSeedPoint = (testPoint: paper.Point, layerName: string) => {
+      let startR = 0;
+      let endR = rows;
+      let startC = 0;
+      let endC = cols;
       if (rows > 1) {
         startR = -2;
         endR = rows + 2;
       }
 
       if (cols > 1) {
-      startC = -2;
-      endC = cols + 2;
-    }
+        startC = -2;
+        endC = cols + 2;
+      }
 
       for (let r = startR; r < endR; r++) {
         for (let c = startC; c < endC; c++) {
           let x = testPoint.x + colOffset * c;
           let y = testPoint.y + rowOffset * r;
 
-          if (mirror && (c % 2 == 1)) {
-            x = (colOffset - testPoint.x) + colOffset * c;
+          if (mirror && c % 2 == 1) {
+            x = colOffset - testPoint.x + colOffset * c + boundaryModel.bounds.topLeft.x;
           }
 
-          if (mirror && (r % 2 == 1)) {
-            y = (rowOffset - testPoint.y) + rowOffset * r;
+          if (mirror && r % 2 == 1) {
+            y = rowOffset - testPoint.y + rowOffset * r + boundaryModel.bounds.topLeft.y;
           }
 
+          addToDebugLayer(paper, layerName, new paper.Point(x, y));
           seedPoints.push([x, y]);
         }
       }
-    }
+    };
 
     for (let i = 0; i < numPoints; i++) {
       const testPoint = randomPointInPolygon(paper, partialRect, this.rng);
-      addSeedPoint(testPoint);
+      addToDebugLayer(paper, 'initialPoints', testPoint);
+      addSeedPoint(testPoint, 'seedPoints');
     }
 
     if (numBorderPoints > 0) {
-      console.log(approxShape(paper, boundaryModel, numBorderPoints));
-      approxShape(paper, boundaryModel, numBorderPoints).forEach(addSeedPoint);
+      // console.log(approxShape(paper, partialRect, numBorderPoints));
+      approxShape(paper, new paper.Path.Rectangle(partialRect), numBorderPoints).forEach((p) => addSeedPoint(p, 'borderPoints'));
     }
 
     return seedPoints;
@@ -70,14 +98,14 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
   makeDesign(paper: paper.PaperScope, params) {
     ExtendPaperJs(paper);
 
-    const { numPoints = 100, rows = 1, cols = 1,
+    const {
+      numPoints = 100,
+      rows = 1,
+      cols = 1,
       numBorderPoints = 0,
-      smoothingType = 'None',
-      smoothingFactor = 0.5,
       mirror = false,
-      omitChance = 0.0,
+      omitChance = 0.0
     } = params;
-
 
     const boundaryModel: paper.PathItem = params.boundaryModel;
 
@@ -88,8 +116,9 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       cols,
       numTotalPoints: numPoints,
       numBorderPoints,
-      mirror
-    })
+      mirror,
+      borderSize: params.borderSize
+    });
 
     var delaunay = Delaunay.from(seedPoints);
     let cellPolygonIterator = delaunay.trianglePolygons();
@@ -108,32 +137,37 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
     for (const cellPolygon of cellPolygonIterator) {
       const points = cellPolygon.map(p => new paper.Point(p[0], p[1]));
       points.pop();
-      const bufferedShape = bufferPointstoPathItem(paper, -params.borderSize, points);
+      const bufferedShape = bufferPointstoPathItem(
+        paper,
+        -params.borderSize,
+        points
+      );
+
       if (this.rng() > omitChance) {
         polys.push(bufferedShape);
       }
     }
 
-    return Promise.resolve({paths: polys})
+    return Promise.resolve({ paths: polys });
   }
 
   get designMetaParameters() {
     return [
       new RangeMetaParameter({
-        title: 'Num Points',
+        title: "Num Points",
         min: 3,
         max: 100,
         value: 20,
         step: 1,
-        name: 'numPoints'
+        name: "numPoints"
       }),
       new RangeMetaParameter({
-        title: 'Border Points',
+        title: "Border Points",
         min: 0,
         max: 100,
         value: 0,
         step: 1,
-        name: 'numBorderPoints'
+        name: "numBorderPoints"
       }),
       // new RangeMetaParameter({
       //   title: 'Min Cell Size',
@@ -144,46 +178,46 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       //   name: 'minPathLength'
       // }),
       new RangeMetaParameter({
-        title: 'Omit Chance',
-        min: 0.00,
+        title: "Omit Chance",
+        min: 0.0,
         max: 1.0,
         value: 0.0,
         step: 0.01,
-        name: 'omitChance'
+        name: "omitChance"
       }),
       new RangeMetaParameter({
-        title: 'Border Size',
+        title: "Border Size",
         min: 0.01,
         max: 0.5,
         value: 0.1,
         step: 0.01,
-        name: 'borderSize'
+        name: "borderSize"
       }),
       new RangeMetaParameter({
-        title: 'Rows',
+        title: "Rows",
         min: 1,
         max: 20,
         value: 1,
         step: 1,
-        name: 'rows'
+        name: "rows"
       }),
       new RangeMetaParameter({
-        title: 'Cols',
+        title: "Cols",
         min: 1,
         max: 20,
         value: 1,
         step: 1,
-        name: 'cols'
+        name: "cols"
       }),
       new OnOffMetaParameter({
-        title: 'Mirror',
+        title: "Mirror",
         value: true,
-        name: 'mirror'
+        name: "mirror"
       }),
       new OnOffMetaParameter({
-        title: 'Voronoi',
+        title: "Voronoi",
         value: true,
-        name: 'voronoi'
+        name: "voronoi"
       })
     ];
   }

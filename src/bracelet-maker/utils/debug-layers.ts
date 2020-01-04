@@ -1,4 +1,4 @@
-import * as randomColor from 'randomcolor';
+import randomColor from 'randomcolor';
 
 const debugLayers = {};
 const debugLayerNames = [];
@@ -6,7 +6,7 @@ const debugLayerNames = [];
 export function addToDebugLayer(
   paper: paper.PaperScope,
   layerName: string,
-  item: paper.Item
+  item: paper.Item | paper.Point
 ) {
   if (!debugLayers[layerName]) {
     console.log('making layer')
@@ -21,8 +21,15 @@ export function addToDebugLayer(
       strokeWidth: 0.04,
     };
   }
-  debugLayers[layerName].addChild(item);
-  item.style = debugLayers[layerName].style;
+
+  let path: paper.Item = null;
+  if (item instanceof paper.Point) {
+    path = new paper.Path.Circle(item, 0.05);
+  } else {
+    path = item;
+  }
+  debugLayers[layerName].addChild(path);
+  path.style = debugLayers[layerName].style;
 }
 
 export function getDebugLayers() {

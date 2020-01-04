@@ -1,10 +1,5 @@
 import { RangeMetaParameter } from '../../meta-parameter';
 import * as _ from 'lodash';
-import {
-  makeEvenlySpacedBolts,
-  BeltHoleRadius,
-  RivetRadius
-} from '../design-utils';
 
 import { PaperModelMaker, CompletedModel, OuterPaperModelMaker } from '../../model-maker';
 
@@ -60,7 +55,8 @@ export class BoxOuter implements OuterPaperModelMaker {
 
     const innerOptions = options[this.subModel.constructor.name] || {};
     innerOptions.boundaryModel = safeArea;
-    // innerOptions.safeCone = safeCone;
+    // TODO(blackmad): real safeCone here
+    innerOptions.safeCone = safeArea;
     innerOptions.outerModel = outerModel;
 
     const innerDesign = await this.subModel.make(paper, innerOptions);
