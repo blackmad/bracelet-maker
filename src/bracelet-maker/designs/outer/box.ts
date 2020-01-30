@@ -1,57 +1,74 @@
-import { RangeMetaParameter } from '../../meta-parameter';
-import * as _ from 'lodash';
+import { RangeMetaParameter } from "../../meta-parameter";
+import * as _ from "lodash";
 
-import { PaperModelMaker, CompletedModel, OuterPaperModelMaker } from '../../model-maker';
+import { PaperModelMaker, CompletedModel, OuterPaperModelMaker } from "../../model-maker";
+import { bufferPath } from "@/bracelet-maker/utils/paperjs-utils";
 
 export class BoxOuter implements OuterPaperModelMaker {
-
   get metaParameters() {
     return [
       new RangeMetaParameter({
-        title: 'Height',
+        title: "Height",
         min: 0.1,
         max: 20,
         value: 3,
         step: 0.01,
-        name: 'height'
+        name: "height"
       }),
       new RangeMetaParameter({
-        title: 'Width',
+        title: "TopWidth",
         min: 0.1,
         max: 20,
         value: 3,
         step: 0.01,
-        name: 'width'
+        name: "topWidth"
       }),
       new RangeMetaParameter({
-        title: 'Safe Border Width',
+        title: "Bottom Width",
+        min: 0.1,
+        max: 20,
+        value: 3,
+        step: 0.01,
+        name: "bottomWidth"
+      }),
+      new RangeMetaParameter({
+        title: "Safe Border Width",
         min: -0.25,
         max: 0.25,
         value: 0.1,
         step: 0.01,
-        name: 'safeBorderWidth',
-        target: '.design-params-row'
-      }),
-    ]
+        name: "safeBorderWidth",
+        target: ".design-params-row"
+      })
+    ];
   }
 
   constructor(public subModel: any) {}
 
-  public controlInfo = "It's a box"
+  public controlInfo = "It's a box";
 
   public async make(paper: paper.PaperScope, options): Promise<CompletedModel> {
-    let { height, width, safeBorderWidth, debug = false } = options[
+    let { height, topWidth, bottomWidth, safeBorderWidth, debug = false } = options[
       this.constructor.name
     ];
 
-    let outerModel = new paper.Path.Rectangle(
-      new paper.Rectangle(0, 0, width, height),
-    );
+    let outerModel: paper.Path = new paper.Path();
 
-    let safeArea = new paper.Path.Rectangle(
-      new paper.Rectangle(safeBorderWidth, safeBorderWidth, width-2*safeBorderWidth, height-2*safeBorderWidth),
-    );
+    if (topWidth >= bottomWidth) {
+      outerModel.add(new paper.Point(0, 0));
+      outerModel.add(new paper.Point((topWidth - bottomWidth) / 2, height));
+      outerModel.add(new paper.Point((topWidth - bottomWidth) / 2 + bottomWidth, height));
+      outerModel.add(new paper.Point(topWidth, 0));
+      outerModel.closePath();
+    } else {
+      outerModel.add(new paper.Point((bottomWidth - topWidth) / 2, 0));
+      outerModel.add(new paper.Point(0, height));
+      outerModel.add(new paper.Point(bottomWidth, height));
+      outerModel.add(new paper.Point((bottomWidth - topWidth) / 2 + topWidth, 0));
+      outerModel.closePath();
+    }
 
+    let safeArea = bufferPath(paper, -safeBorderWidth, outerModel);
 
     const innerOptions = options[this.subModel.constructor.name] || {};
     innerOptions.boundaryModel = safeArea;
@@ -66,11 +83,10 @@ export class BoxOuter implements OuterPaperModelMaker {
 
       // @ts-ignore
       outerModel = outerModel.unite(innerDesign.outline);
-
     }
 
     return new CompletedModel({
-      outer: outerModel, 
+      outer: outerModel,
       holes: [],
       design: innerDesign.paths
     });

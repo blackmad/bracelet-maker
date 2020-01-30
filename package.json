@@ -7,8 +7,15 @@
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "vue-cli-service test:e2e",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "build-tsc": "tsc -p tsconfig-node.json",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
   },
+  "engines": {
+    "node": "8"
+  },
+  "main": "lib/index.js",
   "dependencies": {
     "@types/geojson": "^7946.0.7",
     "@types/jimp": "^0.2.28",
@@ -38,7 +45,9 @@
     "vue-class-component": "^7.0.2",
     "vue-property-decorator": "^8.1.0",
     "vue-router": "^3.0.6",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "firebase-admin": "^8.6.0",
+    "firebase-functions": "^3.3.0"
   },
   "devDependencies": {
     "@doodle3d/clipper-js": "^1.0.10",
@@ -99,7 +108,8 @@
     "svg-png-converter": "0.0.9",
     "svg-to-pdfkit": "^0.1.7",
     "typescript": "~3.5.3",
-    "vue-template-compiler": "^2.6.10"
+    "vue-template-compiler": "^2.6.10",
+    "firebase-functions-test": "^0.1.6"
   },
   "optionalDependencies": {
     "fsevents": "^1.2.9"
