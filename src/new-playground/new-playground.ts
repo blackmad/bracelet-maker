@@ -46,12 +46,12 @@ export class DavidsPlayground {
 
     $('.sizingInfo').html(modelMaker.controlInfo);
 
-    $('.downloadSVG').off('click');
+    $('.downloadButton').off('click');
+
     $('.downloadSVG').click(this.downloadSVG.bind(this));
-    $('.downloadPDF').off('click');
     $('.downloadPDF').click(this.downloadPDF.bind(this));
-    $('.downloadOutlinePDF').off('click');
     $('.downloadOutlinePDF').click(this.downloadOutlinePDF.bind(this));
+    $('.saveToMyLibrary').click(this.saveToMyLibrary.bind(this));
   }
 
   public rerender() {
@@ -133,6 +133,12 @@ export class DavidsPlayground {
     const dataUri = uriPrefix + encoded;
 
     this.sendFileToUser(dataUri, 'svg');
+  }
+
+  public saveToMyLibrary() {
+    const data = makeSVGData(paper, paper.project, true, svg => $(svg)[0]);
+    // need to get params and write those to store too
+
   }
 
   public sendFileToUser(dataUri, extension) {

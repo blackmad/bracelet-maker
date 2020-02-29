@@ -88,10 +88,6 @@ input[type="number"] {
   height: 30vh;
 }
 
-.downloadSVG {
-  z-index: 10000;
-}
-
 #initMessage {
   height: 100%;
   width: 100%;
@@ -123,15 +119,13 @@ a.downloadButton {
   /* text-decoration: underline !important; */
   cursor: pointer !important;
   color: #007bff !important;
+  padding-right: 10px;
 }
 a.downloadButton:hover{
   text-decoration: none !important;
 } 
-.downloadSVG {
-  padding-right: 10px;
-}
-.downloadPDF {
-  padding-right: 10px;
+a.downloadButton:last-child{
+  padding-right: 0;
 }
 
 .outer-design.design-container .panel-body {

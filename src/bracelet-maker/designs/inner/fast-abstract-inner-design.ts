@@ -192,7 +192,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     });
 
     // Expand it to our outline border
-    outline = paper.Path.prototype.offset.call(outline, params.outlineSize, {
+    outline = (paper.Path.prototype as any).offset.call(outline, params.outlineSize, {
       cap: "miter"
     });
 
