@@ -13,7 +13,7 @@
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "8"
+    "node": "13"
   },
   "main": "lib/index.js",
   "dependencies": {
@@ -28,6 +28,10 @@
     "core-js": "^3.1.2",
     "cross-fetch": "^3.0.4",
     "fetch-ponyfill": "^6.1.0",
+    "firebase": "^7.9.3",
+    "firebase-admin": "^8.6.0",
+    "firebase-functions": "^3.3.0",
+    "firebaseui": "^4.4.0",
     "geocomplete": "^1.7.0",
     "geojson": "^0.5.0",
     "jimp": "^0.9.3",
@@ -45,9 +49,7 @@
     "vue-class-component": "^7.0.2",
     "vue-property-decorator": "^8.1.0",
     "vue-router": "^3.0.6",
-    "vuex": "^3.0.1",
-    "firebase-admin": "^8.6.0",
-    "firebase-functions": "^3.3.0"
+    "vuex": "^3.1.2"
   },
   "devDependencies": {
     "@doodle3d/clipper-js": "^1.0.10",
@@ -68,7 +70,7 @@
     "@vue/cli-plugin-babel": "^4.0.0",
     "@vue/cli-plugin-e2e-cypress": "^4.0.0",
     "@vue/cli-plugin-eslint": "^4.0.0",
-    "@vue/cli-plugin-pwa": "^4.1.2",
+    "@vue/cli-plugin-pwa": "^4.2.3",
     "@vue/cli-plugin-router": "^4.0.0",
     "@vue/cli-plugin-typescript": "^4.0.0",
     "@vue/cli-plugin-unit-mocha": "^4.0.0",
@@ -86,6 +88,7 @@
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-vue": "^5.0.0",
     "esm": "^3.2.25",
+    "firebase-functions-test": "^0.1.6",
     "jquery": "^3.4.1",
     "lodash": "^4.17.11",
     "makerjs": "^0.14.0",
@@ -108,8 +111,7 @@
     "svg-png-converter": "0.0.9",
     "svg-to-pdfkit": "^0.1.7",
     "typescript": "~3.5.3",
-    "vue-template-compiler": "^2.6.10",
-    "firebase-functions-test": "^0.1.6"
+    "vue-template-compiler": "^2.6.10"
   },
   "optionalDependencies": {
     "fsevents": "^1.2.9"

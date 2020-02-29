@@ -1,12 +1,13 @@
 <template>
   <div id="app">
-    <router-view/>
+    <navbar></navbar>
+    <router-view />
   </div>
 </template>
 
 <style lang="scss">
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -26,3 +27,24 @@
   }
 }
 </style>
+
+<script lang="ts">
+import { Component, Prop, Vue } from "vue-property-decorator";
+import firebase from "firebase";
+
+import navbar from "./components/Navbar.vue";
+
+@Component({ components: { navbar } })
+export default class App extends Vue {
+  signOut() {
+    firebase
+      .auth()
+      .signOut()
+      .then(() => {
+        this.$router.replace({
+          name: "home"
+        });
+      });
+  }
+}
+</script>

@@ -1,3 +1,28 @@
+- google login
+- save designs in firestore
+- debug rounding in voronoi
+- play a bit more with safecones
+- think about making a version with two snap slots
+- general edge / blowout debugging
+- redo how padding-top area of UI is calculated (33vh)
+
+-----
+
+
+- why does this edge not work http://gen1-alpha.blackmade.co/#/newPlayground/StraightCuffOuter/InnerDesignCirclePacking?StraightCuffOuter.debug=false&StraightCuffOuter.height=2&StraightCuffOuter.wristCircumference=6.9&StraightCuffOuter.safeBorderWidth=-0.43&StraightCuffOuter.forearmCircumference=7.2&InnerDesignCirclePacking.debug=false&InnerDesignCirclePacking.seed=1&InnerDesignCirclePacking.borderSize=0.1&InnerDesignCirclePacking.outlineSize=0.1&InnerDesignCirclePacking.minCircleSize=0.02&InnerDesignCirclePacking.maxCircleSize=0.75&InnerDesignCirclePacking.numLines=3&InnerDesignCirclePacking.constrainCircles=false&InnerDesignCirclePacking.concavity=0.4&InnerDesignCirclePacking.lengthThreshold=0.25
+
+- can the sliders be real-time
+
+- fix the handles on negative outline
+
+ - webgl viewwwwwwwwww
+
+ - save good ones
+
+ - look at random repeatability
+
+- debug why this is offset from the center: http://localhost:8080/#/newPlayground/BoxOuter/InnerDesignHexes
+
 - why does voronoi not mirrored cause visible linebreaks
 
 - DEBUG - not persisting on reload? - kaleido is always so weird

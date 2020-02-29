@@ -2,10 +2,6 @@ body {
   font-family: Source Code Pro, Consolas, Menlo, monospace !important;
 }
 
-.playArea {
-  background: white;
-}
-
 #canvasBlock {
   width: 90%;
   max-height: 33vh;
@@ -39,11 +35,9 @@ body {
   display: block;
 }
 
-.playArea {
-  padding-top: 33vh;
-  margin-right: -15px;
-  margin-left: -15px;
-  height: 33vh;
+.previewAreaPadding {
+  padding-top: 30vh;
+  height: 30vh;
 }
 
 .crosshatch {

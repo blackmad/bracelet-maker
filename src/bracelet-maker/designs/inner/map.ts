@@ -24,6 +24,7 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
   needSeed = false;
   canKaleido = true;
   defaultKaleido = false;
+  // canRound = true;
   // allowOutline = true;
 
   extractPointPathsFromFeatures(

@@ -19,50 +19,45 @@
       </div>
     </div>
 
-    <div class="container p-xs-3 p-sm-3 p-md-4 p-lg-5">
-      <div class="playArea container">
-        <div class="m-3">
-          <h1 class="title">Sizing</h1>
+    <div class="container px-xs-3 px-sm-3 px-md-4 px-lg-5">
+      <div class="previewAreaPadding"></div>
+      <div class="m-3">
+        <h1 class="title">Sizing</h1>
+        <small>
+          <div class="sizingInfo patternInfo">/</div>
+        </small>
+        <div id="outerParameterDiv" class="row clear-on-reinit"></div>
+      </div>
+
+      <div id="parameterSection" class="m-3">
+        <h1 class="title">Design</h1>
+        <div class="patternInfo">
           <small>
-            <div class="sizingInfo patternInfo">/</div>
+            Not all of these variables do what they say. Consider them various ways to play with the
+            randomness until you find a design you like.
           </small>
-          <div id="outerParameterDiv" class="row clear-on-reinit"></div>
         </div>
 
-        <div id="parameterSection" class="m-3">
-          <h1 class="title">Design</h1>
-          <div class="patternInfo">
-            <small>
-              Not all of these variables do what they say. Consider them various
-              ways to play with the randomness until you find a design you like.
-            </small>
-          </div>
+        <div id="innerParameterDiv" class="row design-params-row"></div>
+      </div>
 
-          <div id="innerParameterDiv" class="row design-params-row"></div>
+      <div id="parameterSection" class="m-3" v-if="debugLayerNames.length > 0">
+        <h1 class="title">Debug Layers</h1>
+
+        <div v-for="name in debugLayerNames" :key="name">
+          <label :style="{ color: cssColor(name) }">
+            <input type="checkbox" @click="toggleVisibility(name)" />
+            {{ name }}
+          </label>
         </div>
+      </div>
 
-        <div id="parameterSection" class="m-3" v-if="debugLayerNames.length > 0">
-          <h1 class="title">Debug Layers</h1>
+      <div id="designScratchArea"></div>
 
-          <div v-for="name in debugLayerNames" :key="name">
-            <label :style="{ color: cssColor(name) }">
-              <input type="checkbox" @click="toggleVisibility(name)" />
-              {{ name }}
-            </label>
-          </div>
-        </div>
-
-        <div id="designScratchArea">
-        </div>
-
-        <div class="row justify-content-center">
-          <button
-            class="btn btn-primary m-1 changeDesign"
-            @click="changeDesign"
-          >
-            Change Design
-          </button>
-        </div>
+      <div class="row justify-content-center">
+        <button class="btn btn-primary m-1 changeDesign" @click="changeDesign">
+          Change Design
+        </button>
       </div>
     </div>
   </div>
@@ -103,12 +98,8 @@ export default class NewPlaygroundView extends Vue {
   }
 
   mounted() {
-    const innerDesignClass = AllInnerDesigns.find(
-      d => d.name == this.innerDesign
-    );
-    const outerDesignClass = AllOuterDesigns.find(
-      d => d.name == this.outerDesign
-    );
+    const innerDesignClass = AllInnerDesigns.find(d => d.name == this.innerDesign);
+    const outerDesignClass = AllOuterDesigns.find(d => d.name == this.outerDesign);
 
     const innerDesign = new innerDesignClass();
     const modelMaker: OuterPaperModelMaker = new outerDesignClass(innerDesign);
@@ -118,7 +109,7 @@ export default class NewPlaygroundView extends Vue {
         this.$router.replace({ query: params });
       }
       this.isFirstQueryReplace = false;
-    })
+    });
     this.playground.rerender();
   }
 

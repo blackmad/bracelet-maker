@@ -1,7 +1,9 @@
 import { RangeMetaParameter } from "../../meta-parameter";
 import * as _ from "lodash";
 
-import { PaperModelMaker, CompletedModel, OuterPaperModelMaker } from "../../model-maker";
+import { CompletedModel, OuterPaperModelMaker } from "../../model-maker";
+import { roundCorners } from "../../utils/round-corners";
+
 import { bufferPath } from "@/bracelet-maker/utils/paperjs-utils";
 
 export class BoxOuter implements OuterPaperModelMaker {
@@ -39,6 +41,14 @@ export class BoxOuter implements OuterPaperModelMaker {
         step: 0.01,
         name: "safeBorderWidth",
         target: ".design-params-row"
+      }),
+      new RangeMetaParameter({
+        title: "Smoothing Factor",
+        min: 0.01,
+        max: 1.0,
+        value: 0.8,
+        step: 0.01,
+        name: "smoothingFactor"
       })
     ];
   }
@@ -48,7 +58,7 @@ export class BoxOuter implements OuterPaperModelMaker {
   public controlInfo = "It's a box";
 
   public async make(paper: paper.PaperScope, options): Promise<CompletedModel> {
-    let { height, topWidth, bottomWidth, safeBorderWidth, debug = false } = options[
+    let { height, topWidth, bottomWidth, safeBorderWidth, debug = false, smoothingFactor } = options[
       this.constructor.name
     ];
 
@@ -67,6 +77,9 @@ export class BoxOuter implements OuterPaperModelMaker {
       outerModel.add(new paper.Point((bottomWidth - topWidth) / 2 + topWidth, 0));
       outerModel.closePath();
     }
+
+    outerModel = roundCorners({ paper, path: outerModel, radius: smoothingFactor })
+
 
     let safeArea = bufferPath(paper, -safeBorderWidth, outerModel);
 
