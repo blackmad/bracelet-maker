@@ -3,11 +3,13 @@ import { RangeMetaParameter } from '../../meta-parameter';
 import { CompletedModel, OuterPaperModelMaker } from '../../model-maker';
 import { makeEvenlySpacedBolts } from '../design-utils';
 
-export class ConicCuffOuter implements OuterPaperModelMaker {
+export class ConicCuffOuter extends OuterPaperModelMaker {
   public controlInfo = `Measure your wrist with a sewing measuring tape. I suggest measuring pretty tight, this pattern adds some length.<br/>
   Cis male wrists average around 7 inches, cis female wrists closer to 6.5 inches."`;
 
-  constructor(public subModel: any) {}
+  constructor(public subModel: any) {
+    super();
+  }
 
   public addRivetHoles(paper: paper.PaperScope, height, cuffModel, cuffModelInner): paper.Path[] {
     /***** START RIVET HOLES *****/
@@ -180,7 +182,7 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
     })
   }
 
-  get metaParameters() {
+  get outerMetaParameters() {
     return [
       new RangeMetaParameter({
         title: 'Height',
@@ -205,15 +207,6 @@ export class ConicCuffOuter implements OuterPaperModelMaker {
         value: 7.4,
         step: 0.1,
         name: 'forearmCircumference'
-      }),
-      new RangeMetaParameter({
-        title: 'Safe Border (in)',
-        min: 0.1,
-        max: 0.75,
-        value: 0.25,
-        step: 0.01,
-        name: 'safeBorderWidth',
-        target: '.design-params-row'
       })
     ];
   }

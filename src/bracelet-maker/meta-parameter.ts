@@ -1,3 +1,5 @@
+import { HasMetaParameters } from './model-maker';
+
 export enum MetaParameterType {
   Range,
   Select,
@@ -12,6 +14,8 @@ export interface MetaParameterBaseParams<T> {
   target?: string | null;
   group?: string | null;
   help?: string | null;
+  shouldDisplay?: Function;
+  parentParam?: OnOffMetaParameter;
 }
 
 export class MetaParameter<T> {
@@ -22,6 +26,8 @@ export class MetaParameter<T> {
   public help: string | null;
   public value: T;
   public type: MetaParameterType;
+  public shouldDisplay?: Function;
+  public parentParam?: OnOffMetaParameter;
 
   valueFromString(value: string) {
     if (typeof this.value == "number") {
@@ -40,6 +46,8 @@ export class MetaParameter<T> {
     this.group = params.group;
     this.help = params.help;
     this.value = params.value;
+    this.shouldDisplay = params.shouldDisplay;
+    this.parentParam = params.parentParam;
   }
 }
 

@@ -12,10 +12,10 @@
 
       <div class id="topArea">
         <div id="downloadContainer" class="text-center">
-          <a class="downloadButton downloadSVG">Download SVG</a>
-          <a class="downloadButton downloadPDF">Download PDF</a>
-          <a class="downloadButton downloadOutlinePDF">Download Outline PDF</a>
-          <a class="downloadButton saveToMyLibrary">Save</a>
+          <a class="downloadButton downloadSVG" @click="downloadSVG">Download SVG</a>
+          <a class="downloadButton downloadPDF" @click="downloadPDF">Download PDF</a>
+          <a class="downloadButton downloadOutlinePDF" @click="downloadOutlinePDF">Download Outline PDF</a>
+          <a class="downloadButton saveToMyLibrary" @click="saveToMyLibrary">Save</a>
         </div>
       </div>
     </div>
@@ -25,7 +25,7 @@
       <div class="m-3">
         <h1 class="title">Sizing</h1>
         <small>
-          <div class="sizingInfo patternInfo">/</div>
+          <div class="sizingInfo patternInfo">{{modelMaker ? modelMaker.controlInfo : ''}}</div>
         </small>
         <div id="outerParameterDiv" class="row clear-on-reinit"></div>
       </div>
@@ -125,10 +125,11 @@ export default class NewPlaygroundView extends Vue {
   debugLayerNames = getDebugLayerNames();
   params: any;
   currentModel: CompletedModel;
-  modelMaker: OuterPaperModelMaker;
+  modelMaker: OuterPaperModelMaker = null;
   queryParamUpdateCb: Function;
   designName: string = "";
   designNameState: boolean = null;
+  metaParamBuilder: MetaParameterBuilder = null;
 
   isVisible(name) {
     return this.debugLayers[name].visible;
@@ -147,11 +148,13 @@ export default class NewPlaygroundView extends Vue {
 
   public rerender() {
     this.queryParamUpdateCb(this.params);
+    this.metaParamBuilder.rerender(this.params);
     this.doRender();
   }
+
   public onParamChange({ metaParameter, value }) {
     console.log(metaParameter);
-    this.params[metaParameter.name] = value; // metaParameter.valueFromString(value)
+    this.params[metaParameter.name] = value;
     this.rerender();
   }
 
@@ -376,7 +379,6 @@ export default class NewPlaygroundView extends Vue {
     paper.project.activeLayer.addChild(compoundPath);
 
     _.forEach(getDebugLayers(), (v: paper.Group, k: string) => {
-      console.log(v.visible);
       if (v.visible) {
         paper.project.activeLayer.addChild(v);
       }
@@ -414,27 +416,20 @@ export default class NewPlaygroundView extends Vue {
 
     $(".meta-parameter-container").remove();
 
-    new MetaParameterBuilder(
+    this.metaParamBuilder = new MetaParameterBuilder(
       this.params,
       _.bind(this.onParamChange, this)
-    ).buildMetaParametersForModel(this.modelMaker, document.getElementById("outerParameterDiv"));
-
-    new MetaParameterBuilder(
-      this.params,
-      _.bind(this.onParamChange, this)
-    ).buildMetaParametersForModel(
-      this.modelMaker.subModel,
-      document.getElementById("innerParameterDiv")
+    )
+    
+    this.metaParamBuilder.buildMetaParametersForModel(
+      this.modelMaker, 
+      document.getElementById("outerParameterDiv")
     );
 
-    $(".sizingInfo").html(this.modelMaker.controlInfo);
-
-    $(".downloadButton").off("click");
-
-    $(".downloadSVG").click(this.downloadSVG.bind(this));
-    $(".downloadPDF").click(this.downloadPDF.bind(this));
-    $(".downloadOutlinePDF").click(this.downloadOutlinePDF.bind(this));
-    $(".saveToMyLibrary").click(this.saveToMyLibrary.bind(this));
+    this.metaParamBuilder.buildMetaParametersForModel(
+      this.modelMaker.subModel, 
+      document.getElementById("innerParameterDiv")
+    );
 
     this.rerender();
   }

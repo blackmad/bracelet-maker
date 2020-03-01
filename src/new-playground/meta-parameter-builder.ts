@@ -8,6 +8,7 @@ import {
 import { HasMetaParameters } from "@/bracelet-maker/model-maker";
 
 import * as $ from "jquery";
+import * as _ from "lodash";
 import "rangeslider.js";
 
 function clone(src) {
@@ -15,15 +16,22 @@ function clone(src) {
 }
 
 export class MetaParameterBuilder {
-  constructor(public params: any, public onParamChange: any) {}
+  params: any = {};
+  paramsAndElements = [];
+
+  constructor(public initialParams: any, public _onParamChange: any) {
+    this.params = { ...initialParams };
+  }
+
+  onParamChange({ metaParameter, value }) {
+    this.params[metaParameter.name] = value;
+    this._onParamChange({ metaParameter, value });
+  }
 
   public makeMetaParameterSlider(metaParameter: RangeMetaParameter) {
-    const value =
-      Number(this.params[metaParameter.name]) || metaParameter.value;
+    const value = Number(this.initialParams[metaParameter.name]) || metaParameter.value;
 
-    const { parentDiv, containingDiv } = this.makeMetaParameterContainer(
-      metaParameter.title
-    );
+    const { parentDiv, containingDiv } = this.makeMetaParameterContainer(metaParameter.title);
 
     const rangeInput = document.createElement("input");
     rangeInput.type = "range";
@@ -50,7 +58,7 @@ export class MetaParameterBuilder {
     containingDiv.append(inputWrapDiv);
     inputWrapDiv.append(textInput);
 
-    this.params[metaParameter.name] = Number(value);
+    this.initialParams[metaParameter.name] = Number(value);
 
     rangeInput.addEventListener(
       "change",
@@ -91,12 +99,9 @@ export class MetaParameterBuilder {
   }
 
   public makeMetaParameterSelect(metaParameter) {
-    const selectedValue =
-      this.params[metaParameter.name] || metaParameter.value;
+    const selectedValue = this.initialParams[metaParameter.name] || metaParameter.value;
 
-    const { parentDiv, containingDiv } = this.makeMetaParameterContainer(
-      metaParameter.title
-    );
+    const { parentDiv, containingDiv } = this.makeMetaParameterContainer(metaParameter.title);
 
     const colDiv = $('<div class="col-7 leftInputContainer"></div>');
     containingDiv.append(colDiv[0]);
@@ -116,7 +121,7 @@ export class MetaParameterBuilder {
 
     colDiv.append(selectInput);
 
-    this.params[metaParameter.name] = selectedValue;
+    this.initialParams[metaParameter.name] = selectedValue;
 
     selectInput.addEventListener(
       "change",
@@ -130,14 +135,12 @@ export class MetaParameterBuilder {
   }
 
   public makeMetaParameterOnOff(metaParameter) {
-    let selectedValue = this.params[metaParameter.name] == "true";
-    if (this.params[metaParameter.name] == null) {
+    let selectedValue = this.initialParams[metaParameter.name] == "true";
+    if (this.initialParams[metaParameter.name] == null) {
       selectedValue = metaParameter.value;
     }
 
-    const { parentDiv, containingDiv } = this.makeMetaParameterContainer(
-      metaParameter.title
-    );
+    const { parentDiv, containingDiv } = this.makeMetaParameterContainer(metaParameter.title);
     const selectInput = document.createElement("select");
     selectInput.name = metaParameter.name + "-select";
 
@@ -150,7 +153,7 @@ export class MetaParameterBuilder {
 
     ($(switchDiv).find("input")[0] as HTMLInputElement).checked = selectedValue;
 
-    this.params[metaParameter.name] = selectedValue;
+    this.initialParams[metaParameter.name] = selectedValue;
     const id = metaParameter.name;
     $(switchDiv)
       .find("input")
@@ -173,24 +176,20 @@ export class MetaParameterBuilder {
   }
 
   public makeMetaParameterGeocode(metaParameter) {
-    if (this.params[metaParameter.name] == null) {
-      this.params[metaParameter.name] = metaParameter.value;
+    if (this.initialParams[metaParameter.name] == null) {
+      this.initialParams[metaParameter.name] = metaParameter.value;
     }
 
-    const { parentDiv, containingDiv } = this.makeMetaParameterContainer(
-      metaParameter.title
-    );
+    const { parentDiv, containingDiv } = this.makeMetaParameterContainer(metaParameter.title);
 
     const selectInput = document.createElement("select");
     selectInput.name = metaParameter.name + "-select";
 
-    const geocodeInputEl = $(
-      '<input type="text" style="width:100%" autocomplete="off">'
-    )[0];
+    const geocodeInputEl = $('<input type="text" style="width:100%" autocomplete="off">')[0];
     const latInputEl = $('<input type="text" size="7" autocomplete="off">')[0];
     const lngInputEl = $('<input type="text" size="7" autocomplete="off">')[0];
-    latInputEl.value = this.params[metaParameter.name].split(",")[0];
-    lngInputEl.value = this.params[metaParameter.name].split(",")[1];
+    latInputEl.value = this.initialParams[metaParameter.name].split(",")[0];
+    lngInputEl.value = this.initialParams[metaParameter.name].split(",")[1];
 
     const switchDiv = $(`<div class="col-7 leftInputContainer"></div>`);
     switchDiv.append(lngInputEl);
@@ -250,13 +249,11 @@ export class MetaParameterBuilder {
     }
   }
 
-  public buildMetaParametersForModel(
-    modelMaker: HasMetaParameters,
-    divToAppendTo: any
-  ) {
+  public buildMetaParametersForModel(modelMaker: HasMetaParameters, divToAppendTo: any) {
     let groupDivs = {};
 
     const originalDivToAppendTo = divToAppendTo;
+
     if (modelMaker.metaParameters) {
       modelMaker.metaParameters.forEach(metaParameter => {
         const metaParam = clone(metaParameter);
@@ -269,11 +266,7 @@ export class MetaParameterBuilder {
             const groupDiv = $(
               '<div class="meta-parameter-container col-md-12 col-lg-12 small py-1 row"></div>'
             );
-            groupDiv.append(
-              $(
-                `<div class="row col-12"><h3>${metaParam.group} params</h3></div>`
-              )
-            );
+            groupDiv.append($(`<div class="row col-12"><h3>${metaParam.group} params</h3></div>`));
             $(originalDivToAppendTo)
               .parent()
               .append(groupDiv[0]);
@@ -285,9 +278,39 @@ export class MetaParameterBuilder {
         }
 
         const el = this.buildMetaParameterWidget(metaParam);
+        this.paramsAndElements.push({
+          el,
+          metaParameter: metaParam
+        });
         divToAppendTo.append(el);
       });
     }
     $('input[type="range"]').rangeslider();
+  }
+
+  rerender(_params) {
+    const params = {};
+    _.forEach(_params, (v, k) => {
+      params[k.split('.')[1]] = v;
+    });
+
+    this.paramsAndElements.forEach(({ el, metaParameter }) => {
+      if (metaParameter.parentParam) {
+        const parentValue = params[metaParameter.parentParam.name];
+        if (parentValue) {
+          $(el).show();
+        } else {
+          $(el).hide();
+        }
+      }
+
+      if (metaParameter.shouldDisplay) {
+        if (metaParameter.shouldDisplay(params)) {
+          $(el).show();
+        } else {
+          $(el).hide();
+        }
+      }
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { RangeMetaParameter } from "../../meta-parameter";
+import { RangeMetaParameter, MetaParameter } from "../../meta-parameter";
 import * as _ from "lodash";
 
 import { CompletedModel, OuterPaperModelMaker } from "../../model-maker";
@@ -6,8 +6,8 @@ import { roundCorners } from "../../utils/round-corners";
 
 import { bufferPath } from "@/bracelet-maker/utils/paperjs-utils";
 
-export class BoxOuter implements OuterPaperModelMaker {
-  get metaParameters() {
+export class BoxOuter extends OuterPaperModelMaker {
+  get outerMetaParameters(): MetaParameter<any>[] {
     return [
       new RangeMetaParameter({
         title: "Height",
@@ -34,15 +34,6 @@ export class BoxOuter implements OuterPaperModelMaker {
         name: "bottomWidth"
       }),
       new RangeMetaParameter({
-        title: "Safe Border Width",
-        min: -0.25,
-        max: 0.25,
-        value: 0.1,
-        step: 0.01,
-        name: "safeBorderWidth",
-        target: ".design-params-row"
-      }),
-      new RangeMetaParameter({
         title: "Smoothing Factor",
         min: 0.01,
         max: 1.0,
@@ -53,12 +44,14 @@ export class BoxOuter implements OuterPaperModelMaker {
     ];
   }
 
-  constructor(public subModel: any) {}
+  constructor(public subModel: any) {
+    super();
+  }
 
   public controlInfo = "It's a box";
 
   public async make(paper: paper.PaperScope, options): Promise<CompletedModel> {
-    let { height, topWidth, bottomWidth, safeBorderWidth, debug = false, smoothingFactor } = options[
+    let { height, topWidth, bottomWidth, debug = false, smoothingFactor } = options[
       this.constructor.name
     ];
 
@@ -80,13 +73,9 @@ export class BoxOuter implements OuterPaperModelMaker {
 
     outerModel = roundCorners({ paper, path: outerModel, radius: smoothingFactor })
 
-
-    let safeArea = bufferPath(paper, -safeBorderWidth, outerModel);
-
     const innerOptions = options[this.subModel.constructor.name] || {};
-    innerOptions.boundaryModel = safeArea;
-    // TODO(blackmad): real safeCone here
-    innerOptions.safeCone = safeArea;
+    innerOptions.boundaryModel = outerModel;
+    innerOptions.safeCone = outerModel.clone().scale(5, 5)
     innerOptions.outerModel = outerModel;
 
     const innerDesign = await this.subModel.make(paper, innerOptions);

@@ -1,4 +1,4 @@
-import { RangeMetaParameter } from '../../meta-parameter';
+import { RangeMetaParameter, MetaParameter } from '../../meta-parameter';
 import * as _ from 'lodash';
 import {
   makeEvenlySpacedBolts,
@@ -8,9 +8,8 @@ import {
 
 import { PaperModelMaker, CompletedModel, OuterPaperModelMaker } from '../../model-maker';
 
-export class StraightCollarOuter implements OuterPaperModelMaker {
-
-  get metaParameters() {
+export class StraightCollarOuter extends OuterPaperModelMaker {
+  get outerMetaParameters(): MetaParameter<any>[] {
     return [
       new RangeMetaParameter({
         title: 'Height',
@@ -27,25 +26,17 @@ export class StraightCollarOuter implements OuterPaperModelMaker {
         value: 13,
         step: 0.1,
         name: 'neckSize'
-      }),
-      new RangeMetaParameter({
-        title: 'Safe Border Width',
-        min: -0.25,
-        max: 0.25,
-        value: 0.1,
-        step: 0.01,
-        name: 'safeBorderWidth',
-        target: '.design-params-row'
-
       })
     ];
   }
 
   public controlInfo = 'Measure your neck with a sewing tape measure.<br/>If you don\'t have one handy, 13.5 inches is usually a good size for a cis woman, and 15 inches for a cis man. Don\'t worry, this pattern generates extra length.<br/>Note that a straight collar taller than about 2 inches will not be very comfortable.'
-  constructor(public subModel: any) {}
+  constructor(public subModel: any) {
+    super();
+  }
 
   public async make(paper: paper.PaperScope, options): Promise<CompletedModel> {
-    let { height, neckSize, safeBorderWidth, debug = false } = options[
+    let { height, neckSize, debug = false } = options[
       this.constructor.name
     ];
 
@@ -136,9 +127,9 @@ export class StraightCollarOuter implements OuterPaperModelMaker {
     const safeArea = new paper.Path.Rectangle(
       new paper.Rectangle(
         beltAreaLength + safeAreaPadding,
-        safeBorderWidth,
+        0,
         safeAreaLength,
-        height - safeBorderWidth * 2
+        height
       )
     );
     safeArea.strokeColor = new paper.Color('green');

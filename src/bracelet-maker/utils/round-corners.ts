@@ -8,7 +8,7 @@ export function roundCorners({ paper, path, radius }) {
     const p1 = segments[i];
     const p2 = segments[(i + 1) % segments.length];
 
-    console.log(p1.point.x, p1.point.y, p2.point.x, p2.point.y, p1.point.getDistance(p2.point))
+    // console.log(p1.point.x, p1.point.y, p2.point.x, p2.point.y, p1.point.getDistance(p2.point))
     if (p1.point.getDistance(p2.point) < 0.1) {
       path.removeSegment(i)
       // console.log(`removing segment ${i} from ${p1.point} to ${p2.point}`)

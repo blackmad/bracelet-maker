@@ -1,9 +1,14 @@
-- debug rounding in voronoi
-- toggleable params like for outline size
+- fix extend outwards
+- make extend outwards X/Y somehow
+- make the display grouped?
+
 - play a bit more with safecones
+- fix the weird reloading thing with boolean params?
 - think about making a version with two snap slots
 - general edge / blowout debugging
 - redo how padding-top area of UI is calculated (33vh) / - fix the top again
+- posture collar
+- randomize button
 
 -----
 
@@ -14,9 +19,6 @@
 
 - fix the handles on negative outline
 
- - webgl viewwwwwwwwww
-
- - save good ones
 
  - look at random repeatability
 

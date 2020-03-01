@@ -1,8 +1,7 @@
-import { RangeMetaParameter, OnOffMetaParameter } from "../../meta-parameter";
+import { MetaParameter, RangeMetaParameter } from "../../meta-parameter";
 import { CompletedModel, OuterPaperModelMaker } from "../../model-maker";
 import { makeEvenlySpacedBolts, RivetRadius } from "../design-utils";
 import { bufferPath } from "@/bracelet-maker/utils/paperjs-utils";
-import { Path } from "paper";
 
 function roundCorners(paper, path, radius) {
   const segments = path.segments.slice(0);
@@ -27,17 +26,12 @@ function roundCorners(paper, path, radius) {
   return path;
 }
 
-export class StraightCuffOuter implements OuterPaperModelMaker {
+export class StraightCuffOuter extends OuterPaperModelMaker {
   public bottomPadding = 0.0;
   public topPadding = 0.0;
 
-  get metaParameters() {
+  get outerMetaParameters(): MetaParameter<any>[]  {
     return [
-      new OnOffMetaParameter({
-        title: "Debug",
-        name: "debug",
-        value: false
-      }),
       new RangeMetaParameter({
         title: "Height",
         min: 1,
@@ -55,15 +49,6 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
         name: "wristCircumference"
       }),
       new RangeMetaParameter({
-        title: "Safe Border (in)",
-        min: -2.5,
-        max: 0.75,
-        value: 0.25,
-        step: 0.01,
-        name: "safeBorderWidth",
-        target: ".design-params-row"
-      }),
-      new RangeMetaParameter({
         title: "Wide Wrist Circumference",
         min: 4,
         max: 10,
@@ -77,7 +62,9 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
   public controlInfo = `Measure your wrist with a sewing measuring tape. I suggest measuring pretty tight, this pattern adds some length.<br/>
   Cis male wrists average around 7 inches, cis female wrists closer to 6.5 inches." `;
 
-  constructor(public subModel: any) {}
+  constructor(public subModel: any) {
+    super();
+  }
 
   public makeHoles({ paper, path, height, width }): paper.Path.Circle[] {
     const paddingDiff = Math.abs(this.topPadding - this.bottomPadding);
@@ -111,6 +98,7 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
       wristCircumference,
       forearmCircumference,
       safeBorderWidth,
+      extendOutward,
       debug
     } = options.StraightCuffOuter;
 
@@ -144,30 +132,18 @@ export class StraightCuffOuter implements OuterPaperModelMaker {
     safeAreaPath.add(new paper.Point(wristCircumference + this.bottomPadding - 0.1, 0));
     roundCorners(paper, safeAreaPath, "0.2");
 
-    const safeArea: paper.PathItem = bufferPath(paper, -safeBorderWidth, safeAreaPath);
-
-    if (debug) {
-      safeArea.strokeColor = new paper.Color("green");
-      safeArea.strokeWidth = 0.1;
-    }
-
-    const safeCone = safeArea;
+    const safeCone = safeAreaPath.clone().scale(0.97, 10);
 
     const innerOptions = options[this.subModel.constructor.name] || {};
     innerOptions.height = height;
     innerOptions.width = totalWidth;
-    innerOptions.boundaryModel = safeArea;
+    innerOptions.boundaryModel = safeAreaPath;
     innerOptions.safeCone = safeCone;
     innerOptions.outerModel = cuffOuter;
 
     const innerDesign = await this.subModel.make(paper, innerOptions);
     if (innerDesign.outline) {
-      const oldCuffOuter = cuffOuter;
-
       cuffOuter = cuffOuter.unite(innerDesign.outline) as paper.Path;
-
-      // cheap hack to fill in inner holes for some reason
-      // cuffOuter = cuffOuter.unite(safeArea);
     }
 
     return new CompletedModel({

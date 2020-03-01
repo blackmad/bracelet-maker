@@ -1,4 +1,5 @@
-import { MetaParameter } from "./meta-parameter";
+import { MetaParameter, OnOffMetaParameter, RangeMetaParameter } from "./meta-parameter";
+import { Path } from "paper";
 
 export interface HasMetaParameters { 
   readonly metaParameters: MetaParameter<any>[];
@@ -40,8 +41,20 @@ export class CompletedModel {
   }
 }
 
-export interface OuterPaperModelMaker extends HasMetaParameters {
+export abstract class OuterPaperModelMaker implements HasMetaParameters {
   subModel: PaperModelMaker;
-  make(scope: paper.PaperScope, params: any): Promise<CompletedModel>;
+  abstract make(scope: paper.PaperScope, params: any): Promise<CompletedModel>;
   controlInfo: string;
+  abstract get outerMetaParameters(): MetaParameter<any>[];
+
+  get metaParameters() {
+    return [
+      new OnOffMetaParameter({
+        title: "Debug",
+        name: "debug",
+        value: false
+      }),
+      ...this.outerMetaParameters
+    ];
+  }
 }

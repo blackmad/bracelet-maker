@@ -6,7 +6,7 @@ import { BoxOuter } from './box';
 
  export const AllOuterDesigns = [
     StraightCollarOuter,
-    ConicCuffOuter,
+    // ConicCuffOuter,
     StraightCuffOuter,
     BoxOuter
   ];
