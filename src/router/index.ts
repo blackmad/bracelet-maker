@@ -5,7 +5,6 @@ import SetInnerDesign from "../views/SetInnerDesign.vue";
 import NewPlaygroundView from "../views/NewPlayground.vue";
 
 import Login from "../components/Login.vue";
-import Register from "../components/Register.vue";
 import Dashboard from "../components/Dashboard.vue";
 
 Vue.use(VueRouter);
@@ -37,13 +36,8 @@ const routes = [
     component: Login
   },
   {
-    path: "/register",
-    name: "Register",
-    component: Register
-  },
-  {
     path: "/dashboard",
-    name: "Dashboard",
+    name: "dashboard",
     component: Dashboard
   }
 ];

@@ -18,7 +18,7 @@
         <ul class="navbar-nav ml-auto">
           <template v-if="user.loggedIn">
             <li class="nav-item">
-              <router-link to="dashboard" class="nav-link">
+              <router-link :to="{ name: 'dashboard' }" class="nav-link">
                 {{ user.data.displayName }}</router-link
               >
             </li>
@@ -28,7 +28,7 @@
           </template>
           <template v-else>
             <li class="nav-item">
-              <router-link to="login" class="nav-link">Login</router-link>
+              <router-link :to="{ name: 'login' }"  class="nav-link">Login</router-link>
             </li>
           </template>
         </ul>
