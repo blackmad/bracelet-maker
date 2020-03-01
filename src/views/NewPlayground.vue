@@ -39,6 +39,8 @@
           </small>
         </div>
 
+        <button @click="randomize">Randomize</button>
+
         <div id="innerParameterDiv" class="row design-params-row"></div>
       </div>
 
@@ -440,6 +442,11 @@ export default class NewPlaygroundView extends Vue {
 
   changeDesign() {
     this.$router.replace("/");
+  }
+
+  randomize() {
+    console.log('random!');
+    this.metaParamBuilder.randomize();
   }
 }
 </script>

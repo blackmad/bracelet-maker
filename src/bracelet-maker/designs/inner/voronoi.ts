@@ -177,14 +177,14 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       //   step: 0.01,
       //   name: 'minPathLength'
       // }),
-      new RangeMetaParameter({
-        title: "Omit Chance",
-        min: 0.0,
-        max: 1.0,
-        value: 0.0,
-        step: 0.01,
-        name: "omitChance"
-      }),
+      // new RangeMetaParameter({
+      //   title: "Omit Chance",
+      //   min: 0.0,
+      //   max: 1.0,
+      //   value: 0.0,
+      //   step: 0.01,
+      //   name: "omitChance"
+      // }),
       new RangeMetaParameter({
         title: "Border Size",
         min: 0.01,
