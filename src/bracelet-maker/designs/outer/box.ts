@@ -35,9 +35,9 @@ export class BoxOuter extends OuterPaperModelMaker {
       }),
       new RangeMetaParameter({
         title: "Smoothing Factor",
-        min: 0.01,
+        min: 0.00,
         max: 1.0,
-        value: 0.8,
+        value: 0.0,
         step: 0.01,
         name: "smoothingFactor"
       })

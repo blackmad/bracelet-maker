@@ -149,7 +149,10 @@ export default class NewPlaygroundView extends Vue {
   public rerender() {
     this.queryParamUpdateCb(this.params);
     this.metaParamBuilder.rerender(this.params);
-    this.doRender();
+    this.doRender().then(() => {
+      $('.previewAreaPadding').css('height', 
+        document.getElementById('previewArea').clientHeight + 'px');
+    });
   }
 
   public onParamChange({ metaParameter, value }) {
@@ -385,6 +388,7 @@ export default class NewPlaygroundView extends Vue {
     });
 
     $("#svgArea")[0].innerHTML = makeSVGData(paper, paper.project, false, svg => $(svg)[0]);
+    console.log($("#svgArea")[0]);
 
     $("body").removeClass("loading");
   }

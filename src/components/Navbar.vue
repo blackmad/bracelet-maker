@@ -1,3 +1,13 @@
+<style scoped>
+.navbar {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background: white;
+  z-index: 1000;
+}
+</style>
+
 <template>
   <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
     <div class="container">
@@ -28,7 +38,7 @@
           </template>
           <template v-else>
             <li class="nav-item">
-              <router-link :to="{ name: 'login' }"  class="nav-link">Login</router-link>
+              <router-link :to="{ name: 'login' }" class="nav-link">Login</router-link>
             </li>
           </template>
         </ul>

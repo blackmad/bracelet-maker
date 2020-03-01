@@ -294,6 +294,9 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       kaleidoscopeMaker = new KaleidoscopeMaker(paper, params);
       originalBoundaryModel = params.boundaryModel.clone();
       params.boundaryModel = kaleidoscopeMaker.getBoundarySegment();
+      params.boundaryModel = params.boundaryModel.intersect(
+        params.safeCone, { insert: false }
+      );
     }
 
 
