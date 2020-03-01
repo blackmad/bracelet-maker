@@ -39,7 +39,14 @@ const routes = [
     path: "/dashboard",
     name: "dashboard",
     component: Dashboard
-  }
+  },
+  {
+    path: "/user/:uid/designs",
+    name: "user-dashboard",
+    component: Dashboard,
+    props: true
+    // props: (route) => ({ outerDesign: route.query.outerDesign })
+  },
 ];
 
 const router = new VueRouter({

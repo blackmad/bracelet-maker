@@ -12,9 +12,9 @@
     <div class="row justify-content-center">
       <div class="col-md-8">
         <div class="card">
-          <div class="card-header">Dashboard</div>
+          <div class="card-header">Designs by {{viewedUser.displayName}}</div>
           <div class="card-body">
-            <div v-if="user" class="alert alert-success" role="alert">You are logged in!</div>
+            <div v-if="user.loggedIn" class="alert alert-success" role="alert">You are logged in!</div>
 
             <div v-for="design in designs" :key="design.id">
               <h3><router-link :to="design.link">{{ design.data.designName }}</router-link></h3>
@@ -35,7 +35,9 @@ import * as _ from 'lodash';
 
 @Component({})
 export default class Dashboard extends Vue {
+  @Prop(String) uid: string;
   @Getter user;
+  viewedUser: any = {};
   designs = [];
 
   getLink(design) {
@@ -60,15 +62,16 @@ export default class Dashboard extends Vue {
   mounted() {
     const db = firebase.firestore();
 
-    console.log("user", this.user.data);
+    const uid = this.uid ? this.uid : this.user.data.uid;
 
     const self = this;
 
     db.collection("saved")
-      .where("user.uid", "==", this.user.data.uid)
+      .where("user.uid", "==", uid)
       .get()
       .then(function(querySnapshot) {
         querySnapshot.docs.map(doc => {
+          self.viewedUser = doc.data().user;
           self.designs.push({
             id: doc.id,
             data: doc.data(),

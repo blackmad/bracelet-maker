@@ -28,7 +28,7 @@
         <ul class="navbar-nav ml-auto">
           <template v-if="user.loggedIn">
             <li class="nav-item">
-              <router-link :to="{ name: 'dashboard' }" class="nav-link">
+              <router-link :to="{ name: 'user-dashboard', params: { uid: user.data.uid } }" class="nav-link">
                 {{ user.data.displayName }}</router-link
               >
             </li>
