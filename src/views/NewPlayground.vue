@@ -240,10 +240,10 @@ export default class NewPlaygroundView extends Vue {
 
   focusNameElement = () => {
     (this.$refs.designName as any).focus();
-  }
+  };
 
   handleOk(bvModalEvt) {
-    console.log('ok');
+    console.log("ok");
     // Prevent modal from closing
     bvModalEvt.preventDefault();
     // Trigger submit handler
@@ -259,24 +259,27 @@ export default class NewPlaygroundView extends Vue {
       return;
     }
 
+    console.log('designName', this.designName);
+
+    var db = firebase.firestore();
+
+    const data = makeSVGData(paper, paper.project, true, svg => $(svg)[0]);
+
+    db.collection("saved").add({
+      svg: data,
+      ts: new Date(),
+      user: this.user.data,
+      params: this.params,
+      designName: this.designName,
+      outerDesign: this.outerDesign,
+      innerDesign: this.innerDesign,
+    });
+
     // Hide the modal manually
     this.$nextTick(() => {
       this.$bvModal.hide("save-modal");
     });
   }
-
-  // public handleSave() {
-  //   var db = firebase.firestore();
-
-  //   const data = makeSVGData(paper, paper.project, true, svg => $(svg)[0]);
-  //   // need to get params and write those to store too
-
-  //   db.collection("saved").add({
-  //     svg: data,
-  //     ts: new Date(),
-  //     user: this.user.data
-  //   });
-  // }
 
   public sendFileToUser(dataUri, extension) {
     const downloadLink = document.createElement("a");

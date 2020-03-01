@@ -27,23 +27,26 @@ firebase.initializeApp({
   measurementId: "G-9TBW87KCEF"
 });
 
-firebase.auth().onAuthStateChanged(user => {
-  store.dispatch("fetchUser", user);
-});
-
-
-new Vue({
-  router,
-  store,
-  render: (h) => h(App),
-  data: {
-    auth: {
-      user: null,
-      email: '',
-      password: '',
-      message: '',
-      userName: '',
-      hasErrors: false
+const initApp = () => {
+  new Vue({
+    router,
+    store,
+    render: (h) => h(App),
+    data: {
+      auth: {
+        user: null,
+        email: '',
+        password: '',
+        message: '',
+        userName: '',
+        hasErrors: false
+      }
     }
-  }
-}).$mount('#app');
+  }).$mount('#app');
+}
+
+firebase.auth().onAuthStateChanged(user => {
+  console.log('user changed', user)
+  store.dispatch("fetchUser", user);
+  initApp();
+});

@@ -10,7 +10,8 @@
     "lint": "vue-cli-service lint",
     "build-tsc": "tsc -p tsconfig-node.json",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "postinstall": "patch-package"
   },
   "engines": {
     "node": "13"
@@ -97,7 +98,9 @@
     "paper-jsdom": "^0.12.3",
     "paperjs-offset": "^1.0.5",
     "parse5": "^5.1.0",
+    "patch-package": "^6.2.1",
     "pdfkit": "^0.10.0",
+    "postinstall-postinstall": "^2.0.0",
     "rangeslider.js": "^2.3.2",
     "sass": "^1.19.0",
     "sass-loader": "^8.0.0",
