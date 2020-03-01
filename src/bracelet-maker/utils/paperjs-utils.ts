@@ -44,7 +44,7 @@ export function bufferPoints(
   const shape = new Shape.default([scaledPoints]);
 
   const roundedShape = shape.offset(buffer * scaleFactor, {
-    jointType: "jtRound",
+    jointType: "jtMiter",
     endType: "etClosedPolygon",
     miterLimit: 2.0,
     roundPrecision: 0.25

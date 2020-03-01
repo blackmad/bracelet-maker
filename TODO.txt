@@ -1,10 +1,9 @@
-- google login
-- save designs in firestore
 - debug rounding in voronoi
+- toggleable params like for outline size
 - play a bit more with safecones
 - think about making a version with two snap slots
 - general edge / blowout debugging
-- redo how padding-top area of UI is calculated (33vh)
+- redo how padding-top area of UI is calculated (33vh) / - fix the top again
 
 -----
 

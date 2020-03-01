@@ -1,23 +1,25 @@
 export function roundCorners({ paper, path, radius }) {
+  path.closePath();
+  
   let segments = path.segments;
-
-  const segmentsToRemove = [];
+  const originalSegments = [...segments];
 
   for (let i = 0; i < segments.length; i++) {
     const p1 = segments[i];
     const p2 = segments[(i + 1) % segments.length];
 
+    console.log(p1.point.x, p1.point.y, p2.point.x, p2.point.y, p1.point.getDistance(p2.point))
     if (p1.point.getDistance(p2.point) < 0.1) {
-      segmentsToRemove.push(i);
+      path.removeSegment(i)
       // console.log(`removing segment ${i} from ${p1.point} to ${p2.point}`)
     }
   }
 
-  if (segments.length - segmentsToRemove.length > 4) {
-    segmentsToRemove.forEach(i => path.removeSegment(i));
+  if (segments.length < 4) {
+    segments = originalSegments;
+  } else {
+    segments = path.segments;
   }
-
-  segments = path.segments;
 
   const fraction = 0.5 + 0.5 * (1 - radius);
   const fractionOffset = (1 - fraction) * 0.95;

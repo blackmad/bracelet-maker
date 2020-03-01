@@ -161,8 +161,11 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     paths: paper.PathItem[]
   ) {
     if (params.shouldSmooth) {
-      return paths.map(path =>
-        roundCorners({ paper, path: path, radius: params.smoothingFactor })
+      
+      return paths.map(path => {
+        addToDebugLayer(paper, 'holes', path);
+        return roundCorners({ paper, path: path, radius: params.smoothingFactor })
+      }
       );
     }
     return paths;

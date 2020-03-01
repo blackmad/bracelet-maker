@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Load the Paper.js library -->
+    <script
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.2/paper-full.js"
+    ></script>
+    <!-- Define inlined JavaScript -->
+    <script type="text/javascript">
+      function roundCorners({ paper, path, radius }) {
+        let segments = path.segments;
+
+        const segmentsToRemove = [];
+
+        for (let i = 0; i < segments.length; i++) {
+          const p1 = segments[i];
+          const p2 = segments[(i + 1) % segments.length];
+
+          console.log(p1.point.x, p1.point.y, p2.point.x, p2.point.y, p1.point.getDistance(p2.point))
+
+          if (p1.point.getDistance(p2.point) < 0.01) {
+            segmentsToRemove.push(i);
+            console.log(`removing segment ${i} from ${p1.point} to ${p2.point}`)
+          }
+        }
+
+        if (segments.length - segmentsToRemove.length > 3) {
+          console.log('removing segments')
+          segmentsToRemove.forEach(i => path.removeSegment(i));
+        }
+
+        segments = path.segments;
+
+        const fraction = 0.5 + 0.5 * (1 - radius);
+        const fractionOffset = (1 - fraction) * 0.95;
+
+        const newPath = new paper.Path();
+        for (let i = 0; i < segments.length; i++) {
+          // for (let i = 0; i < 1; i++) {
+          const p1 = segments[i];
+          const p2 = segments[(i + 1) % segments.length];
+          const p3 = segments[(i + 2) % segments.length];
+
+          const line1 = new paper.Path([p1, p2]);
+          const c1 = line1.getPointAt(line1.length * fraction);
+          var handleOut = line1.getPointAt(line1.length * (fraction + fractionOffset));
+
+          const line2 = new paper.Path([p2, p3]);
+          const c2 = line2.getPointAt(line2.length * (1 - fraction));
+          var handleIn = line2.getPointAt(line2.length * (1 - (fraction + fractionOffset)));
+
+          // if (Math.abs(c1.getDistance(c2)) < 0.2) {
+          //   continue;
+          // }
+
+          // new paper.Path.Circle(c1, 0.01).fillColor = 'blue'
+          // new paper.Path.Circle(c2, 0.01).fillColor = 'red'
+
+          // new paper.Path.Circle(handleIn, 0.01).fillColor = 'orange'
+          // new paper.Path.Circle(handleOut, 0.01).fillColor = 'green'
+
+          newPath.add(
+            new paper.Segment({
+              point: c1,
+              handleOut: handleOut.subtract(c1)
+            })
+          );
+
+          newPath.add(
+            new paper.Segment({
+              point: c2,
+              handleIn: handleIn.subtract(c2)
+            })
+          );
+        }
+        newPath.closePath();
+        console.log(newPath);
+        return newPath;
+      }
+
+      // const svg = 'M3.14937,0.73939l-0.09018,0.76152l0.01002,0.01002l0.8016,-0.52104l-0.39078,-0.41082z';
+      const svg = 'M4.90098,0.40965l-0.46092,0.49098l-0.18973,0.01997v0.00007l-0.00033,-0.00003l-0.00033,0.00003v-0.00007l-0.18973,-0.01997l-0.46092,-0.49098v-0.16032l1.30195,0z';
+
+      // Only executed our code once the DOM is ready.
+      window.onload = function() {
+        paper.setup(document.getElementById("myCanvas"));
+
+        var scope1 = new paper.PaperScope();
+        scope1.setup(document.getElementById("myCanvas"));
+
+        var scope2 = new paper.PaperScope();
+        scope2.setup(document.getElementById("myCanvas2"));
+
+        scope1.activate();
+        const svgPath = new scope1.Path(svg);
+        svgPath.strokeColor = "black";
+        scope1.project.activeLayer.addChild(svgPath);
+        console.log(svgPath);
+        svgPath.scale(100);
+        svgPath.translate(new paper.Point(250, 250));
+
+        scope2.activate();
+        const svgPath2 = roundCorners({ paper: scope2, path: svgPath, radius: 0.8 });
+        svgPath2.strokeColor = "black";
+        
+
+        // Create a simple drawing tool:
+        var tool = new scope1.Tool();
+        var path = new scope1.Path();
+
+        // Define a mousedown and mousedrag handler
+        scope1.view.onClick = function(event) {
+          console.log(event);
+          console.log("adding ", event.point);
+          path.strokeColor = "black";
+          path.add(event.point);
+        };
+
+        // Define a mousedown and mousedrag handler
+        scope1.view.onDoubleClick = function(event) {
+          console.log("double");
+          path.closePath();
+
+          scope2.activate();
+          const path2 = roundCorners({ paper: scope2, path, radius: 0.8 });
+          path2.strokeColor = "black";
+          scope2.project.activeLayer.addChild(path2);
+          scope1.activate();
+          path = new scope1.Path();
+        };
+
+        // Draw the view now:
+        paper.view.draw();
+      };
+    </script>
+    <style>
+      canvas {
+        border: blueviolet 1px solid;
+        width: 500px;
+        height: 500px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="myCanvas"></canvas>
+    <canvas id="myCanvas2"></canvas>
+  </body>
+</html>
