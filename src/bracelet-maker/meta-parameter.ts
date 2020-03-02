@@ -56,11 +56,15 @@ export interface RangeMetaParameterParams
   min: number;
   max: number;
   step: number;
+  randMin?: number;
+  randMax?: number;
 }
 
 export class RangeMetaParameter extends MetaParameter<number> {
   public min: number;
   public max: number;
+  public randMin: number;
+  public randMax: number;
   public step: number;
   public type = MetaParameterType.Range;
 
@@ -68,6 +72,8 @@ export class RangeMetaParameter extends MetaParameter<number> {
     super(params);
     this.min = params.min;
     this.max = params.max;
+    this.randMin = params.randMin;
+    this.randMax = params.randMax;
     this.step = params.step;
   }
 }

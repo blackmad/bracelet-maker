@@ -61,6 +61,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           title: "Seed",
           min: 1,
           max: 10000,
+          randMin: 1,
+          randMax: 10000,
           value: 1,
           step: 1,
           name: "seed"
@@ -98,7 +100,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       const breakThePlane = new OnOffMetaParameter({
         title: "Break the plane!!!!",
         name: "breakThePlane",
-        value: false
+        value: false,
+        group: "Break the plane!!!!",
       });
 
       metaParams.push(breakThePlane);
@@ -110,7 +113,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           value: 0.25,
           step: 0.01,
           name: "extendOutward",
-          parentParam: breakThePlane
+          parentParam: breakThePlane,
+          group: "Break the plane!!!!",
         })
       );
       metaParams.push(
@@ -121,7 +125,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           value: 0.4,
           step: 0.01,
           name: "concavity",
-          parentParam: breakThePlane
+          parentParam: breakThePlane,
+          group: "Break the plane!!!!",
         })
       );
       metaParams.push(
@@ -132,7 +137,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           value: 0.25,
           step: 0.01,
           name: "lengthThreshold",
-          parentParam: breakThePlane
+          parentParam: breakThePlane,
+          group: "Break the plane!!!!",
         })
       );
       metaParams.push(

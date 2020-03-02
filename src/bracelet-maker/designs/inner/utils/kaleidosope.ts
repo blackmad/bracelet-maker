@@ -168,6 +168,8 @@ export class KaleidoscopeMaker {
         step: 0.01,
         name: "segmentBuffer",
         group: "Kaleidoscope",
+        randMin: 0,
+        randMax: 0.25,
       }),
       new RangeMetaParameter({
         title: "Segments",
@@ -177,6 +179,8 @@ export class KaleidoscopeMaker {
         step: 1,
         name: "segments",
         group: "Kaleidoscope",
+        randMin: 1,
+        randMax: 12,
       })
     ];
   }

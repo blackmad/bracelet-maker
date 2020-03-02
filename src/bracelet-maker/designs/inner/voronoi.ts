@@ -78,14 +78,10 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
 
       for (let r = startR; r < endR; r++) {
         for (let c = startC; c < endC; c++) {
-          console.log('testPoint', testPoint);    
-          console.log('topLeft', boundaryModel.bounds.topLeft);
           const relativePoint = testPoint.subtract(boundaryModel.bounds.topLeft);
-          console.log('relativePoint', relativePoint);
 
           let x = testPoint.x + colOffset * c;
           let y = testPoint.y + rowOffset * r;
-
 
           if (mirror && c % 2 == 1) {
             x = ((colOffset * (c+1)) + boundaryModel.bounds.topLeft.x) - relativePoint.x;
@@ -103,8 +99,6 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
 
     for (let i = 0; i < numPoints; i++) {
       const testPoint = randomPointInPolygon(paper, partialRect, this.rng);
-      console.log(partialRect);
-      console.log(testPoint);
       addToDebugLayer(paper, 'initialPoints', testPoint);
       addSeedPoint(testPoint, 'seedPoints');
     }
@@ -181,7 +175,9 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
         max: 100,
         value: 20,
         step: 1,
-        name: "numPoints"
+        name: "numPoints",
+        randMin: 3,
+        randMax: 30,
       }),
       new RangeMetaParameter({
         title: "Border Points",
@@ -189,7 +185,9 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
         max: 100,
         value: 0,
         step: 1,
-        name: "numBorderPoints"
+        name: "numBorderPoints",
+        randMin: 0,
+        randMax: 10,
       }),
       // new RangeMetaParameter({
       //   title: 'Min Cell Size',
@@ -221,7 +219,9 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
         max: 20,
         value: 1,
         step: 1,
-        name: "rows"
+        name: "rows",
+        randMin: 1,
+        randMax: 3,
       }),
       new RangeMetaParameter({
         title: "Cols",
@@ -229,7 +229,9 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
         max: 20,
         value: 1,
         step: 1,
-        name: "cols"
+        name: "cols",
+        randMin: 1,
+        randMax: 3,
       }),
       new OnOffMetaParameter({
         title: "Mirror",

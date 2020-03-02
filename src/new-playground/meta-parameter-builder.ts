@@ -53,7 +53,7 @@ abstract class RenderedMetaParameter {
     $(this.element).show();
   }
   abstract render();
-  abstract randomize();
+  abstract randomize(onParamChange: Function);
 }
 
 class RenderedGeocodeMetaParameter extends RenderedMetaParameter {
@@ -65,7 +65,7 @@ class RenderedGeocodeMetaParameter extends RenderedMetaParameter {
     super();
   }
 
-  public randomize() {}
+  public randomize(onParamChange: Function) {}
 
   public render() {
     const metaParameter = this.metaParameter;
@@ -129,6 +129,8 @@ class RenderedGeocodeMetaParameter extends RenderedMetaParameter {
 }
 
 class RenderedOnOffMetaParameter extends RenderedMetaParameter {
+  checkBox = null;
+
   public constructor(
     public metaParameter: OnOffMetaParameter,
     private initialParams,
@@ -137,7 +139,12 @@ class RenderedOnOffMetaParameter extends RenderedMetaParameter {
     super();
   }
 
-  public randomize() {}
+  public randomize(onParamChange: Function) {
+    const value = Math.random() > 0.5;
+    console.log("random onoff to", value);
+    this.checkBox.checked = value;
+    onParamChange({ metaParameter: this.metaParameter, value });
+  }
 
   public render() {
     const metaParameter = this.metaParameter;
@@ -157,7 +164,8 @@ class RenderedOnOffMetaParameter extends RenderedMetaParameter {
     // const switchDiv = $(`<div><input type="checkbox"></input></div>`);
     containingDiv.append(switchDiv[0]);
 
-    ($(switchDiv).find("input")[0] as HTMLInputElement).checked = selectedValue;
+    this.checkBox = $(switchDiv).find("input")[0] as HTMLInputElement;
+    this.checkBox.checked = selectedValue;
 
     this.initialParams[metaParameter.name] = selectedValue;
     const id = metaParameter.name;
@@ -194,11 +202,18 @@ class RenderedRangeMetaParameter extends RenderedMetaParameter {
   textInput: any;
   rangeInput: any;
 
-  public randomize() {
-    const value = _.random(this.metaParameter.min, this.metaParameter.max, true);
+  public randomize(onParamChange: Function) {
+    if (!this.metaParameter.randMin || !this.metaParameter.randMax) {
+      return;
+    }
+
+    const steps =
+      (this.metaParameter.randMax - this.metaParameter.randMin) / this.metaParameter.step;
+    const randStep = _.random(0, steps);
+    const value = this.metaParameter.randMin + randStep * this.metaParameter.step;
     this.textInput.value = value;
-    this.rangeInput.value = value
-    // this.onParamChange({ metaParameter: this.metaParameter, value });
+    this.rangeInput.value = value;
+    onParamChange({ metaParameter: this.metaParameter, value });
   }
 
   public render() {
@@ -258,6 +273,8 @@ class RenderedRangeMetaParameter extends RenderedMetaParameter {
 }
 
 class RenderedSelectMetaParameter extends RenderedMetaParameter {
+  options = [];
+
   public constructor(
     public metaParameter: SelectMetaParameter,
     private initialParams,
@@ -266,7 +283,14 @@ class RenderedSelectMetaParameter extends RenderedMetaParameter {
     super();
   }
 
-  public randomize() {}
+  public randomize(onParamChange: Function) {
+    const value = _.sample(this.metaParameter.options);
+    this.options.forEach(option => {
+      option.selected = option.value === value;
+    });
+    console.log("random select to", value);
+    onParamChange({ metaParameter: this.metaParameter, value });
+  }
 
   public render() {
     const selectedValue = this.initialParams[this.metaParameter.name] || this.metaParameter.value;
@@ -286,6 +310,7 @@ class RenderedSelectMetaParameter extends RenderedMetaParameter {
       if (optionValue == selectedValue) {
         option.setAttribute("selected", "selected");
       }
+      this.options.push(option);
       selectInput.appendChild(option);
     });
 
@@ -316,7 +341,7 @@ export class MetaParameterBuilder {
   onParamChange = ({ metaParameter, value }) => {
     // this.params[metaParameter.name] = value;
     this._onParamChange({ metaParameter, value });
-  }
+  };
 
   public buildMetaParameterWidget(metaParam: MetaParameter<any>) {
     switch (metaParam.type) {
@@ -412,9 +437,9 @@ export class MetaParameterBuilder {
     });
   }
 
-  randomize() {
+  public randomize(onParamChange: Function) {
     this.renderedMetaParameters.forEach((renderedMetaParameter: RenderedMetaParameter) => {
-      renderedMetaParameter.randomize();
+      renderedMetaParameter.randomize(onParamChange);
     });
   }
 }

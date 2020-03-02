@@ -157,9 +157,15 @@ export default class NewPlaygroundView extends Vue {
     });
   }
 
-  public onParamChange({ metaParameter, value }) {
+  public onParamChangeHelper({ metaParameter, value }) {
     console.log(metaParameter);
     this.params[metaParameter.name] = value;
+  }
+
+
+  public onParamChange({ metaParameter, value }) {
+    console.log(metaParameter);
+    this.onParamChangeHelper({metaParameter, value});
     this.rerender();
   }
 
@@ -446,7 +452,8 @@ export default class NewPlaygroundView extends Vue {
 
   randomize() {
     console.log('random!');
-    this.metaParamBuilder.randomize();
+    this.metaParamBuilder.randomize(this.onParamChangeHelper);
+    this.rerender();
   }
 }
 </script>

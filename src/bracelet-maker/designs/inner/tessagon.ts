@@ -92,7 +92,9 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
         max: 100,
         value: 5,
         step: 1,
-        name: 'x_num'
+        name: 'x_num',
+        randMin: 1, 
+        randMax: 10,
       }),
       new RangeMetaParameter({
         title: 'y cells',
@@ -100,7 +102,9 @@ export class InnerDesignTessagon extends FastAbstractInnerDesign {
         max: 100,
         value: 2,
         step: 1,
-        name: 'y_num'
+        name: 'y_num',
+        randMin: 1, 
+        randMax: 10,
       }),
       // new OnOffMetaParameter({
       //   title: 'whole tiles only',
