@@ -36,14 +36,28 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
     const colOffset = boundaryModel.bounds.width / cols;
     const rowOffset = boundaryModel.bounds.height / rows;
 
+    
+    addToDebugLayer(paper, 'boundaryModel', boundaryModel.bounds.topLeft);
+    addToDebugLayer(paper, 'boundaryModel', boundaryModel);
+
     const partialRect = new paper.Rectangle(
       boundaryModel.bounds.topLeft,
       new paper.Size(colOffset, rowOffset)
     );
 
-    addToDebugLayer(paper, 'boundaryModel', boundaryModel.bounds.topLeft);
-    addToDebugLayer(paper, 'boundaryModel', boundaryModel);
-    addToDebugLayer(paper, 'partialRect', new paper.Path.Rectangle(partialRect));
+  addToDebugLayer(paper, 'sanity', new paper.Point(1, 1));
+  addToDebugLayer(paper, 'sanity', new paper.Point(1, 1).add(boundaryModel.bounds.topLeft));
+
+
+    for (let c = 0; c < cols; c++) {
+      for (let r = 0; r< rows; r++) {
+        const partialRect = new paper.Rectangle(
+          boundaryModel.bounds.topLeft.add(new paper.Point( c*colOffset, r * rowOffset)),
+          new paper.Size(colOffset, rowOffset)
+        );
+        addToDebugLayer(paper, 'partialRect', new paper.Path.Rectangle(partialRect));
+      }
+    }
 
     const seedPoints = [];
 
@@ -52,27 +66,33 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       let endR = rows;
       let startC = 0;
       let endC = cols;
-      if (rows > 1) {
-        startR = -2;
-        endR = rows + 2;
-      }
+      // if (rows > 1) {
+      //   startR = -2;
+      //   endR = rows + 2;
+      // }
 
-      if (cols > 1) {
-        startC = -2;
-        endC = cols + 2;
-      }
+      // if (cols > 1) {
+      //   startC = -2;
+      //   endC = cols + 2;
+      // }
 
       for (let r = startR; r < endR; r++) {
         for (let c = startC; c < endC; c++) {
+          console.log('testPoint', testPoint);    
+          console.log('topLeft', boundaryModel.bounds.topLeft);
+          const relativePoint = testPoint.subtract(boundaryModel.bounds.topLeft);
+          console.log('relativePoint', relativePoint);
+
           let x = testPoint.x + colOffset * c;
           let y = testPoint.y + rowOffset * r;
 
+
           if (mirror && c % 2 == 1) {
-            x = colOffset - testPoint.x + colOffset * c + boundaryModel.bounds.topLeft.x;
+            x = ((colOffset * (c+1)) + boundaryModel.bounds.topLeft.x) - relativePoint.x;
           }
 
           if (mirror && r % 2 == 1) {
-            y = rowOffset - testPoint.y + rowOffset * r + boundaryModel.bounds.topLeft.y;
+            y = ((rowOffset * (r+1)) + boundaryModel.bounds.topLeft.y) - relativePoint.y;
           }
 
           addToDebugLayer(paper, layerName, new paper.Point(x, y));
@@ -83,6 +103,8 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
 
     for (let i = 0; i < numPoints; i++) {
       const testPoint = randomPointInPolygon(paper, partialRect, this.rng);
+      console.log(partialRect);
+      console.log(testPoint);
       addToDebugLayer(paper, 'initialPoints', testPoint);
       addSeedPoint(testPoint, 'seedPoints');
     }
