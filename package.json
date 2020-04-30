@@ -91,7 +91,7 @@
     "eslint-plugin-vue": "^5.0.0",
     "esm": "^3.2.25",
     "firebase-functions-test": "^0.1.6",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "lodash": "^4.17.11",
     "makerjs": "^0.14.0",
     "paper": "^0.12.3",
