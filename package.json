@@ -37,7 +37,7 @@
     "geojson": "^0.5.0",
     "jimp": "^0.9.3",
     "jsts": "^2.1.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "polygonize": "^1.0.4",
     "potrace": "^2.1.2",
     "randomcolor": "^0.5.4",
