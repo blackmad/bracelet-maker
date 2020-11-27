@@ -161,6 +161,8 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
 
       if (this.rng() > omitChance) {
         polys.push(bufferedShape);
+        addToDebugLayer(paper, "voronoiShape", new paper.Path(points));
+        addToDebugLayer(paper, "bufferedVoronoiShape", bufferedShape.clone());
       }
     }
 

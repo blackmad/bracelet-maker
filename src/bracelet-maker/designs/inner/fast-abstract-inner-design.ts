@@ -205,9 +205,11 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     });
 
     // Expand it to our outline border
-    outline = (paper.Path.prototype as any).offset.call(outline, params.outlineSize, {
+    outline = (paper.Path.prototype as any).offset.call(outline, -params.outlineSize, {
       cap: "miter"
     });
+    addToDebugLayer(paper, "expandedOutline", outline.clone());
+
 
     // If we ended up with an outline that's a compound path,
     // just take the child path that's the biggest
@@ -246,6 +248,13 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     let paths: paper.PathItem[] = _paths;
 
     const shouldMakeOutline = params.breakThePlane;
+
+    // if (this.allowOutline && shouldMakeOutline) {
+    //   const outline = (paper.Path.prototype as any).offset.call(params.boundaryModel, params.outlineSize, {
+    //     cap: "miter"
+    //   });
+    //   return {outline, paths};
+    // }
 
     if (this.allowOutline && shouldMakeOutline) {
       addToDebugLayer(paper, "safeCone", params.safeCone);
