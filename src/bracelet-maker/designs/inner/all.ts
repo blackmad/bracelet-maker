@@ -18,8 +18,11 @@ import { InnerDesignPerlinBlobs } from "./perlin-blobs";
 import { InnerDesignGrid } from "./grid";
 import { InnerDesignSnowflake } from "./snowflake";
 import { InnerDesignMap } from "./map";
+import { InnerDesignVoronoiPatterns } from "./voronoiPatterns";
+
 
 export const AllInnerDesigns = [
+  InnerDesignVoronoiPatterns,
   InnerDesignVoronoi,
   InnerDesignTessagon,
   InnerDesignHashmarks,

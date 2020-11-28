@@ -22,10 +22,10 @@ function dedupePointsArray(points: number[][]): number[][] {
   const outputPoints = [];
   const precision = 4;
 
-  points.forEach(point => {
-    const key = point.map(p => p.toFixed(precision).toString()).join(',');
+  points.forEach((point) => {
+    const key = point.map((p) => p.toFixed(precision).toString()).join(",");
     if (!pointsDict[key]) {
-      pointsDict[key] = key
+      pointsDict[key] = key;
       outputPoints.push(point);
     }
   });
@@ -38,6 +38,12 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
   allowOutline = true;
   canRound = true;
 
+  generatePoints({ paper, bounds, numPoints }): paper.Point[] {
+    return _.times(numPoints, (i) => {
+      return randomPointInPolygon(paper, bounds, this.rng);
+    });
+  }
+
   makeRandomPoints({
     paper,
     boundaryModel,
@@ -47,7 +53,7 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
     numBorderPoints,
     mirror,
   }) {
-    const numPoints = numTotalPoints; // (rows * cols);
+    const numPoints = numTotalPoints;
 
     const colOffset = boundaryModel.bounds.width / cols;
     const rowOffset = boundaryModel.bounds.height / rows;
@@ -87,12 +93,17 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
 
     const addSeedPoint = (testPoint: paper.Point, layerName: string) => {
       // I've gone back and forth on if these should be 0->rows, or -1 -> rows +1 (or +2??)
-      // increasingly the bounds obvioiusly helps a bit with periodicity of the pattern, making 
+      // increasingly the bounds obvioiusly helps a bit with periodicity of the pattern, making
       // sure it still looks like it's repeating at the edges. I don't know why I undid it at one point
-      let startR = -1;
-      let endR = rows + 1;
-      let startC = -1;
-      let endC = cols + 1;
+      // let startR = -1;
+      // let endR = rows + 1;
+      // let startC = -1;
+      // let endC = cols + 1;
+
+      let startR = 0;
+      let endR = rows + 0;
+      let startC = 0;
+      let endC = cols + 0;
 
       // if (rows > 1) {
       //   startR = -2;
@@ -133,11 +144,16 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       }
     };
 
-    for (let i = 0; i < numPoints; i++) {
-      const testPoint = randomPointInPolygon(paper, partialRect, this.rng);
+    const initialPoints = this.generatePoints({
+      paper,
+      bounds: partialRect,
+      numPoints,
+    });
+
+    initialPoints.forEach((testPoint) => {
       addToDebugLayer(paper, "initialPoints", testPoint);
       addSeedPoint(testPoint, "seedPoints");
-    }
+    });
 
     if (numBorderPoints > 0) {
       // console.log(approxShape(paper, partialRect, numBorderPoints));
@@ -145,7 +161,12 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
         paper,
         new paper.Path.Rectangle(partialRect),
         numBorderPoints
-      ).forEach((p) => addSeedPoint(p, "borderPoints"));
+      ).forEach((p) => {
+        if (!almostEqual(p.x, partialRect.left) && !almostEqual(p.x, partialRect.right)) {
+          addSeedPoint(p, "borderPoints");
+        }
+      });
+    
     }
 
     return seedPoints;
