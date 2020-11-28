@@ -63,7 +63,7 @@ export function bufferPointstoPathItem(
   paper: paper.PaperScope,
   buffer: number,
   points: paper.Point[]
-): paper.PathItem {
+): paper.Path {
   const newPoints = bufferPoints(paper, buffer, points);
 
   const roundedPolygon = new paper.Path(newPoints);
@@ -146,7 +146,7 @@ export function checkCircleCircleIntersection(
   return distanceSquared < sumOfRadii * sumOfRadii;
 }
 
-export function approxShape(paper, shape, numPointsToGet = 200) {
+export function approxShape(paper, shape, numPointsToGet = 200): paper.Point[] {
   // console.log('in appro: ', shape);
   let points = [];
   let shapeToUse = shape;

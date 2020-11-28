@@ -276,10 +276,10 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         // and not connected to anything
         // note that we could also include EVERYTHING but this version tends to lead to more interesting outlines
         // also maybe we can't because turning this off breaks things?
-        paths = paths.filter(p =>
-          // p.intersects(params.outerModel)
-          containsOrIntersects({ needle: p, haystack: params.outerModel })
-        );
+        // paths = paths.filter(p =>
+        //   // p.intersects(params.outerModel)
+        //   containsOrIntersects({ needle: p, haystack: params.outerModel })
+        // );
 
         outline = this.makeOutline(paper, params, paths);
       }
