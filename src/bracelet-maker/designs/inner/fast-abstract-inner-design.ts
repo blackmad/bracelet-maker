@@ -352,4 +352,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       outline
     });
   }
+
+  randomElement<T>(items: T[]): T {
+    return items[Math.floor(this.rng()*items.length)];
+  }
 }

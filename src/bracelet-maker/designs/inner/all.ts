@@ -18,8 +18,10 @@ import { InnerDesignPerlinBlobs } from "./perlin-blobs";
 import { InnerDesignGrid } from "./grid";
 import { InnerDesignSnowflake } from "./snowflake";
 import { InnerDesignMap } from "./map";
+import { InnerDesignMaze1 } from './maze1';
 
 export const AllInnerDesigns = [
+  InnerDesignMaze1,
   InnerDesignVoronoi,
   InnerDesignTessagon,
   InnerDesignHashmarks,
