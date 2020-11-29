@@ -72,12 +72,16 @@ export function bufferPointstoPathItem(
   return roundedPolygon;
 }
 
+export function getPointsFromPath(shape: paper.Path): paper.Point[] {
+  return (shape && shape.segments && shape.segments.map((s) => s.point)) || [];
+}
+
 export function bufferPath(
   paper: paper.PaperScope,
   buffer: number,
   shape: paper.Path
 ): paper.PathItem {
-  return bufferPointstoPathItem(paper, buffer, shape.segments.map((s) => s.point));
+  return bufferPointstoPathItem(paper, buffer, getPointsFromPath(shape));
 }
 
 export function pickPointOnRectEdge(

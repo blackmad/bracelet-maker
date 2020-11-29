@@ -47,7 +47,19 @@ function uniteTouchingPathsOnePass(paths: paper.PathItem[]) {
       }
       const otherPath: paper.Path = pathDict[otherId];
 
-      if (currentPath.intersects(otherPath)) {
+      // check if they only intersect at one point
+      const points = getPointsFromPath(path).map(p => 
+        p.x.toFixed(3) + '-' + p.y.toFixed(3)
+      )
+      const otherPoints = getPointsFromPath(otherPath).map(p => 
+        p.x.toFixed(3) + '-' + p.y.toFixed(3)
+      )
+      console.log(getPointsFromPath(path), getPointsFromPath(otherPath))
+      console.log(points, otherPoints)
+      const intersection = _.intersection(points, otherPoints);
+      console.log('num points overlap: ', intersection.length)
+      
+      if (intersection.length > 1) {
         // console.log(`${otherId} does intersect ${id}`)
         // @ts-ignore
         currentPath = currentPath.unite(otherPath);
@@ -62,7 +74,7 @@ function uniteTouchingPathsOnePass(paths: paper.PathItem[]) {
   return { didJoin, joinedPaths };
 }
 
-export function cascadedUnion(_paths: paper.PathItem[]): paper.PathItem[] {
+export function vertexOnlyCascadedUnion(_paths: paper.PathItem[]): paper.PathItem[] {
   let shouldStop = false;
   let paths = _paths;
   while (!shouldStop) {
