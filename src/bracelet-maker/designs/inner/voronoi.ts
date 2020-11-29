@@ -306,7 +306,7 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       }),
       new OnOffMetaParameter({
         title: "Remove Edge Polygons",
-        value: true,
+        value: false,
         name: "removeEdgePolygons",
       }),
     ];

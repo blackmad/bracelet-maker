@@ -99,7 +99,7 @@ export class MazePatternMaker1 {
       }
       buffer += "\n\n";
     }
-    console.log(buffer);
+    // console.log(buffer);
   }
 
   private makeSquare(cell: CellId): Point[] {
@@ -200,7 +200,7 @@ export class MazePatternMaker1 {
       }
       output += "\n\n";
     }
-    console.log(output);
+    // console.log(output);
   }
 
   makeDesign(): Record<number, Point[][]> {
@@ -218,11 +218,11 @@ export class MazePatternMaker1 {
         break;
       }
 
-      console.log("starting at ", { seedSquare });
+      // console.log("starting at ", { seedSquare });
       this.labelSquare(seedSquare);
       while (!stopThisChain) {
         const openNeighbors = this.getOpenNeighbors(seedSquare);
-        console.log({ openNeighbors });
+        // console.log({ openNeighbors });
         if (_.isEmpty(openNeighbors)) {
             // stop because we are stuck
           stopThisChain = true;
