@@ -47,18 +47,9 @@ function uniteTouchingPathsOnePass(paths: paper.PathItem[]) {
       }
       const otherPath: paper.Path = pathDict[otherId];
 
-      // check if they only intersect at one point
-      const points = getPointsFromPath(path).map(p => 
-        p.x.toFixed(3) + '-' + p.y.toFixed(3)
-      )
-      const otherPoints = getPointsFromPath(otherPath).map(p => 
-        p.x.toFixed(3) + '-' + p.y.toFixed(3)
-      )
-      console.log(getPointsFromPath(path), getPointsFromPath(otherPath))
-      console.log(points, otherPoints)
-      const intersection = _.intersection(points, otherPoints);
-      console.log('num points overlap: ', intersection.length)
-      
+      const intersection = getPointsFromPath(path).filter(point => 
+        otherPath.contains(point));
+
       if (intersection.length > 1) {
         // console.log(`${otherId} does intersect ${id}`)
         // @ts-ignore

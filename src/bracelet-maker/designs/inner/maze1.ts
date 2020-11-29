@@ -1,84 +1,99 @@
 // still some joinign issues:
 // http://localhost:8080/#/newPlayground/StraightCuffOuter/InnerDesignMaze1?StraightCuffOuter.debug=false&StraightCuffOuter.height=2&StraightCuffOuter.wristCircumference=6.9&StraightCuffOuter.forearmCircumference=7.2&InnerDesignMaze1.debug=false&InnerDesignMaze1.safeBorderWidth=0.25&InnerDesignMaze1.seed=10&InnerDesignMaze1.rows=2&InnerDesignMaze1.cols=3&InnerDesignMaze1.rowRepeat=1&InnerDesignMaze1.colRepeat=2&InnerDesignMaze1.borderSize=0.06&InnerDesignMaze1.maxChainSize=8&InnerDesignMaze1.idealMinChainSize=3&InnerDesignMaze1.mirrorRows=false&InnerDesignMaze1.mirrorCols=true&InnerDesignMaze1.omitTileChance=0&InnerDesignMaze1.shouldSmooth=false&InnerDesignMaze1.smoothingFactor=0.8
 
-import { RangeMetaParameter, MetaParameter, OnOffMetaParameter } from "../../meta-parameter";
-import { bufferPath, flattenArrayOfPathItems, randomLineEndpointsOnRectangle } from "../../utils/paperjs-utils";
+import { RangeMetaParameter, OnOffMetaParameter } from "../../meta-parameter";
+import {
+  bufferPath,
+  simplifyPathToPoints,
+} from "../../utils/paperjs-utils";
 import * as _ from "lodash";
-import { SimplexNoiseUtils } from "../../utils/simplex-noise-utils";
+import randomColor from "randomcolor";
 
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
-import {MazePatternMaker1} from './mazeMaker1';
-import { addToDebugLayer } from '@/bracelet-maker/utils/debug-layers';
-import { vertexOnlyCascadedUnion } from '@/bracelet-maker/utils/vertex-cascaded-union';
+import { MazePatternMaker1 } from "./mazeMaker1";
+import { addToDebugLayer } from "@/bracelet-maker/utils/debug-layers";
 
 export class InnerDesignMaze1 extends FastAbstractInnerDesign {
-    canRound = true;
+  canRound = true;
+  allowOutline = true;
 
-    makeDesign(paper: paper.PaperScope, params) {
-        const {
-            rows = 1,
-            cols = 1,
-            borderSize = 0,
-            boundaryModel,
-            colRepeat,
-            rowRepeat,
-            maxChainSize,
-            idealMinChainSize,
-            mirrorCols,
-            mirrorRows,
-            omitTileChance
-          } = params;
+  makeDesign(paper: paper.PaperScope, params) {
+    const {
+      rows = 1,
+      cols = 1,
+      borderSize = 0,
+      boundaryModel,
+      colRepeat,
+      rowRepeat,
+      maxChainSize,
+      idealMinChainSize,
+      minChainSize,
+      mirrorCols,
+      mirrorRows,
+      omitTileChance,
+    } = params;
 
+    const mazeMaker = new MazePatternMaker1({
+      rows,
+      cols,
+      rowRepeat,
+      colRepeat,
+      rng: this.rng,
+      mirrorCols,
+      mirrorRows,
+      maxChainSize,
+      idealMinChainSize,
+      triangleChance: this.rng(),
+      leftRightTriangleChance: this.rng(),
+      minChainSize,
+      omitTileChance,
+    });
+    const labelsToSquares = mazeMaker.makeDesign();
 
-        const labelsToSquares = new MazePatternMaker1({
-            rows,
-            cols,
-            rowRepeat,
-            colRepeat,
-            rng: this.rng,
-            mirrorCols,
-            mirrorRows,
-            maxChainSize,
-            idealMinChainSize,
-            triangleChance: this.rng(),
-            leftRightTriangleChance: this.rng(),
-        }).makeDesign();
+    let allPaths: paper.PathItem[] = [];
+    _.mapValues(labelsToSquares, (squares) => {
+      const color = new paper.Color(randomColor());
 
-        let allPaths: paper.PathItem[] = [];
-        _.mapValues(labelsToSquares, (squares) => {
-            if (this.rng() < omitTileChance) {
-                return [];
-            }
-            const pathSquares = squares.map((points) => {
-                const paperPoints = points.map(p => 
-                    new paper.Point(p)                
-                    // .multiply(new paper.Point(boundaryModel.bounds.width, boundaryModel.bounds.height))
-                    // .add(boundaryModel.bounds.topLeft)
-                );
-                
-                const scaledPath = new paper.Path(paperPoints)
-                scaledPath.closePath();
-                addToDebugLayer(paper, "squares", scaledPath.clone());
-                return scaledPath;
-            });
-            const unionedPaths = vertexOnlyCascadedUnion(pathSquares);
-            const explodedUnionedPaths = flattenArrayOfPathItems(paper, unionedPaths);
-            const bufferedPaths = explodedUnionedPaths.map(path => {
-                path.scale(boundaryModel.bounds.width, boundaryModel.bounds.height, new paper.Point(0, 0))
-                path.translate(boundaryModel.bounds.topLeft)
-                addToDebugLayer(paper, "fixedPath", path);
-                return bufferPath(paper, -borderSize, path);
-            });
-            bufferedPaths.forEach(p => {
-                addToDebugLayer(paper, "bufferedPaths", p.clone());
-            })
+      let unionedPath: paper.Path | undefined;
+      const pathSquares = squares.map((points) => {
+        const paperPoints = points.map((p) => new paper.Point(p));
 
-            allPaths = [...allPaths, ...bufferedPaths]
-            // return bufferedPaths;
-        });
+        const path = new paper.Path(paperPoints);
+        path.closePath();
+        path.style.fillColor = color;
+        if (!unionedPath) {
+          unionedPath = path;
+        } else {
+          unionedPath = unionedPath.unite(path) as paper.Path;
+        }
 
-        return Promise.resolve({ paths: allPaths });
-    }
+        addToDebugLayer(paper, "paths", path.clone());
+        return path;
+      });
+
+      addToDebugLayer(paper, "unionedPaths", unionedPath.clone());
+      // console.log(getPointsFromPath(unionedPath));
+      const simplifiedPathPoints = simplifyPathToPoints(unionedPath);
+      // console.log(simplifiedPathPoints);
+      const simplifiedPath = new paper.Path(simplifiedPathPoints);
+
+      simplifiedPath.scale(
+        boundaryModel.bounds.width / mazeMaker.finalCols,
+        boundaryModel.bounds.height / mazeMaker.finalRows,
+        new paper.Point(0, 0)
+      );
+      simplifiedPath.translate(boundaryModel.bounds.topLeft);
+      addToDebugLayer(paper, "fixedPath", simplifiedPath);
+      const bufferedPath = bufferPath(paper, -borderSize, simplifiedPath);
+
+      addToDebugLayer(paper, "bufferedPaths", bufferedPath.clone());
+
+      allPaths = [...allPaths, bufferedPath];
+      // return bufferedPaths;
+    });
+
+    return Promise.resolve({ paths: allPaths });
+  }
 
   get designMetaParameters() {
     return [
@@ -138,6 +153,14 @@ export class InnerDesignMaze1 extends FastAbstractInnerDesign {
         step: 1,
         name: "idealMinChainSize",
       }),
+      new RangeMetaParameter({
+        title: "Min chain size",
+        min: 0,
+        max: 10,
+        value: 0,
+        step: 1,
+        name: "minChainSize",
+      }),
       new OnOffMetaParameter({
         title: "mirrorRows",
         value: true,
@@ -156,7 +179,6 @@ export class InnerDesignMaze1 extends FastAbstractInnerDesign {
         step: 0.001,
         name: "omitTileChance",
       }),
-      
     ];
   }
 }

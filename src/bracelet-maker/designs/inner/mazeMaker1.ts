@@ -1,6 +1,7 @@
-import { should } from "chai";
 import * as _ from "lodash";
+import { omit } from 'lodash';
 import { Point } from "paper";
+import { threadId } from 'worker_threads';
 
 const ROW = 0;
 const COL = 1;
@@ -31,6 +32,8 @@ export class MazePatternMaker1 {
   finalCols: number;
   triangleChance: number;
   leftRightTriangleChance: number;
+  minChainSize: number;
+  omitTileChance: number;
 
   constructor({
     rows,
@@ -44,6 +47,8 @@ export class MazePatternMaker1 {
     idealMinChainSize,
     triangleChance,
     leftRightTriangleChance,
+    minChainSize,
+    omitTileChance,
   }: {
     rows: number;
     cols: number;
@@ -56,6 +61,8 @@ export class MazePatternMaker1 {
     idealMinChainSize: number;
     triangleChance: number;
     leftRightTriangleChance: number;
+    minChainSize: number;
+    omitTileChance: number;
   }) {
     this.rows = rows;
     this.cols = cols;
@@ -73,6 +80,9 @@ export class MazePatternMaker1 {
 
     this.triangleChance = triangleChance;
     this.leftRightTriangleChance = leftRightTriangleChance;
+    this.minChainSize = minChainSize;
+
+    this.omitTileChance = omitTileChance;
   }
 
   private sample<T>(items: T[]): T {
@@ -113,23 +123,9 @@ export class MazePatternMaker1 {
     // console.log(buffer);
   }
 
-  private makeSquare(cell: CellId): Point[] {
-    const rowSize = 1 / this.finalRows;
-    const colSize = 1 / this.finalCols;
-
-    const topLeft = [rowSize * cell[ROW], colSize * cell[COL]];
-
-    return [
-      { y: topLeft[0], x: topLeft[1] },
-      { y: topLeft[0] + rowSize, x: topLeft[1] },
-      { y: topLeft[0] + rowSize, x: topLeft[1] + colSize },
-      { y: topLeft[0], x: topLeft[1] + colSize },
-    ];
-  }
-
   private makeTriangles1(cell: CellId): [Point[], Point[]] {
-    const rowSize = 1 / this.finalRows;
-    const colSize = 1 / this.finalCols;
+    const rowSize = 1;
+    const colSize = 1;
 
     const topLeft = [rowSize * cell[ROW], colSize * cell[COL]];
 
@@ -148,8 +144,8 @@ export class MazePatternMaker1 {
   }
 
   private makeTriangles2(cell: CellId): [Point[], Point[]] {
-    const rowSize = 1 / this.finalRows;
-    const colSize = 1 / this.finalCols;
+    const rowSize = 1;
+    const colSize = 1;
 
     const topLeft = [rowSize * cell[ROW], colSize * cell[COL]];
 
@@ -194,6 +190,17 @@ export class MazePatternMaker1 {
       }
     }
 
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        const tileKey = this.makeKey([r,c]);
+        for (let i = 0; i < this.tile[tileKey].ids.length; i++) {
+          if (this.rng() < this.omitTileChance) {
+            this.tile[tileKey].ids[i] = undefined;
+          }
+        }
+      }
+    }
+
     this.printTile();
 
     for (let r = 0; r < this.finalRows; r++) {
@@ -221,6 +228,7 @@ export class MazePatternMaker1 {
 
         const originalTile = this.tile[this.makeKey([relativeR, relativeC])];
         let type = originalTile.type;
+        const ids = originalTile.ids;
         // this is sometimes wrong?????
         // oh is it like if it's both I shouldn't?????
         if (
@@ -248,14 +256,20 @@ export class MazePatternMaker1 {
         finalGrid[r][c] = {
           ...originalTile,
           type,
+          ids: shouldMirrorRow ? [...ids].reverse() : ids
         };
       }
     }
 
-    function addShape(label: string, shape: Point[]) {
+    const addShape = (label: string, shape: Point[]) => {
+      if (!label) {
+        return;
+      }
+      
       if (!labelsToSquares[label]) {
         labelsToSquares[label] = [];
       }
+
       labelsToSquares[label].push(shape);
     }
 
@@ -265,30 +279,62 @@ export class MazePatternMaker1 {
     for (let r = 0; r < this.finalRows; r++) {
       for (let c = 0; c < this.finalCols; c++) {
         const cellEntry = finalGrid[r][c];
-        const square = this.makeSquare([r, c]);
-        const label1 = cellEntry.ids[0];
 
-        if (cellEntry.type === "square") {
-          addShape(label1, square);
-        } else if (
-          cellEntry.type === "triangle1" ||
-          cellEntry.type === "triangle2"
-        ) {
-          if (cellEntry.ids[0] == cellEntry.ids[1]) {
-            addShape(label1, square);
-          } else {
-            let triangles = this.makeTriangles1([r, c]);
-            if (cellEntry.type === "triangle2") {
-              triangles = this.makeTriangles2([r, c]);
-            }
-            addShape(cellEntry.ids[0], triangles[0]);
-            addShape(cellEntry.ids[1], triangles[1]);
-          }
+        let triangles = this.makeTriangles1([r, c]);
+        if (cellEntry.type === "triangle2") {
+          triangles = this.makeTriangles2([r, c]);
         }
+        addShape(cellEntry.ids[0], triangles[0]);
+        addShape(cellEntry.ids[1], triangles[1]);
       }
     }
 
-    return labelsToSquares;
+    const groups = _.mapValues(labelsToSquares, (squares) => {
+      return this.unionTriangles(squares);
+    });
+
+    const allChains = _.flatten(_.values(groups));
+
+    return allChains.filter(chain => chain.length > this.minChainSize);
+  }
+
+  private unionTriangles(triangles: Point[][]) {
+    let makingProgress = true;
+
+    function areAdjacent(triangle1: Point[], triangle2: Point[]) {
+      // console.log({triangle1, triangle2})
+      const t1 = triangle1.map((p) => `${p.x.toFixed(0)}_${p.y.toFixed(0)}`);
+      const t2 = triangle2.map((p) => `${p.x.toFixed(0)}_${p.y.toFixed(0)}`);
+      return _.intersection(t1, t2).length === 2;
+    }
+
+    const shapes = [];
+
+    while (triangles.length > 0) {
+      const seedSet = [triangles.pop()];
+      // console.log('starting from triangle: ', JSON.stringify(seedSet));
+      // console.log(`have ${triangles.length} left`);
+      makingProgress = true;
+      while (makingProgress) {
+        makingProgress = false;
+        const usedTriangles = [];
+        for (let i = 0; i < triangles.length; ++i) {
+          if (_.some(seedSet, (tri) => areAdjacent(tri, triangles[i]))) {
+            seedSet.push(triangles[i]);
+            usedTriangles.push(i);
+            makingProgress = true;
+          }
+        }
+        triangles = _.filter(triangles, function(item, index) {
+          return !usedTriangles.includes(index);
+        });
+        // console.log(`used ${usedTriangles.length}, have ${triangles.length} left`);
+      }
+      console.log('done with that shape', seedSet);
+      shapes.push(seedSet);
+    }
+
+    return shapes;
   }
 
   private getNeighbor(
@@ -324,8 +370,8 @@ export class MazePatternMaker1 {
 
   private labelSquare(cellId: CellId) {
     this.tile[this.makeKey(cellId)] = {
-      ids: [this.currentCellName.toString()],
-      type: "square",
+      ids: [this.currentCellName.toString(), this.currentCellName.toString()],
+      type: "triangle1",
     };
   }
 

@@ -47,6 +47,7 @@
     "rbush": "^3.0.1",
     "register-service-worker": "^1.6.2",
     "simplify-js": "^1.2.3",
+    "simplify-path": "^1.1.0",
     "topojson-client": "^3.1.0",
     "uuid": "^3.3.3",
     "vue": "^2.6.10",

@@ -2,6 +2,7 @@ const Shape = require("@doodle3d/clipper-js");
 import * as jsts from "jsts";
 import * as _ from "lodash";
 import GeoJSON from "geojson";
+import * as simplify from 'simplify-path';
 
 export function randomPointInPolygon(
   paper: paper.PaperScope,
@@ -314,4 +315,14 @@ export function getDistanceToLine(point: paper.Point, line: paper.Path.Line): nu
 
 export function containsOrIntersects({needle, haystack}: {needle: paper.PathItem, haystack: paper.Path}): boolean {
   return needle.isInside(haystack.bounds) || needle.intersects(haystack);
+}
+
+export function simplifyPathToPoints(path: paper.Path, tolerance: number = 0.005): [number, number][] {
+  const paperPoints = getPointsFromPath(path);
+  const points = paperPoints.map(p => [p.x, p.y]);
+  return simplify(points, tolerance);
+}
+
+export function simplifyPath(paper: paper.PaperScope, path: paper.Path, tolerance: number = 0.001): paper.Path {
+  return new paper.Path(simplifyPathToPoints(path, tolerance).map(p => new paper.Point(p)));
 }
