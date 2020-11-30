@@ -8,7 +8,7 @@ import {
 } from "@/bracelet-maker/meta-parameter";
 import { HasMetaParameters } from "@/bracelet-maker/model-maker";
 
-import * as $ from "jquery";
+import $ from 'jquery';
 import * as _ from "lodash";
 import "rangeslider.js";
 
@@ -79,8 +79,8 @@ class RenderedGeocodeMetaParameter extends RenderedMetaParameter {
     selectInput.name = metaParameter.name + "-select";
 
     const geocodeInputEl = $('<input type="text" style="width:100%" autocomplete="off">')[0];
-    const latInputEl = $('<input type="text" size="7" autocomplete="off">')[0];
-    const lngInputEl = $('<input type="text" size="7" autocomplete="off">')[0];
+    const latInputEl = $('<input type="text" size="7" autocomplete="off">')[0] as HTMLInputElement;
+    const lngInputEl = $('<input type="text" size="7" autocomplete="off">')[0] as HTMLInputElement;
     latInputEl.value = this.initialParams[metaParameter.name].split(",")[0];
     lngInputEl.value = this.initialParams[metaParameter.name].split(",")[1];
 
@@ -93,7 +93,7 @@ class RenderedGeocodeMetaParameter extends RenderedMetaParameter {
     const self = this;
 
     latInputEl.addEventListener("change", function(event) {
-      const value = event.target.value;
+      const value = (event.target as any).value;
       if (value != metaParameter.value.split(",")[0]) {
         self.onParamChange({
           metaParameter,
@@ -103,7 +103,7 @@ class RenderedGeocodeMetaParameter extends RenderedMetaParameter {
     });
 
     lngInputEl.addEventListener("change", function(event) {
-      const value = event.target.value;
+      const value = (event.target as any).value;
       if (value != metaParameter.value.split(",")[1]) {
         self.onParamChange({
           metaParameter,

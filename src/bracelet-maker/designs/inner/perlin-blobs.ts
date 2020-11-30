@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import Jimp from 'jimp';
 import * as potrace from 'potrace';
-import * as $ from 'jquery';
+import $ from 'jquery';
 
 import { SimplexNoiseUtils } from '../../utils/simplex-noise-utils';
 import {

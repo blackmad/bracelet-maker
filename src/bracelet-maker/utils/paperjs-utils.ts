@@ -252,7 +252,7 @@ export function polygonize(
 
   polygonizer.add(cleaned);
 
-  var polygons = polygonizer.getPolygons().array_;
+  var polygons = polygonizer.getPolygons().array;
   // console.log(polygons);
 
   const paperPolys = polygons.map((_polygon: jsts.geom.Polygon) => {
