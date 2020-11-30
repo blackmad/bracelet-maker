@@ -2,7 +2,8 @@ const Shape = require("@doodle3d/clipper-js");
 import * as jsts from "jsts";
 import * as _ from "lodash";
 import GeoJSON from "geojson";
-import * as simplify from 'simplify-path';
+import simplify from 'simplify-path';
+import * as simplifyJS from 'simplify-js';
 
 export function randomPointInPolygon(
   paper: paper.PaperScope,
@@ -325,4 +326,14 @@ export function simplifyPathToPoints(path: paper.Path, tolerance: number = 0.005
 
 export function simplifyPath(paper: paper.PaperScope, path: paper.Path, tolerance: number = 0.001): paper.Path {
   return new paper.Path(simplifyPathToPoints(path, tolerance).map(p => new paper.Point(p)));
+}
+
+export function simplifyPathToPoints2(path: paper.Path, tolerance: number = 0.005): [number, number][] {
+  const paperPoints = getPointsFromPath(path);
+  // const points = paperPoints.map(p => [p.x, p.y]);
+  return simplifyJS(paperPoints, tolerance, true);
+}
+
+export function simplifyPath2(paper: paper.PaperScope, path: paper.Path, tolerance: number = 0.001): paper.Path {
+  return new paper.Path(simplifyPathToPoints2(path, tolerance).map(p => new paper.Point(p)));
 }

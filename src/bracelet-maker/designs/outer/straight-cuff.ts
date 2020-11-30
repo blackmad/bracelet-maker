@@ -1,7 +1,6 @@
 import { MetaParameter, RangeMetaParameter } from "../../meta-parameter";
 import { CompletedModel, OuterPaperModelMaker } from "../../model-maker";
 import { makeEvenlySpacedBolts, RivetRadius } from "../design-utils";
-import { bufferPath } from "@/bracelet-maker/utils/paperjs-utils";
 
 function roundCorners(paper, path, radius) {
   const segments = path.segments.slice(0);

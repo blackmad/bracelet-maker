@@ -4,8 +4,6 @@ import * as _ from "lodash";
 import { CompletedModel, OuterPaperModelMaker } from "../../model-maker";
 import { roundCorners } from "../../utils/round-corners";
 
-import { bufferPath } from "@/bracelet-maker/utils/paperjs-utils";
-
 export class BoxOuter extends OuterPaperModelMaker {
   get outerMetaParameters(): MetaParameter<any>[] {
     return [

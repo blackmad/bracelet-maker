@@ -11,7 +11,7 @@ import randomColor from "randomcolor";
 
 import { FastAbstractInnerDesign } from "./fast-abstract-inner-design";
 import { MazePatternMaker1 } from "./mazeMaker1";
-import { addToDebugLayer } from "@/bracelet-maker/utils/debug-layers";
+import { addToDebugLayer } from "../../utils/debug-layers";
 
 export class InnerDesignMaze1 extends FastAbstractInnerDesign {
   canRound = true;
@@ -31,6 +31,8 @@ export class InnerDesignMaze1 extends FastAbstractInnerDesign {
       mirrorCols,
       mirrorRows,
       omitTileChance,
+      rowTileBoundary,
+      colTileBoundary,
     } = params;
 
     const mazeMaker = new MazePatternMaker1({
@@ -47,6 +49,8 @@ export class InnerDesignMaze1 extends FastAbstractInnerDesign {
       leftRightTriangleChance: this.rng(),
       minChainSize,
       omitTileChance,
+      rowTileBoundary,
+      colTileBoundary,
     });
     const labelsToSquares = mazeMaker.makeDesign();
 
@@ -170,6 +174,16 @@ export class InnerDesignMaze1 extends FastAbstractInnerDesign {
         title: "mirrorCols",
         value: true,
         name: "mirrorCols",
+      }),
+      new OnOffMetaParameter({
+        title: "rowTileBoundary",
+        value: true,
+        name: "rowTileBoundary",
+      }),
+      new OnOffMetaParameter({
+        title: "colTileBoundary",
+        value: false,
+        name: "colTileBoundary",
       }),
       new RangeMetaParameter({
         title: "Omit Tile Chance",

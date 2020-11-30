@@ -1,7 +1,4 @@
 import * as _ from "lodash";
-import { omit } from 'lodash';
-import { Point } from "paper";
-import { threadId } from 'worker_threads';
 
 const ROW = 0;
 const COL = 1;
@@ -34,6 +31,8 @@ export class MazePatternMaker1 {
   leftRightTriangleChance: number;
   minChainSize: number;
   omitTileChance: number;
+  rowTileBoundary: boolean;
+  colTileBoundary: boolean;
 
   constructor({
     rows,
@@ -49,6 +48,8 @@ export class MazePatternMaker1 {
     leftRightTriangleChance,
     minChainSize,
     omitTileChance,
+    rowTileBoundary,
+    colTileBoundary,
   }: {
     rows: number;
     cols: number;
@@ -63,6 +64,8 @@ export class MazePatternMaker1 {
     leftRightTriangleChance: number;
     minChainSize: number;
     omitTileChance: number;
+    rowTileBoundary: boolean;
+    colTileBoundary: boolean;
   }) {
     this.rows = rows;
     this.cols = cols;
@@ -83,6 +86,9 @@ export class MazePatternMaker1 {
     this.minChainSize = minChainSize;
 
     this.omitTileChance = omitTileChance;
+
+    this.rowTileBoundary = rowTileBoundary;
+    this.colTileBoundary = colTileBoundary;
   }
 
   private sample<T>(items: T[]): T {
@@ -213,10 +219,13 @@ export class MazePatternMaker1 {
         let relativeR = r % this.rows;
         let relativeC = c % this.cols;
 
+        const tileRow = Math.floor(r / this.rows);
+        const tileCol = Math.floor(c / this.cols);
+
         const shouldMirrorRow =
-          this.mirrorRows && Math.floor(r / this.rows) % 2 == 0;
+          this.mirrorRows && tileRow % 2 == 0;
         const shouldMirrorCol =
-          this.mirrorCols && Math.floor(c / this.cols) % 2 == 0;
+          this.mirrorCols && tileCol % 2 == 0;
 
         if (shouldMirrorRow) {
           relativeR = this.rows - 1 - relativeR;
@@ -228,7 +237,7 @@ export class MazePatternMaker1 {
 
         const originalTile = this.tile[this.makeKey([relativeR, relativeC])];
         let type = originalTile.type;
-        const ids = originalTile.ids;
+        let ids = originalTile.ids;
         // this is sometimes wrong?????
         // oh is it like if it's both I shouldn't?????
         if (
@@ -253,10 +262,22 @@ export class MazePatternMaker1 {
           type = originalTile.type;
         }
 
+        if (shouldMirrorRow) {
+         ids = [...ids].reverse();
+        }
+
+        let rowTag = 'a';
+        let colTag = 'a';
+        if (this.rowTileBoundary) {
+          rowTag = tileRow.toString();
+        }
+        if (this.colTileBoundary) {
+          colTag = tileCol.toString();
+        }
+
         finalGrid[r][c] = {
-          ...originalTile,
           type,
-          ids: shouldMirrorRow ? [...ids].reverse() : ids
+          ids: ids.map(id => id + '-' + rowTag + '-' + colTag)
         };
       }
     }
@@ -265,7 +286,7 @@ export class MazePatternMaker1 {
       if (!label) {
         return;
       }
-      
+
       if (!labelsToSquares[label]) {
         labelsToSquares[label] = [];
       }

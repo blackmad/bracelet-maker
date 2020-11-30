@@ -1,13 +1,13 @@
 # Outer Designs
 ## StraightCollarOuter
 ![public/demo-output/StraightCollarOuter.png](public/demo-output/StraightCollarOuter.png)
-## ConicCuffOuter
-![public/demo-output/ConicCuffOuter.png](public/demo-output/ConicCuffOuter.png)
 ## StraightCuffOuter
 ![public/demo-output/StraightCuffOuter.png](public/demo-output/StraightCuffOuter.png)
 ## BoxOuter
 ![public/demo-output/BoxOuter.png](public/demo-output/BoxOuter.png)
 # Inner Designs
+## InnerDesignMaze1
+![public/demo-output/InnerDesignMaze1.png](public/demo-output/InnerDesignMaze1.png)
 ## InnerDesignVoronoi
 ![public/demo-output/InnerDesignVoronoi.png](public/demo-output/InnerDesignVoronoi.png)
 ## InnerDesignTessagon

@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import Jimp from 'jimp';
-import potrace from 'potrace';
+import * as potrace from 'potrace';
 import * as $ from 'jquery';
 
 import { SimplexNoiseUtils } from '../../utils/simplex-noise-utils';
@@ -82,7 +82,7 @@ export class InnerDesignPerlinBlobs extends FastAbstractInnerDesign {
           console.log(img)
           $('#designScratchArea').append(img[0]);
         }
-        img[0].src = src;
+        (img[0] as any).src = src;
       })
     }
 

@@ -96,7 +96,9 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { mapGetters } from "vuex";
-import * as $ from "jquery";
+import $ from 'jquery';
+
+// import * as $ from "jquery";
 
 import * as paper from "paper";
 

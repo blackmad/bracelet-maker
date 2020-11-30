@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import * as SimplexNoise from "simplex-noise";
 const seedrandom = require("seedrandom");
 import ExtendPaperJs from "paperjs-offset";
-import { bufferPath } from "@/bracelet-maker/utils/paperjs-utils";
+import { bufferPath } from "../../utils/paperjs-utils";
 
 import { MetaParameter, RangeMetaParameter, OnOffMetaParameter } from "../../meta-parameter";
 import { PaperModelMaker, InnerCompletedModel } from "../../model-maker";
@@ -11,7 +11,6 @@ import { addToDebugLayer } from "../../utils/debug-layers";
 import { makeConcaveOutline } from "../../utils/outline";
 import { roundCorners } from "../../utils/round-corners";
 import { KaleidoscopeMaker } from "./utils/kaleidosope";
-import { containsOrIntersects } from "../../utils/paperjs-utils";
 
 export interface InnerDesignModel {
   paths: paper.PathItem[];
@@ -218,7 +217,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     }
 
     outline.closePath();
-    outline = roundCorners({ paper, path: outline, radius: 0.9 });
+    // outline = simplifyPath2(paper, outline, 0.1);
+    // outline = roundCorners({ paper, path: outline, radius: 0.9 });
 
     return outline;
 
