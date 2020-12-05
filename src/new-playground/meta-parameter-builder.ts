@@ -12,10 +12,6 @@ import $ from 'jquery';
 import * as _ from "lodash";
 import "rangeslider.js";
 
-function clone(src) {
-  return Object.assign({}, src);
-}
-
 function makeMetaParameterContainer(title) {
   const sizingDiv = document.createElement("div");
   sizingDiv.className =
@@ -386,7 +382,7 @@ export class MetaParameterBuilder {
 
     if (modelMaker.metaParameters) {
       modelMaker.metaParameters.forEach(metaParameter => {
-        const metaParam = metaParameter;
+        const metaParam = _.clone(metaParameter);
         metaParam.name = modelMaker.constructor.name + "." + metaParameter.name;
 
         if (metaParam.target) {

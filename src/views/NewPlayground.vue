@@ -12,7 +12,7 @@
 
       <div class id="topArea">
         <div id="downloadContainer" class="text-center">
-          <a class="downloadButton downloadSVG" @click="downloadSVG">Download SVG</a>
+          <a class="downloadButton downloadSVG" @click="downloadEntireSVG">Download SVG</a>
           <a class="downloadButton downloadPDF" @click="downloadPDF">Download PDF</a>
           <a class="downloadButton downloadOutlinePDF" @click="downloadOutlinePDF">Download Outline PDF</a>
           <a class="downloadButton saveToMyLibrary" @click="saveToMyLibrary">Save</a>
@@ -52,6 +52,8 @@
             <input type="checkbox" @click="toggleVisibility(name)" />
             {{ name }}
           </label>
+         <!--<a @click="downloadDebugSVG(name)" >Download</a>-->
+
         </div>
       </div>
 
@@ -232,8 +234,17 @@ export default class NewPlaygroundView extends Vue {
     });
   }
 
-  public downloadSVG() {
-    const data = makeSVGData(paper, paper.project, true, svg => $(svg)[0]);
+  public downloadEntireSVG() {
+    this.downloadSVG(paper.project);
+  }
+
+  public downloadDebugSVG(name: string) {
+    this.downloadSVG(this.debugLayers[name]);
+    console.log(this.debugLayers[name])
+  }
+
+  public downloadSVG(from: any) {
+    const data = makeSVGData(paper, from, true, svg => $(svg)[0]);
     const mimeType = "image/svg+xml";
     const encoded = encodeURIComponent(data);
     const uriPrefix = "data:" + mimeType + ",";
@@ -410,6 +421,10 @@ export default class NewPlaygroundView extends Vue {
         console.log(`Updating from ${oldValue} to ${newValue}`);
       }
     );
+
+    console.log(this.innerDesign);
+    console.log(this.outerDesign);
+    console.log(this);
 
     const innerDesignClass = AllInnerDesigns.find(d => d.name == this.innerDesign);
     const outerDesignClass = AllOuterDesigns.find(d => d.name == this.outerDesign);

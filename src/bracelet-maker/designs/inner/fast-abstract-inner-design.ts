@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import * as SimplexNoise from "simplex-noise";
 const seedrandom = require("seedrandom");
 import ExtendPaperJs from "paperjs-offset";
-import { bufferPath } from "../../utils/paperjs-utils";
+import { bufferPath, simplifyPath, unkinkPath } from "../../utils/paperjs-utils";
 
 import {
   MetaParameter,
@@ -15,6 +15,7 @@ import { addToDebugLayer } from "../../utils/debug-layers";
 import { makeConcaveOutline } from "../../utils/outline";
 import { roundCorners } from "../../utils/round-corners";
 import { KaleidoscopeMaker } from "./utils/kaleidosope";
+import { removeBadSegments } from '@/bracelet-maker/utils/remove-bad-segments';
 
 export interface InnerDesignModel {
   paths: paper.PathItem[];
@@ -213,7 +214,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
   private makeOutline(
     paper: paper.PaperScope,
     params: any,
-    paths: paper.PathItem[]
+    paths: paper.PathItem[],
+    originalBoundaryModel: paper.Path,
   ) {
     console.log("need to make outline");
     // Make the outline
@@ -222,6 +224,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       paths,
       concavity: params.concavity,
       lengthThreshold: params.lengthThreshold,
+      minimumOutline: originalBoundaryModel.bounds
     });
 
     // Expand it to our outline border
@@ -243,8 +246,30 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       )[0] as paper.Path;
     }
 
+    console.log('about to unkink expanded outline', {outline})
+
+    removeBadSegments({paper, path: outline})
+
+    outline = simplifyPath(paper, outline, 0.05);
+
+    outline = unkinkPath(paper, outline);
+
+    removeBadSegments({paper, path: outline});
+
+    outline = roundCorners({
+      paper,
+      path: outline,
+      radius: 0.5,
+    });
+
+    // outline.smooth();
+
+    addToDebugLayer(paper, "unkinkedexpandedOutline", outline.clone());
+
+    console.log(outline.exportSVG({    asString: true,
+}));
+
     outline.closePath();
-    // outline = simplifyPath2(paper, outline, 0.1);
     // outline = roundCorners({ paper, path: outline, radius: 0.9 });
 
     return outline;
@@ -269,7 +294,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     paper: paper.PaperScope,
     params: any,
     _paths: paper.PathItem[],
-    design: InnerDesignModel
+    design: InnerDesignModel,
+    originalBoundaryModel: paper.Path,
   ) {
     let outline: paper.PathItem = null;
     let paths: paper.PathItem[] = _paths;
@@ -311,7 +337,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         //   containsOrIntersects({ needle: p, haystack: params.outerModel })
         // );
 
-        outline = this.makeOutline(paper, params, paths);
+        outline = this.makeOutline(paper, params, paths, originalBoundaryModel);
       }
     }
     return { outline, paths };
@@ -323,6 +349,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     this.initRNGs(params);
 
     addToDebugLayer(paper, "boundaryModel", params.boundaryModel.clone());
+
+    const originalBoundaryModel = params.boundaryModel.clone();
 
     if (params.breakThePlane) {
       params.boundaryModel = bufferPath(
@@ -342,10 +370,10 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     }
 
     let kaleidoscopeMaker = null;
-    let originalBoundaryModel = null;
+    let kaleidoscopeSavedBoundaryModel = null;
     if (this.canKaleido && params.segments > 1) {
       kaleidoscopeMaker = new KaleidoscopeMaker(paper, params);
-      originalBoundaryModel = params.boundaryModel.clone();
+      kaleidoscopeSavedBoundaryModel = params.boundaryModel.clone();
       params.boundaryModel = kaleidoscopeMaker.getBoundarySegment();
       params.boundaryModel = params.boundaryModel.intersect(params.safeCone, {
         insert: false,
@@ -374,7 +402,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
     if (kaleidoscopeMaker) {
       // eslint-disable-next-line require-atomic-updates
-      params.boundaryModel = originalBoundaryModel;
+      params.boundaryModel = kaleidoscopeSavedBoundaryModel;
       console.log("putting back boundary for kaleido");
       paths = kaleidoscopeMaker.reflectPaths(paths);
     }
@@ -394,7 +422,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       paths = this.clampPathsToBoundary(paths, params.safeCone);
     }
 
-    const maybeOutline = this.maybeMakeOutline(paper, params, paths, design);
+    const maybeOutline = this.maybeMakeOutline(paper, params, paths, design, originalBoundaryModel);
     paths = maybeOutline.paths;
     const outline = maybeOutline.outline;
 

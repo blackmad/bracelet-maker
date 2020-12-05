@@ -3,7 +3,9 @@ import * as jsts from "jsts";
 import * as _ from "lodash";
 import GeoJSON from "geojson";
 import simplify from 'simplify-path';
-import * as simplifyJS from 'simplify-js';
+// import * as simplifyJS from 'simplify-js';
+import turfUnkinkPolygon from '@turf/unkink-polygon';
+import * as turfHelpers from '@turf/helpers';
 
 export function randomPointInPolygon(
   paper: paper.PaperScope,
@@ -326,6 +328,39 @@ export function simplifyPathToPoints(path: paper.Path, tolerance: number = 0.005
 
 export function simplifyPath(paper: paper.PaperScope, path: paper.Path, tolerance: number = 0.001): paper.Path {
   return new paper.Path(simplifyPathToPoints(path, tolerance).map(p => new paper.Point(p)));
+}
+
+export function unkinkPath(paper: paper.PaperScope, path: paper.Path): paper.Path {
+  path.closePath();
+  const paperPoints = getPointsFromPath(path);
+
+
+  let coordinates: Array<Array<Array<number>>> = [];
+  if (path instanceof paper.CompoundPath) {
+    // shapeToUse = shape.children[0];
+  } else {
+    const paperPoints = getPointsFromPath(path);
+    coordinates = [[...paperPoints.map(p => [p.x, p.y]), [paperPoints[0].x, paperPoints[0].y]]]
+  }
+
+  console.log({coordinates})
+
+  const polygon = turfHelpers.polygon(coordinates);
+  const unkinkedTurfPolygon = turfUnkinkPolygon(polygon);
+  const unkinkedPolygons = unkinkedTurfPolygon.features.slice(0, 1).flatMap(feature => {
+    return feature.geometry.coordinates.slice(0, 1).map(polygon => {
+      const points = polygon.map(coord => 
+        new paper.Point(coord[0], coord[1])
+      )
+      console.log({points})
+
+      return new paper.Path(points);
+    });
+  });
+
+  console.log(unkinkedPolygons);
+
+  return unkinkedPolygons[0];
 }
 
 // export function simplifyPathToPoints2(path: paper.Path, tolerance: number = 0.005): [number, number][] {
