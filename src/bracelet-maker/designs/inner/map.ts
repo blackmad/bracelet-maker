@@ -14,7 +14,7 @@ import {
   multiLneStringCoordinatesToPaperLines
 } from "./map-utils";
 import * as _ from "lodash";
-import { flattenArrayOfPathItems, bufferLine } from "../../utils/paperjs-utils";
+import { flattenArrayOfPathItems, bufferLine, simplifyPath } from "../../utils/paperjs-utils";
 import { cascadedUnion } from "../../utils/cascaded-union";
 import { addToDebugLayer } from "../../utils/debug-layers";
 var randomColor = require("randomcolor");
@@ -24,8 +24,8 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
   needSeed = false;
   canKaleido = true;
   defaultKaleido = false;
-  // canRound = true;
-  // allowOutline = true;
+  canRound = true;
+  allowOutline = true;
 
   extractPointPathsFromFeatures(
     paper: paper.PaperScope,
@@ -103,13 +103,12 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
     });
 
     const filteredFeatures = this.filterFeatures(features);
-    const paths: paper.Point[][] = this.extractPointPathsFromFeatures(
+    const pointPaths: paper.Point[][] = this.extractPointPathsFromFeatures(
       paper,
       filteredFeatures,
       invertLatLng
     );
-
-    const bufferedPaths: paper.PathItem[] = paths.map(path => {
+    const bufferedPaths: paper.PathItem[] = pointPaths.map(path => {
       const centerAt = (function(centerAt) {
         switch (centerAt) {
           case "topLeft":
@@ -156,10 +155,13 @@ export class InnerDesignMap extends FastAbstractInnerDesign {
     const unionedPaths = cascadedUnion(bufferedPaths.filter(b => b != null));
     // Explode all the compound paths because that way we can isolate the ones that touch the edge
     const explodedUnionedPaths = flattenArrayOfPathItems(paper, unionedPaths);
+
+    const simplifiedPaths = explodedUnionedPaths.map(path => simplifyPath(paper, path, 0.05));
+
     // After unioning, we end up with a set of cuts that will cause the inside of the design to drop out,
     // so we carefully invert it ...
     // find the inside paths, these are good holes
-    const insidePaths = explodedUnionedPaths.filter(p =>
+    const insidePaths = simplifiedPaths.filter(p =>
       p.isInside(boundaryModel.bounds)
     );
     // find the paths that touch the edge

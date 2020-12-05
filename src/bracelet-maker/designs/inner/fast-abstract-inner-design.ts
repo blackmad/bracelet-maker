@@ -4,7 +4,11 @@ const seedrandom = require("seedrandom");
 import ExtendPaperJs from "paperjs-offset";
 import { bufferPath } from "../../utils/paperjs-utils";
 
-import { MetaParameter, RangeMetaParameter, OnOffMetaParameter } from "../../meta-parameter";
+import {
+  MetaParameter,
+  RangeMetaParameter,
+  OnOffMetaParameter,
+} from "../../meta-parameter";
 import { PaperModelMaker, InnerCompletedModel } from "../../model-maker";
 
 import { addToDebugLayer } from "../../utils/debug-layers";
@@ -33,7 +37,10 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
   public controlInfo = "";
 
-  public abstract makeDesign(scope: any, params: any): Promise<InnerDesignModel>;
+  public abstract makeDesign(
+    scope: any,
+    params: any
+  ): Promise<InnerDesignModel>;
   abstract get designMetaParameters(): MetaParameter<any>[];
 
   get metaParameters() {
@@ -41,7 +48,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       new OnOffMetaParameter({
         title: "Debug",
         name: "debug",
-        value: false
+        value: false,
       }),
       new RangeMetaParameter({
         title: "Safe Border (in)",
@@ -50,8 +57,8 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         value: 0.25,
         step: 0.01,
         name: "safeBorderWidth",
-        shouldDisplay: p => !p.breakThePlane
-      })
+        shouldDisplay: (p) => !p.breakThePlane,
+      }),
     ];
 
     if (this.needSeed) {
@@ -64,7 +71,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           randMax: 10000,
           value: 1,
           step: 1,
-          name: "seed"
+          name: "seed",
         })
       );
     }
@@ -72,7 +79,9 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     metaParams = metaParams.concat(this.designMetaParameters);
 
     if (this.canKaleido) {
-      KaleidoscopeMaker.designMetaParameters(this.defaultKaleido).forEach(m => metaParams.push(m));
+      KaleidoscopeMaker.designMetaParameters(this.defaultKaleido).forEach((m) =>
+        metaParams.push(m)
+      );
     }
 
     if (this.canRound) {
@@ -80,7 +89,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         new OnOffMetaParameter({
           title: "Round paths",
           value: true,
-          name: "shouldSmooth"
+          name: "shouldSmooth",
         })
       );
       metaParams.push(
@@ -90,7 +99,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           max: 1.0,
           value: 0.8,
           step: 0.01,
-          name: "smoothingFactor"
+          name: "smoothingFactor",
         })
       );
     }
@@ -148,7 +157,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
           value: 0.15,
           step: 0.01,
           name: "outlineSize",
-          parentParam: breakThePlane
+          parentParam: breakThePlane,
         })
       );
       // metaParams.push(
@@ -177,43 +186,61 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     }
   }
 
-  private maybeSmooth(paper: paper.PaperScope, params: any, paths: paper.PathItem[]) {
+  private maybeSmooth(
+    paper: paper.PaperScope,
+    params: any,
+    paths: paper.PathItem[]
+  ) {
     if (params.shouldSmooth) {
-      return paths.map(path => {
+      return paths.map((path) => {
         addToDebugLayer(paper, "holes", path);
-        return roundCorners({ paper, path: path, radius: params.smoothingFactor });
+        return roundCorners({
+          paper,
+          path: path,
+          radius: params.smoothingFactor,
+        });
       });
     }
     return paths;
   }
 
   private clampPathsToBoundary(paths: paper.PathItem[], boundary: paper.Path) {
-    return paths.map(m => {
+    return paths.map((m) => {
       return m.intersect(boundary, { insert: false });
     });
   }
 
-  private makeOutline(paper: paper.PaperScope, params: any, paths: paper.PathItem[]) {
+  private makeOutline(
+    paper: paper.PaperScope,
+    params: any,
+    paths: paper.PathItem[]
+  ) {
     console.log("need to make outline");
     // Make the outline
     let outline = makeConcaveOutline({
       paper,
       paths,
       concavity: params.concavity,
-      lengthThreshold: params.lengthThreshold
+      lengthThreshold: params.lengthThreshold,
     });
 
     // Expand it to our outline border
-    outline = (paper.Path.prototype as any).offset.call(outline, -params.outlineSize, {
-      cap: "miter"
-    });
+    outline = (paper.Path.prototype as any).offset.call(
+      outline,
+      -params.outlineSize,
+      {
+        cap: "miter",
+      }
+    );
     addToDebugLayer(paper, "expandedOutline", outline.clone());
-
 
     // If we ended up with an outline that's a compound path,
     // just take the child path that's the biggest
     if (outline instanceof paper.CompoundPath) {
-      outline = _.sortBy(outline.children, (c: paper.Path) => -c.area)[0] as paper.Path;
+      outline = _.sortBy(
+        outline.children,
+        (c: paper.Path) => -c.area
+      )[0] as paper.Path;
     }
 
     outline.closePath();
@@ -264,7 +291,10 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         // if an inner design has been nice to us by making its own outline, just use that
         let outlinePaths = design.outlinePaths;
         if (this.requiresSafeConeClamp) {
-          outlinePaths = this.clampPathsToBoundary(outlinePaths, params.safeCone);
+          outlinePaths = this.clampPathsToBoundary(
+            outlinePaths,
+            params.safeCone
+          );
         }
         outline = new paper.CompoundPath(outlinePaths);
       } else {
@@ -295,12 +325,20 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     addToDebugLayer(paper, "boundaryModel", params.boundaryModel.clone());
 
     if (params.breakThePlane) {
-      params.boundaryModel = bufferPath(paper, params.extendOutward, params.boundaryModel);
-      params.boundaryModel = params.boundaryModel.intersect(
-        params.safeCone, { insert: false }
+      params.boundaryModel = bufferPath(
+        paper,
+        params.extendOutward,
+        params.boundaryModel
       );
+      params.boundaryModel = params.boundaryModel.intersect(params.safeCone, {
+        insert: false,
+      });
     } else {
-      params.boundaryModel = bufferPath(paper, -params.safeBorderWidth, params.boundaryModel);
+      params.boundaryModel = bufferPath(
+        paper,
+        -params.safeBorderWidth,
+        params.boundaryModel
+      );
     }
 
     let kaleidoscopeMaker = null;
@@ -309,37 +347,50 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
       kaleidoscopeMaker = new KaleidoscopeMaker(paper, params);
       originalBoundaryModel = params.boundaryModel.clone();
       params.boundaryModel = kaleidoscopeMaker.getBoundarySegment();
-      params.boundaryModel = params.boundaryModel.intersect(
-        params.safeCone, { insert: false }
-      );
+      params.boundaryModel = params.boundaryModel.intersect(params.safeCone, {
+        insert: false,
+      });
     }
 
-
-    addToDebugLayer(paper, "modified boundaryModel", params.boundaryModel.clone());
+    addToDebugLayer(
+      paper,
+      "modified boundaryModel",
+      params.boundaryModel.clone()
+    );
 
     const design = await self.makeDesign(paper, params);
 
     // filter out possibly null paths for ease of designs
-    let paths = design.paths.filter(p => !!p);
+    let paths = design.paths.filter((p) => !!p);
+
+    // explode compound paths to make everything easier
+    paths = paths.flatMap((path) => {
+      if (path instanceof paper.CompoundPath) {
+        return path.children as paper.PathItem[];
+      } else {
+        return [path];
+      }
+    });
 
     if (kaleidoscopeMaker) {
       // eslint-disable-next-line require-atomic-updates
       params.boundaryModel = originalBoundaryModel;
-      console.log('putting back boundary for kaleido')
+      console.log("putting back boundary for kaleido");
       paths = kaleidoscopeMaker.reflectPaths(paths);
     }
 
     // maybe smooth paths
     paths = this.maybeSmooth(paper, params, paths);
 
-    const shouldMakeOutline = params.boundaryModel.bounds.height > params.outerModel.bounds.height;
+    const shouldMakeOutline =
+      params.boundaryModel.bounds.height > params.outerModel.bounds.height;
     if ((this.needSubtraction || kaleidoscopeMaker) && !shouldMakeOutline) {
-      console.log('clamping to boundary')
+      console.log("clamping to boundary");
       paths = this.clampPathsToBoundary(paths, params.boundaryModel);
     }
 
     if (this.requiresSafeConeClamp) {
-      console.log('clamping to cone')
+      console.log("clamping to cone");
       paths = this.clampPathsToBoundary(paths, params.safeCone);
     }
 
@@ -349,11 +400,11 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
     return new InnerCompletedModel({
       paths,
-      outline
+      outline,
     });
   }
 
   randomElement<T>(items: T[]): T {
-    return items[Math.floor(this.rng()*items.length)];
+    return items[Math.floor(this.rng() * items.length)];
   }
 }
