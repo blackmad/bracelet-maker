@@ -57,6 +57,9 @@ abstract class RenderedMetaParameter {
 }
 
 class RenderedGeocodeMetaParameter extends RenderedMetaParameter {
+  lngInputEl: HTMLInputElement;
+  latInputEl: HTMLInputElement;
+
   public constructor(
     public metaParameter: GeocodeMetaParameter,
     private initialParams,
@@ -65,7 +68,18 @@ class RenderedGeocodeMetaParameter extends RenderedMetaParameter {
     super();
   }
 
-  public randomize(onParamChange: Function) {}
+  public randomize(onParamChange: Function) {
+    const value = this.metaParameter.getRandomValue();
+    const lat = value.split(",")[0];
+    const lng = value.split(",")[1];
+    
+    this.lngInputEl.value = lat;
+    this.latInputEl.value = lng;
+    console.log(value);
+    
+    const { metaParameter } = this;
+    onParamChange({ metaParameter, value });
+  }
 
   public render() {
     const metaParameter = this.metaParameter;
@@ -79,35 +93,35 @@ class RenderedGeocodeMetaParameter extends RenderedMetaParameter {
     selectInput.name = metaParameter.name + "-select";
 
     const geocodeInputEl = $('<input type="text" style="width:100%" autocomplete="off">')[0];
-    const latInputEl = $('<input type="text" size="7" autocomplete="off">')[0] as HTMLInputElement;
-    const lngInputEl = $('<input type="text" size="7" autocomplete="off">')[0] as HTMLInputElement;
-    latInputEl.value = this.initialParams[metaParameter.name].split(",")[0];
-    lngInputEl.value = this.initialParams[metaParameter.name].split(",")[1];
+    this.latInputEl = $('<input type="text" size="7" autocomplete="off">')[0] as HTMLInputElement;
+    this.lngInputEl = $('<input type="text" size="7" autocomplete="off">')[0] as HTMLInputElement;
+    this.latInputEl.value = this.initialParams[metaParameter.name].split(",")[0];
+    this.lngInputEl.value = this.initialParams[metaParameter.name].split(",")[1];
 
     const switchDiv = $(`<div class="col-7 leftInputContainer"></div>`);
-    switchDiv.append(lngInputEl);
-    switchDiv.append(latInputEl);
+    switchDiv.append(this.lngInputEl);
+    switchDiv.append(this.latInputEl);
     switchDiv.append(geocodeInputEl);
     containingDiv.append(switchDiv[0]);
 
     const self = this;
 
-    latInputEl.addEventListener("change", function(event) {
+    this.latInputEl.addEventListener("change", (event) => {
       const value = (event.target as any).value;
       if (value != metaParameter.value.split(",")[0]) {
         self.onParamChange({
           metaParameter,
-          value: `${value},${lngInputEl.value}`
+          value: `${value},${this.lngInputEl.value}`
         });
       }
     });
 
-    lngInputEl.addEventListener("change", function(event) {
+    this.lngInputEl.addEventListener("change", (event) => {
       const value = (event.target as any).value;
       if (value != metaParameter.value.split(",")[1]) {
         self.onParamChange({
           metaParameter,
-          value: `${latInputEl.value},${value}`
+          value: `${this.latInputEl.value},${value}`
         });
       }
     });
@@ -115,12 +129,12 @@ class RenderedGeocodeMetaParameter extends RenderedMetaParameter {
     // @ts-ignore
     const autocomplete = new google.maps.places.Autocomplete(geocodeInputEl);
 
-    autocomplete.addListener("place_changed", function() {
+    autocomplete.addListener("place_changed", () => {
       var place = autocomplete.getPlace();
       const lat = place.geometry.location.lat();
       const lng = place.geometry.location.lng();
-      lngInputEl.value = lat;
-      latInputEl.value = lng;
+      this.lngInputEl.value = lat;
+      this.latInputEl.value = lng;
       self.onParamChange({ metaParameter, value: `${lat},${lng}` });
     });
 
@@ -140,10 +154,8 @@ class RenderedOnOffMetaParameter extends RenderedMetaParameter {
   }
 
   public randomize(onParamChange: Function) {
-    const value = Math.random() > 0.5;
-    console.log("random onoff to", value);
-    this.checkBox.checked = value;
-    onParamChange({ metaParameter: this.metaParameter, value });
+    this.checkBox.checked = this.metaParameter.getRandomValue();
+    onParamChange({ metaParameter: this.metaParameter, value: this.checkBox.checked });
   }
 
   public render() {
@@ -203,14 +215,7 @@ class RenderedRangeMetaParameter extends RenderedMetaParameter {
   rangeInput: any;
 
   public randomize(onParamChange: Function) {
-    if (!this.metaParameter.randMin || !this.metaParameter.randMax) {
-      return;
-    }
-
-    const steps =
-      (this.metaParameter.randMax - this.metaParameter.randMin) / this.metaParameter.step;
-    const randStep = _.random(0, steps);
-    const value = this.metaParameter.randMin + randStep * this.metaParameter.step;
+    const value = this.metaParameter.getRandomValue();
     this.textInput.value = value;
     this.rangeInput.value = value;
     onParamChange({ metaParameter: this.metaParameter, value });
@@ -284,7 +289,7 @@ class RenderedSelectMetaParameter extends RenderedMetaParameter {
   }
 
   public randomize(onParamChange: Function) {
-    const value = _.sample(this.metaParameter.options);
+    const value = this.metaParameter.getRandomValue();
     this.options.forEach(option => {
       option.selected = option.value === value;
     });
@@ -381,7 +386,7 @@ export class MetaParameterBuilder {
 
     if (modelMaker.metaParameters) {
       modelMaker.metaParameters.forEach(metaParameter => {
-        const metaParam = clone(metaParameter);
+        const metaParam = metaParameter;
         metaParam.name = modelMaker.constructor.name + "." + metaParameter.name;
 
         if (metaParam.target) {

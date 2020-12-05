@@ -160,13 +160,13 @@ export default class NewPlaygroundView extends Vue {
   }
 
   public onParamChangeHelper({ metaParameter, value }) {
-    console.log(metaParameter);
+    // console.log(metaParameter);
     this.params[metaParameter.name] = value;
   }
 
 
   public onParamChange({ metaParameter, value }) {
-    console.log(metaParameter);
+    // console.log(metaParameter);
     this.onParamChangeHelper({metaParameter, value});
     this.rerender();
   }

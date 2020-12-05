@@ -1,10 +1,13 @@
-import { HasMetaParameters } from './model-maker';
+import * as _ from "lodash";
+import * as nyc from './geojson/simplified/nyc.json';
+import turfBBox from '@turf/bbox';
+import turfBooleanPointInPolygon from '@turf/boolean-point-in-polygon';
 
 export enum MetaParameterType {
   Range,
   Select,
   OnOff,
-  Geocode
+  Geocode,
 }
 
 export interface MetaParameterBaseParams<T> {
@@ -18,7 +21,7 @@ export interface MetaParameterBaseParams<T> {
   parentParam?: OnOffMetaParameter;
 }
 
-export class MetaParameter<T> {
+export abstract class MetaParameter<T> {
   public name: string;
   public title: string;
   public target: string | null = null;
@@ -38,6 +41,8 @@ export class MetaParameter<T> {
       return value;
     }
   }
+
+  public abstract getRandomValue(): T;
 
   constructor(params: MetaParameterBaseParams<T>) {
     this.name = params.name;
@@ -76,6 +81,19 @@ export class RangeMetaParameter extends MetaParameter<number> {
     this.randMax = params.randMax;
     this.step = params.step;
   }
+
+  getRandomValue() {
+    if (!this.randMin || !this.randMax) {
+      return this.value;
+    }
+
+    const steps =
+      (this.randMax - this.randMin) / this.step;
+    const randStep = _.random(0, steps);
+    const value = this.randMin + randStep * this.step;
+
+    return value;
+  }
 }
 
 export interface SelectMetaParameterParams
@@ -91,15 +109,24 @@ export class SelectMetaParameter extends MetaParameter<string> {
     super(params);
     this.options = params.options;
   }
+
+  getRandomValue() {
+    return _.sample(this.options);
+  }
 }
 
 export interface OnOffMetaParameterParams
   extends MetaParameterBaseParams<boolean> {}
 
 export class OnOffMetaParameter extends MetaParameter<boolean> {
-public type = MetaParameterType.OnOff;
+  public type = MetaParameterType.OnOff;
+
   constructor(params: OnOffMetaParameterParams) {
     super(params);
+  }
+
+  getRandomValue() {
+    return Math.random() > 0.5;
   }
 }
 
@@ -116,5 +143,24 @@ export class GeocodeMetaParameter extends MetaParameter<string> {
     super(params);
     this.value = params.value;
     this.text = params.text;
+  }
+
+  getRandomValue() {
+    const [minX, minY, maxX, maxY] = turfBBox(nyc.features[0]);
+
+    console.log('geo rand')
+    
+    let tries = 0;
+
+    while (tries < 1000) {
+      const x = _.random(minX, maxX);
+      const y = _.random(minY, maxY);
+      console.log('trying', {x, y});
+      if (turfBooleanPointInPolygon([x, y], nyc.features[0] as any)) {
+        console.log(`${y},${x}`);
+        return `${y},${x}`;
+      }
+      tries += 1;
+    }
   }
 }
