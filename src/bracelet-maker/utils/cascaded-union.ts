@@ -66,7 +66,7 @@ export function cascadedUnion(_paths: paper.PathItem[]): paper.PathItem[] {
   let shouldStop = false;
   let paths = _paths;
   while (!shouldStop) {
-    console.log("trying to join paths pass");
+    // console.log("trying to join paths pass");
     const { didJoin, joinedPaths } = uniteTouchingPathsOnePass(paths);
     shouldStop = !didJoin;
     paths = joinedPaths;

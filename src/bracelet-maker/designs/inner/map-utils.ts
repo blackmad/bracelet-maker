@@ -56,7 +56,9 @@ export function getTilePaths(params: MapExtent): string[] {
 export function fetchTopoJsonTile(path: string): Promise<Response> {
   const url = `https://a.tile.nextzen.org/tilezen/vector/v1/512/all/${path}.topojson?api_key=x_E7exs2TOm0lNb-raBgLA&`;
   const myHeaders = new Headers();
-  myHeaders.set('origin', 'http://localhost:8080');
+  if (!window) {
+    myHeaders.set('origin', 'http://localhost:8080');
+  }
   const myRequest = new Request(url, {
     method: 'GET',
     headers: myHeaders,
@@ -77,7 +79,7 @@ export async function fetchTopoJsonTiles(extent: MapExtent) {
     // @ts-ignore
     const featureCollection = topojson.feature(json, 'roads');
     // console.log(topojson.feature(json, 'water'));
-    return featureCollection.features;
+    return (featureCollection as any).features;
   });
 
   const allFeatures = await Promise.all(fetchers);

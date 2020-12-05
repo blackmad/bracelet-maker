@@ -35,7 +35,7 @@ export default class SetOuterDesign extends Vue {
     this.$router.push({
       name: "SetInnerDesign",
       params: { outerDesign: designName }
-    });
+    })
   }
 }
 </script>

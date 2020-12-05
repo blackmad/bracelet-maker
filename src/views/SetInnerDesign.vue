@@ -33,7 +33,7 @@ export default class SetInnerDesign extends Vue {
     this.$router.push({
       name: "NewPlayground",
       params: { outerDesign: this.outerDesign, innerDesign: designName }
-    });
+    })
   }
 }
 </script>

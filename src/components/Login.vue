@@ -15,7 +15,8 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import firebase from "firebase";
+import * as firebase from 'firebase/app';
+import 'firebase/auth';
 import * as firebaseui from "firebaseui";
 import '../../node_modules/firebaseui/dist/firebaseui.css';
 

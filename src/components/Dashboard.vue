@@ -30,7 +30,8 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { State, Getter, Action, Mutation, namespace } from "vuex-class";
-import firebase from "firebase";
+import * as firebase from 'firebase/app';
+import 'firebase/firestore';
 import * as _ from 'lodash';
 
 @Component({})

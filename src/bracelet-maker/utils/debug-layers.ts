@@ -9,7 +9,6 @@ export function addToDebugLayer(
   item: paper.Item | paper.Point
 ) {
   if (!debugLayers[layerName]) {
-    console.log('making layer')
     const newLayer = new paper.Group();
     debugLayers[layerName] = newLayer;
     debugLayerNames.push(layerName);

@@ -104,7 +104,8 @@ import * as paper from "paper";
 
 import * as _ from "lodash";
 
-import firebase from "firebase";
+import * as firebase from 'firebase/app';
+import 'firebase/firestore';
 
 import { CompletedModel, OuterPaperModelMaker } from "@/bracelet-maker/model-maker";
 import { MetaParameterBuilder } from "@/new-playground/meta-parameter-builder";
@@ -398,14 +399,11 @@ export default class NewPlaygroundView extends Vue {
     });
 
     $("#svgArea")[0].innerHTML = makeSVGData(paper, paper.project, false, svg => $(svg)[0]);
-    console.log($("#svgArea")[0]);
 
     $("body").removeClass("loading");
   }
 
   mounted() {
-    console.log(this.$store);
-    console.log(this.$store.getters.user);
     this.$store.watch(
       (state, getters) => getters.user,
       (newValue, oldValue) => {
@@ -423,7 +421,7 @@ export default class NewPlaygroundView extends Vue {
     this.params = { ...this.$route.query };
     this.queryParamUpdateCb = params => {
       if (!this.isFirstQueryReplace || !this.$route.query) {
-        this.$router.replace({ query: params });
+        this.$router.replace({ query: params }).catch(err => {});
       }
       this.isFirstQueryReplace = false;
     };

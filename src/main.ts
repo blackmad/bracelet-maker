@@ -14,7 +14,9 @@ Vue.use(BootstrapVue);
 
 import '@/styles/frontend.css';
 
-import * as firebase from 'firebase';
+import * as firebase from 'firebase/app';
+import 'firebase/auth';
+import 'firebase/firestore';
 
 firebase.initializeApp({
   apiKey: "AIzaSyASmFZMPAuu7z3Ccqwn6mXQ6_R_vgV_3oA",

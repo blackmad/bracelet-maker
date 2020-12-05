@@ -30,7 +30,8 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import firebase from "firebase";
+import * as firebase from 'firebase/app';
+import 'firebase/auth';
 
 import navbar from "./components/Navbar.vue";
 
