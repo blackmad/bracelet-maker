@@ -42,7 +42,7 @@ async function generateDesigns(header, designs) {
   await asyncForEach(designs, async innerDesign => {
     console.log(innerDesign.name)
     paper.project.activeLayer.removeChildren();
-    const svg = await demoDesign(paper, new innerDesign(
+    const {svg, params} = await demoDesign(paper, new innerDesign(
       new InnerDesignEmpty()
     ), elHydrator);
     const svgPath = outputDir + innerDesign.name + '.svg';

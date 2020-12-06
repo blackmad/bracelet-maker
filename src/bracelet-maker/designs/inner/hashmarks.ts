@@ -112,7 +112,9 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         max: 0.75,
         value: 0.15,
         step: 0.05,
-        name: "bufferWidth"
+        name: "bufferWidth",
+        randMin: 0.1,
+        randMax: 0.5,
       }),
       new RangeMetaParameter({
         title: "Hash Width",
@@ -120,7 +122,9 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         max: 0.75,
         value: 0.25,
         step: 0.05,
-        name: "hashWidth"
+        name: "hashWidth",
+        randMin: 0.1,
+        randMax: 0.4,
       }),
       new RangeMetaParameter({
         title: "Start Noise Coeff 1",
@@ -128,6 +132,8 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         max: 20,
         step: 0.1,
         value: 10,
+        randMin: 0,
+        randMax: 20,
         name: "initialNoiseRange1"
       }),
       new RangeMetaParameter({
@@ -136,6 +142,8 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         max: 20,
         step: 0.1,
         value: 10,
+        randMin: 0.1,
+        randMax: 0.4,
         name: "initialNoiseRange2"
       }),
       new RangeMetaParameter({
@@ -144,6 +152,8 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         max: 1,
         step: 0.1,
         value: 0.5,
+        randMin: 0.1,
+        randMax: 0.8,
         name: "noiseOffset1"
       }),
       new RangeMetaParameter({
@@ -152,6 +162,8 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         max: 1,
         step: 0.1,
         value: 0.75,
+        randMin: 0.1,
+        randMax: 0.8,
         name: "noiseOffset2"
       }),
       new RangeMetaParameter({
@@ -160,6 +172,8 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         max: 1,
         step: 0.01,
         value: 0.5,
+        randMin: 0.1,
+        randMax: 0.8,
         name: "noiseInfluence"
       }),
 
@@ -169,6 +183,8 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         max: 5,
         step: 0.1,
         value: 2,
+        randMin: 0.1,
+        randMax: 4,
         name: "attractorDistance",
         group: "curve"
       }),
@@ -178,6 +194,8 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         max: 0.75,
         step: 0.01,
         value: 0.4,
+        randMin: 0.25,
+        randMax: 0.75,
         name: "attractorYPercentage",
         group: "curve"
       }),
@@ -187,6 +205,8 @@ export class InnerDesignHashmarks extends FastAbstractInnerDesign {
         max: 1,
         step: 0.01,
         value: 0.1,
+        randMin: 0,
+        randMax: 1,
         name: "attractorYGrowRate",
         group: "curve"
       })

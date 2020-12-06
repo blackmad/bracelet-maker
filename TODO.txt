@@ -1,11 +1,5 @@
-- figure out why double render on load
-- make basic paths/routing work
 
-- fix little path cuts in map view - is there any way to do this?
-- fix outline dips
-- make outline smoothing better
-- make outline smoothing not fail sometimes - http://localhost:8080/#/newPlayground/StraightCuffOuter/InnerDesignMap?StraightCuffOuter.debug=false&StraightCuffOuter.height=2&StraightCuffOuter.wristCircumference=7&StraightCuffOuter.forearmCircumference=7.2&InnerDesignMap.debug=false&InnerDesignMap.safeBorderWidth=0.25&InnerDesignMap.center=40.74,-74&InnerDesignMap.scaleX=500&InnerDesignMap.xyRatio=1&InnerDesignMap.lineWidth=0.1&InnerDesignMap.invertLatLng=false&InnerDesignMap.centerAt=center&InnerDesignMap.kaleido=false&InnerDesignMap.segmentBuffer=0.18&InnerDesignMap.segments=1&InnerDesignMap.shouldSmooth=true&InnerDesignMap.smoothingFactor=0.8&InnerDesignMap.breakThePlane=true&InnerDesignMap.extendOutward=0.25&InnerDesignMap.concavity=0.4&InnerDesignMap.lengthThreshold=0.08&InnerDesignMap.outlineSize=0.15
-- fix inner/outer radius + add some more buffer
+- fix inner/outer snap radius + add some more buffer
 
 
 -------

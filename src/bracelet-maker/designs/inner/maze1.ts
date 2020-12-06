@@ -107,6 +107,8 @@ export class InnerDesignMaze1 extends FastAbstractInnerDesign {
         max: 10,
         value: 2,
         step: 1,
+        randMin: 2,
+        randMax: 4,
         name: "rows",
       }),
       new RangeMetaParameter({
@@ -115,6 +117,8 @@ export class InnerDesignMaze1 extends FastAbstractInnerDesign {
         max: 10,
         value: 4,
         step: 1,
+        randMin: 2,
+        randMax: 6,
         name: "cols",
       }),
       new RangeMetaParameter({
@@ -123,6 +127,8 @@ export class InnerDesignMaze1 extends FastAbstractInnerDesign {
         max: 10,
         value: 2,
         step: 1,
+        randMin: 2,
+        randMax: 4,
         name: "rowRepeat",
       }),
       new RangeMetaParameter({
@@ -131,6 +137,8 @@ export class InnerDesignMaze1 extends FastAbstractInnerDesign {
         max: 10,
         value: 2,
         step: 1,
+        randMin: 2,
+        randMax: 6,
         name: "colRepeat",
       }),
       new RangeMetaParameter({
@@ -155,6 +163,8 @@ export class InnerDesignMaze1 extends FastAbstractInnerDesign {
         max: 10,
         value: 3,
         step: 1,
+        randMin: 3,
+        randMax: 10,
         name: "idealMinChainSize",
       }),
       new RangeMetaParameter({
@@ -163,6 +173,8 @@ export class InnerDesignMaze1 extends FastAbstractInnerDesign {
         max: 10,
         value: 0,
         step: 1,
+        randMin: 0,
+        randMax: 10,
         name: "minChainSize",
       }),
       new OnOffMetaParameter({

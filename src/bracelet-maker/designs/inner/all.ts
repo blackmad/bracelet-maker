@@ -42,3 +42,17 @@ export const AllInnerDesigns = [
   // InnerDesignExplode, - BROKEN
   InnerDesignEmpty,
 ];
+
+
+export const InnerDesignsToAnimate = [
+  // InnerDesignMaze1,
+  // InnerDesignVoronoi,
+  // InnerDesignTessagon,
+  // InnerDesignHashmarks,
+  // InnerDesignVera,
+  InnerDesignSnowflake,
+  // InnerDesignTactile, - UNFINISHED
+  // InnerDesignExplode, - BROKEN
+];
+
+

@@ -1,6 +1,20 @@
 export function roundCorners({ paper, path, radius }) {
+  if (path instanceof paper.CompoundPath) {
+    return new paper.CompoundPath(
+      path.children.map(child => roundCornersHelper({paper, path: child, radius}))
+    );
+  } else if (path instanceof paper.Path) {
+    return roundCornersHelper({paper, path, radius});
+  } else {
+    console.log("unknown path type")
+    return path;
+  }
+}
+
+
+export function roundCornersHelper({ paper, path, radius }) {
   if (!path || !path.segments || path.segments.length < 3) {
-    console.log("can't round", {path})
+    // console.log("can't round", {path})
     return path;
   }
 

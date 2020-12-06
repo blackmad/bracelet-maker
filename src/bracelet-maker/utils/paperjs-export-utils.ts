@@ -8,6 +8,7 @@ export function makeSVGData(paper: any, toExport: any, shouldClean: boolean, elH
 
   let svg = elHydrator(svgData);
 
+
   if (shouldClean) {
     cleanSVGforDownload(svg);
   }

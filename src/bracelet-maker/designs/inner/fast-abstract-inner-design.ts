@@ -15,7 +15,7 @@ import { addToDebugLayer } from "../../utils/debug-layers";
 import { makeConcaveOutline } from "../../utils/outline";
 import { roundCorners } from "../../utils/round-corners";
 import { KaleidoscopeMaker } from "./utils/kaleidosope";
-import { removeBadSegments } from '@/bracelet-maker/utils/remove-bad-segments';
+import { removeBadSegments } from '../../utils/remove-bad-segments';
 
 export interface InnerDesignModel {
   paths: paper.PathItem[];
@@ -389,7 +389,7 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     const design = await self.makeDesign(paper, params);
 
     // filter out possibly null paths for ease of designs
-    let paths = design.paths.filter((p) => !!p);
+    let paths = design.paths.filter((p) => !!p).filter(p => p.bounds.area !== 0)
 
     // explode compound paths to make everything easier
     paths = paths.flatMap((path) => {
@@ -403,8 +403,9 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
     if (kaleidoscopeMaker) {
       // eslint-disable-next-line require-atomic-updates
       params.boundaryModel = kaleidoscopeSavedBoundaryModel;
-      console.log("putting back boundary for kaleido");
+      console.log("putting back boundary for kaleido / reflecting paths");
       paths = kaleidoscopeMaker.reflectPaths(paths);
+      console.log("done reflecting paths")
     }
 
     // maybe smooth paths

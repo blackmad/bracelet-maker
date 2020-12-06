@@ -176,9 +176,9 @@ export class InnerDesignVoronoi extends FastAbstractInnerDesign {
       mirror,
     });
 
-    console.log(seedPoints.length);
-    console.log(seedPoints);
-    console.log(JSON.stringify(seedPoints));
+    // console.log(seedPoints.length);
+    // console.log(seedPoints);
+    // console.log(JSON.stringify(seedPoints));
 
     var delaunay = Delaunay.from(dedupePointsArray(seedPoints));
     let cellPolygonIterator;

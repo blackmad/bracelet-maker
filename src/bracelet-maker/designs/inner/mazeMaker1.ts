@@ -89,6 +89,15 @@ export class MazePatternMaker1 {
 
     this.rowTileBoundary = rowTileBoundary;
     this.colTileBoundary = colTileBoundary;
+
+    if (this.rows * this.cols <= this.idealMinChainSize) {
+      this.idealMinChainSize = Math.floor((this.rows * this.cols) * 0.75);
+    }
+
+    if (this.idealMinChainSize > this.maxChainSize) {
+      this.maxChainSize = this.idealMinChainSize;
+    }
+
   }
 
   private sample<T>(items: T[]): T {
@@ -182,9 +191,9 @@ export class MazePatternMaker1 {
           const neighbors = this.getNeighbors(cellId);
           const otherCellID = this.sample(neighbors);
           const otherCell = this.tile[this.makeKey(otherCellID)];
-          console.log(
-            `splitting cell ${cellKey} into triangles for ${existingTile.ids[0]} --- ${otherCell.ids[0]}`
-          );
+          // console.log(
+          //   `splitting cell ${cellKey} into triangles for ${existingTile.ids[0]} --- ${otherCell.ids[0]}`
+          // );
           this.tile[cellKey] = {
             ids: [existingTile.ids[0], otherCell.ids[0]],
             type:
@@ -351,7 +360,7 @@ export class MazePatternMaker1 {
         });
         // console.log(`used ${usedTriangles.length}, have ${triangles.length} left`);
       }
-      console.log('done with that shape', seedSet);
+      // console.log('done with that shape', seedSet);
       shapes.push(seedSet);
     }
 

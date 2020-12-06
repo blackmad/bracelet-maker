@@ -140,7 +140,9 @@ export class KaleidoscopeMaker {
           }
         }
 
-        finalPaths.push(newPath);
+        if (newPath.intersects(this.boundaryModel) || newPath.isInside(this.boundaryModel.bounds)) {
+          finalPaths.push(newPath);
+        }
       });
     }
 

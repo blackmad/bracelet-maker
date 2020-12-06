@@ -1,4 +1,5 @@
 import { makeSVGData } from "../utils/paperjs-export-utils";
+import * as _ from 'lodash';
 
 import {
   OuterPaperModelMaker,
@@ -7,32 +8,39 @@ import {
   InnerCompletedModel,
 } from "../model-maker";
 
-const shouldRandomize = false;
-
 export async function demoDesign(
   paper: paper.PaperScope,
   designClass: PaperModelMaker | OuterPaperModelMaker,
   elHydrator: (svg) => any,
   shouldRandomize: boolean,
+  bounds: paper.Rectangle = new paper.Rectangle(0, 0, 3, 3),
+  initialParams: any = {},
+  minimumAreaRatio: number = 0.0,
 ) {
-  const params = {};
+  const params = {...initialParams};
   designClass.metaParameters.forEach(
     (metaParam) => {
       if (shouldRandomize) {
-
+        params[metaParam.name] = metaParam.getRandomValue();
       } else {
         params[metaParam.name] = metaParam.value
       }
   });
 
-  const outerRect = new paper.Path.Rectangle(new paper.Rectangle(0, 0, 3, 3));
+  (params as any).breakThePlane = false;
+
+  params['seed'] = shouldRandomize ? Math.random() * 10000 : 1;
+
+  const inputParams = {...params};
+
+  params[designClass.constructor.name] = params;
+
+  const outerRect = new paper.Path.Rectangle(bounds);
   const boundaryRect = outerRect.clone();
-  boundaryRect.scale(0.85);
+  boundaryRect.scale(0.95);
   params["boundaryModel"] = boundaryRect;
   params["outerModel"] = outerRect;
   params["safeCone"] = boundaryRect;
-  params[designClass.constructor.name] = params;
-  params[designClass.constructor.name].seed = 1;
 
   let innerDesign = await designClass.make(paper, params);
 
@@ -41,7 +49,9 @@ export async function demoDesign(
     const pathItem: paper.PathItem = (<CompletedModel>innerDesign).outer;
     paths = [(<CompletedModel>innerDesign).outer];
   } else {
-    paths = [outerRect, ...(<InnerCompletedModel>innerDesign).paths];
+    const innerPaths = (<InnerCompletedModel>innerDesign).paths;
+
+    paths = [outerRect, ...innerPaths];
   }
 
   // @ts-ignore
@@ -54,7 +64,19 @@ export async function demoDesign(
     fillRule: "evenodd",
   });
 
-  paper.project.activeLayer.addChild(path);
+  const outerArea = outerRect.area;
+  const innerArea = path.area;
 
-  return makeSVGData(paper, paper.project, false, elHydrator);
+  console.log({outerArea, innerArea}, innerArea/outerArea);
+
+  let svg;
+  if ((innerArea/outerArea) > minimumAreaRatio) {
+    paper.project.activeLayer.addChild(path);
+    svg = makeSVGData(paper, paper.project, false, elHydrator);
+  }
+
+  return {
+    svg,
+    params: inputParams
+  }
 }

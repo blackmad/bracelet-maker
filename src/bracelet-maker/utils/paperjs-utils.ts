@@ -215,15 +215,11 @@ export function geojsonFeatureToPaperJs(
   paper: paper.PaperScope,
   feature: GeoJSON.Feature
 ): paper.Path {
-  console.log(feature.geometry.type);
   if (feature.geometry.type === "Polygon") {
     const coords = (feature.geometry as GeoJSON.Polygon).coordinates;
-    console.log(coords);
     const points = coords[0].map(c => {
-      console.log(c);
       return new paper.Point(c[1], c[0]);
     });
-    console.log(points);
     return new paper.Path(points);
   }
   return null;
@@ -343,8 +339,6 @@ export function unkinkPath(paper: paper.PaperScope, path: paper.Path): paper.Pat
     coordinates = [[...paperPoints.map(p => [p.x, p.y]), [paperPoints[0].x, paperPoints[0].y]]]
   }
 
-  console.log({coordinates})
-
   const polygon = turfHelpers.polygon(coordinates);
   const unkinkedTurfPolygon = turfUnkinkPolygon(polygon);
   const unkinkedPolygons = unkinkedTurfPolygon.features.slice(0, 1).flatMap(feature => {
@@ -352,7 +346,6 @@ export function unkinkPath(paper: paper.PaperScope, path: paper.Path): paper.Pat
       const points = polygon.map(coord => 
         new paper.Point(coord[0], coord[1])
       )
-      console.log({points})
 
       return new paper.Path(points);
     });
