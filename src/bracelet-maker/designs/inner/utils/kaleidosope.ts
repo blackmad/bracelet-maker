@@ -140,9 +140,9 @@ export class KaleidoscopeMaker {
           }
         }
 
-        if (newPath.intersects(this.boundaryModel) || newPath.isInside(this.boundaryModel.bounds)) {
+        // if (newPath.intersects(this.boundaryModel) || newPath.isInside(this.boundaryModel.bounds)) {
           finalPaths.push(newPath);
-        }
+        // }
       });
     }
 

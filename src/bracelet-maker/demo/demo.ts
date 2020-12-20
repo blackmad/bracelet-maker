@@ -16,9 +16,11 @@ export async function demoDesign(
   bounds: paper.Rectangle = new paper.Rectangle(0, 0, 3, 3),
   initialParams: any = {},
   minimumAreaRatio: number = 0.0,
+  numMetaParametersToChange: number = 1000
 ) {
   const params = {...initialParams};
-  designClass.metaParameters.forEach(
+
+  _.shuffle(designClass.metaParameters).slice(0, numMetaParametersToChange).forEach(
     (metaParam) => {
       if (shouldRandomize) {
         params[metaParam.name] = metaParam.getRandomValue();
@@ -29,7 +31,7 @@ export async function demoDesign(
 
   (params as any).breakThePlane = false;
 
-  params['seed'] = shouldRandomize ? Math.random() * 10000 : 1;
+  params['seed'] = shouldRandomize ? params['seed']: 1;
 
   const inputParams = {...params};
 

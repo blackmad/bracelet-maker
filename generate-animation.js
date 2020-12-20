@@ -35,22 +35,28 @@ async function generateDesigns(innerDesign) {
   }
 
   const times = _.times(100, (n) => n);
+  let lastParams = {safeBorderWidth: 0.1};
 
   await asyncForEach(times, async (time) => {
     console.log(time);
     paper.project.activeLayer.removeChildren();
+
+    const numMetaParametersToChange = time === 0 ? 1000 : 1;
+
     const {params, svg} = await demoDesign(
       paper,
       new innerDesign(new InnerDesignEmpty()),
       elHydrator,
       true,
       new paper.Rectangle(0, 0, 6, 6),
-      {safeBorderWidth: 0.1},
+      lastParams,
       // 1.2,
       0.0
     );
 
     console.log(params);
+
+    lastParams = {...params};
 
     const jsonPath = outputDir + time + ".json";
     fs.writeFileSync(jsonPath, JSON.stringify(params, null, 2));

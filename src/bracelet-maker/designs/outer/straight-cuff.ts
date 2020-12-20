@@ -16,9 +16,13 @@ function roundCorners(paper, path, radius) {
     nextDelta.length = radius;
     prevDelta.length = radius;
 
-    path.add(new paper.Segment(curPoint.subtract(prevDelta), null, prevDelta.divide(2)));
+    path.add(
+      new paper.Segment(curPoint.subtract(prevDelta), null, prevDelta.divide(2))
+    );
 
-    path.add(new paper.Segment(curPoint.subtract(nextDelta), nextDelta.divide(2), null));
+    path.add(
+      new paper.Segment(curPoint.subtract(nextDelta), nextDelta.divide(2), null)
+    );
   }
   path.closed = true;
 
@@ -29,7 +33,7 @@ export class StraightCuffOuter extends OuterPaperModelMaker {
   public bottomPadding = 0.0;
   public topPadding = 0.0;
 
-  get outerMetaParameters(): MetaParameter<any>[]  {
+  get outerMetaParameters(): MetaParameter<any>[] {
     return [
       new RangeMetaParameter({
         title: "Height",
@@ -37,7 +41,7 @@ export class StraightCuffOuter extends OuterPaperModelMaker {
         max: 5,
         value: 2,
         step: 0.25,
-        name: "height"
+        name: "height",
       }),
       new RangeMetaParameter({
         title: "Wrist Circumference",
@@ -45,7 +49,7 @@ export class StraightCuffOuter extends OuterPaperModelMaker {
         max: 10,
         value: 6.9,
         step: 0.1,
-        name: "wristCircumference"
+        name: "wristCircumference",
       }),
       new RangeMetaParameter({
         title: "Wide Wrist Circumference",
@@ -53,8 +57,8 @@ export class StraightCuffOuter extends OuterPaperModelMaker {
         max: 10,
         value: 7.2,
         step: 0.1,
-        name: "forearmCircumference"
-      })
+        name: "forearmCircumference",
+      }),
     ];
   }
 
@@ -65,11 +69,16 @@ export class StraightCuffOuter extends OuterPaperModelMaker {
     super();
   }
 
-  public makeHoles({ paper, path, height, width }): paper.Path.Circle[] {
-    const paddingDiff = Math.abs(this.topPadding - this.bottomPadding);
-    const guideLineLeftP1 = new paper.Point(this.bottomPadding - 0.1 + RivetRadius / 2, 0);
+  public makeHoles({
+    paper,
+    height,
+    maxWidth,
+    widthDiff,
+    insetWidth,
+  }): paper.Path.Circle[] {
+    const guideLineLeftP1 = new paper.Point(insetWidth - RivetRadius / 2, 0);
     const guideLineLeftP2 = new paper.Point(
-      this.bottomPadding - 0.1 - paddingDiff + RivetRadius / 2,
+      insetWidth + widthDiff - RivetRadius / 2,
       height
     );
 
@@ -78,64 +87,111 @@ export class StraightCuffOuter extends OuterPaperModelMaker {
       numBolts = Math.max(2, numBolts);
     }
 
-    const holes1 = makeEvenlySpacedBolts(paper, numBolts, guideLineLeftP1, guideLineLeftP2);
+    const holes1 = makeEvenlySpacedBolts(
+      paper,
+      numBolts,
+      guideLineLeftP1,
+      guideLineLeftP2
+    );
 
-    const guideLineRightP1 = new paper.Point(width - this.bottomPadding + 0.1 - RivetRadius / 2, 0);
+    const guideLineRightP1 = new paper.Point(
+      maxWidth - insetWidth - RivetRadius / 2,
+      0
+    );
     const guideLineRightP2 = new paper.Point(
-      width - this.bottomPadding + paddingDiff + 0.1 - RivetRadius / 2,
+      maxWidth - insetWidth - widthDiff - RivetRadius / 2,
       height
     );
 
-    const holes2 = makeEvenlySpacedBolts(paper, numBolts, guideLineRightP1, guideLineRightP2);
+    const holes2 = makeEvenlySpacedBolts(
+      paper,
+      numBolts,
+      guideLineRightP1,
+      guideLineRightP2
+    );
 
     return [...holes1, ...holes2];
   }
 
   public async make(paper: paper.PaperScope, options): Promise<CompletedModel> {
-    const {
-      height,
-      wristCircumference,
-      forearmCircumference,
-      safeBorderWidth,
-      extendOutward,
-      debug
+    let {
+      wristCircumference: originalWristCircumference,
+      forearmCircumference: originalForearmCircumference,
     } = options.StraightCuffOuter;
 
-    this.bottomPadding = 0.8;
-    this.topPadding = this.bottomPadding + (wristCircumference - forearmCircumference);
+    const { height } = options.StraightCuffOuter;
 
-    const totalWidth = wristCircumference + this.bottomPadding * 2;
+    const wristCircumference = Math.min(
+      originalWristCircumference,
+      originalForearmCircumference
+    );
+    const forearmCircumference = Math.max(
+      originalWristCircumference,
+      originalForearmCircumference
+    );
+
+    const gutterWidth = 0.8;
+
+    const minWidth = wristCircumference + gutterWidth;
+    const maxWidth = forearmCircumference + gutterWidth;
+    const widthDiff = maxWidth - minWidth;
+
     let cuffOuter: paper.Path = new paper.Path();
-    cuffOuter.strokeColor = new paper.Color("black")
-    cuffOuter.add(new paper.Point(this.bottomPadding - this.topPadding, 0));
-    cuffOuter.add(new paper.Point(0, height));
-    cuffOuter.add(new paper.Point(totalWidth, height));
-    cuffOuter.add(new paper.Point(this.bottomPadding + wristCircumference + this.topPadding, 0));
+    cuffOuter.strokeColor = new paper.Color("black");
+    cuffOuter.add(new paper.Point(0, 0));
+    cuffOuter.add(new paper.Point(widthDiff, height));
+    cuffOuter.add(new paper.Point(minWidth, height));
+    cuffOuter.add(new paper.Point(maxWidth, 0));
     roundCorners(paper, cuffOuter, "0.2");
     const holes = this.makeHoles({
       paper: paper,
-      path: cuffOuter,
+      maxWidth,
+      widthDiff,
+      insetWidth: gutterWidth / 2,
       height,
-      width: totalWidth
     });
 
     const safeAreaPath: paper.Path = new paper.Path();
-    safeAreaPath.add(new paper.Point(this.bottomPadding + 0.1, 0));
-    safeAreaPath.add(new paper.Point(this.topPadding + 0.1, height));
-    safeAreaPath.add(
-      new paper.Point(
-        totalWidth - this.topPadding - 0.1,
-        height
-      )
-    );
-    safeAreaPath.add(new paper.Point(wristCircumference + this.bottomPadding - 0.1, 0));
+    safeAreaPath.add(new paper.Point(gutterWidth, 0));
+    safeAreaPath.add(new paper.Point(gutterWidth + widthDiff, height));
+    safeAreaPath.add(new paper.Point(minWidth - gutterWidth, height));
+    safeAreaPath.add(new paper.Point(maxWidth - gutterWidth, 0));
     roundCorners(paper, safeAreaPath, "0.2");
 
-    const safeCone = safeAreaPath.clone().scale(0.97, 10);
+    // const safeCone = safeAreaPath.clone().scale(0.97, 10);
+    // const halfSafeConeAngle = Math.atan(widthDiff / height);
+    // const otherAngle = (Math.PI / 2)
+    // const safeConeExtraHeight = 5;
+    // const safeCone: paper.Path = new paper.Path();
+    // safeAreaPath.add(new paper.Point(safeConeExtraHeight * Math.tan(halfSafeConeAngle), -safeConeExtraHeight));
+    // safeAreaPath.add(new paper.Point((safeConeExtraHeight * Math.tan(halfSafeConeAngle))+maxWidth, -safeConeExtraHeight));
+    // safeAreaPath.add(new paper.Point(gutterWidth +  widthDiff, height));
+    // safeAreaPath.add(new paper.Point(minWidth - gutterWidth, height));
+    // safeAreaPath.add(new paper.Point(maxWidth - gutterWidth, 0));
+    // roundCorners(paper, safeAreaPath, "0.2");
+
+    const halfSafeConeAngle = Math.atan(widthDiff / height);
+    const safeConeExtraHeight = 5;
+    const safeConeExtraWidth =
+      Math.tan(halfSafeConeAngle) * safeConeExtraHeight;
+    const convergeHeight = wristCircumference / 2 / Math.tan(halfSafeConeAngle);
+    const safeCone: paper.Path = new paper.Path();
+
+    safeCone.add(
+      new paper.Point(gutterWidth - safeConeExtraWidth, -safeConeExtraHeight)
+    );
+    safeCone.add(
+      new paper.Point(
+        forearmCircumference + safeConeExtraWidth,
+        -safeConeExtraHeight
+      )
+    );
+    safeCone.add(new paper.Point(maxWidth / 2, height + convergeHeight));
+    safeCone.closePath();
 
     const innerOptions = options[this.subModel.constructor.name] || {};
-    innerOptions.height = height;
-    innerOptions.width = totalWidth;
+    innerOptions.height = cuffOuter.bounds.height;
+    innerOptions.width = cuffOuter.bounds.width;
     innerOptions.boundaryModel = safeAreaPath;
     innerOptions.safeCone = safeCone;
     innerOptions.outerModel = cuffOuter;
@@ -148,22 +204,7 @@ export class StraightCuffOuter extends OuterPaperModelMaker {
     return new CompletedModel({
       outer: cuffOuter,
       holes: holes,
-      design: innerDesign.paths
+      design: innerDesign.paths,
     });
-
-    // innerDesign.layer = "inner"
-    // models['design'] = innerDesign;
-
-    // if (debug) {
-    //   // console.log(safeCone);
-    //   // safeCone.layer = 'brightpink';
-    //   // models['safeCone'] = safeCone;
-
-    //   // console.log(safeArea);
-    //   // safeArea.layer = 'orange';
-    //   // models['safeArea'] = safeArea;
-    // }
-
-    // /***** END DESIGN *****/
   }
 }

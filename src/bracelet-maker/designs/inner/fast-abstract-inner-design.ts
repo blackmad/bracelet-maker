@@ -350,6 +350,9 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
 
     addToDebugLayer(paper, "boundaryModel", params.boundaryModel.clone());
 
+    addToDebugLayer(paper, "safeCone", params.safeCone.clone());
+
+
     const originalBoundaryModel = params.boundaryModel.clone();
 
     if (params.breakThePlane) {
@@ -362,11 +365,9 @@ export abstract class FastAbstractInnerDesign implements PaperModelMaker {
         insert: false,
       });
     } else {
-      params.boundaryModel = bufferPath(
-        paper,
-        -params.safeBorderWidth,
-        params.boundaryModel
-      );
+      const originalHeight = params.boundaryModel.bounds.height;
+      const heightScale = params.safeBorderWidth / originalHeight;
+      params.boundaryModel.scale(new paper.Point(1, 1 - heightScale))
     }
 
     let kaleidoscopeMaker = null;

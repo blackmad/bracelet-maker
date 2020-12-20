@@ -1,19 +1,7 @@
-
+- generate animations for good patterns
+- why are some rendering super differently between CLI and web?
+- ugh break plane is very broken a bit
 - fix inner/outer snap radius + add some more buffer
-
-
--------
-
-
-- make the display grouped?
-
-- why isn't kaleido working properly with tessagon
-- fix the weird reloading thing with boolean params?
-- think about making a version with two snap slots
-- general edge / blowout debugging
-- redo how padding-top area of UI is calculated (33vh) / - fix the top again
-- posture collar
-- randomize button
 
 -----
 
