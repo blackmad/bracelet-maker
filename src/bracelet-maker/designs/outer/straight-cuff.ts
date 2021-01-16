@@ -95,11 +95,11 @@ export class StraightCuffOuter extends OuterPaperModelMaker {
     );
 
     const guideLineRightP1 = new paper.Point(
-      maxWidth - insetWidth + RivetRadius / 2,
+      maxWidth - insetWidth - RivetRadius / 2,
       0
     );
     const guideLineRightP2 = new paper.Point(
-      maxWidth - insetWidth - widthDiff + RivetRadius / 2,
+      maxWidth - insetWidth - widthDiff - RivetRadius / 2,
       height
     );
 
@@ -124,16 +124,16 @@ export class StraightCuffOuter extends OuterPaperModelMaker {
     const wristCircumference = Math.min(
       originalWristCircumference,
       originalForearmCircumference
-    ) + 0.3;
+    );
     const forearmCircumference = Math.max(
       originalWristCircumference,
       originalForearmCircumference
-    ) + 0.3;
+    );
 
-    const gutterWidth = 1;
+    const gutterWidth = 0.8;
 
     const minWidth = wristCircumference + gutterWidth;
-    const maxWidth = forearmCircumference + gutterWidth
+    const maxWidth = forearmCircumference + gutterWidth;
     const widthDiff = maxWidth - minWidth;
 
     let cuffOuter: paper.Path = new paper.Path();
